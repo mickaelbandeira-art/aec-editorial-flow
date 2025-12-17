@@ -59,11 +59,11 @@ export function ProductCard({ produto, edicao, insumosStats }: ProductCardProps)
               {insumosStats?.atrasados && insumosStats.atrasados > 0 && (
                 <div className="absolute -top-1 -right-1 h-5 w-5 rounded-full bg-destructive flex items-center justify-center">
                   <span className="text-[10px] font-bold text-destructive-foreground">
-                    <span>{insumosStats.atrasados} atrasados</span>
+                    {insumosStats.atrasados}
+                  </span>
                 </div>
               )}
             </div>
-              )}
           </div>
         </div>
       </CardContent>
