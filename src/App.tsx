@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { FlowrevLayout } from "@/components/flowrev/Layout";
 import FlowrevDashboard from "@/pages/flowrev/Dashboard";
+import ProductionLine from "@/pages/flowrev/ProductionLine";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -19,6 +20,7 @@ const App = () => (
           <Route path="/" element={<Navigate to="/flowrev" replace />} />
           <Route path="/flowrev" element={<FlowrevLayout />}>
             <Route index element={<FlowrevDashboard />} />
+            <Route path="production" element={<ProductionLine />} />
           </Route>
           <Route path="*" element={<NotFound />} />
         </Routes>
