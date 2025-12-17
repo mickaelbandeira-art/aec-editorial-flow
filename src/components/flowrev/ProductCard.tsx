@@ -64,10 +64,64 @@ export function ProductCard({ produto, edicao, insumosStats }: ProductCardProps)
                 </div>
               )}
             </div>
+
+            {/* Info */}
+            <div className="flex-1">
+              <h3 className="text-lg font-semibold text-gray-800">{produto.nome}</h3>
+              <p className="text-sm text-gray-500 line-clamp-1">{produto.descricao}</p>
+
+              <div className="mt-3 flex items-center justify-between text-sm text-gray-600">
+                <div className="flex items-center gap-2">
+                  {faseInfo?.icon && (
+                    <faseInfo.icon className="h-4 w-4 text-gray-500" />
+                  )}
+                  <span>{faseInfo?.label || 'Kickoff'}</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Clock className="h-4 w-4 text-gray-500" />
+                  <span>{edicao?.data_entrega_prevista || 'N/A'}</span>
+                </div>
+              </div>
+
+              {edicao && (
+                <div className="mt-4">
+                  <Progress value={percentual} className="h-2" indicatorColor={produto.cor_tema} />
+                  <div className="mt-2 flex justify-between text-xs text-gray-500">
+                    <span>Progresso</span>
+                    <span>{percentual}%</span>
+                  </div>
+                </div>
+              )}
+
+              {insumosStats && (
+                <div className="mt-4 flex flex-wrap gap-2">
+                  {insumosStats.aprovados > 0 && (
+                    <Badge variant="outline" className="flex items-center gap-1 text-green-600 border-green-200 bg-green-50">
+                      <CheckCircle2 className="h-3 w-3" />
+                      {insumosStats.aprovados} Aprovados
+                    </Badge>
+                  )}
+                  {insumosStats.pendentes > 0 && (
+                    <Badge variant="outline" className="flex items-center gap-1 text-yellow-600 border-yellow-200 bg-yellow-50">
+                      <Clock className="h-3 w-3" />
+                      {insumosStats.pendentes} Pendentes
+                    </Badge>
+                  )}
+                  {insumosStats.atrasados > 0 && (
+                    <Badge variant="outline" className="flex items-center gap-1 text-red-600 border-red-200 bg-red-50">
+                      <AlertTriangle className="h-3 w-3" />
+                      {insumosStats.atrasados} Atrasados
+                    </Badge>
+                  )}
+                </div>
+              )}
+            </div>
           </div>
+        </CardContent>
+        <div className="absolute bottom-0 right-0 p-4 opacity-0 transition-opacity group-hover:opacity-100">
+          <ArrowRight className="h-5 w-5 text-gray-400" />
         </div>
-      </CardContent>
-    </Card>
+      </Card>
     </Link >
   );
 }
