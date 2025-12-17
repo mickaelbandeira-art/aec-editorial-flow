@@ -1,11 +1,11 @@
 import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { cn } from '@/lib/utils';
-import { 
-  LayoutDashboard, 
-  Newspaper, 
-  Calendar, 
-  Settings, 
+import {
+  LayoutDashboard,
+  Newspaper,
+  Calendar,
+  Settings,
   Bell,
   ChevronLeft,
   ChevronRight,
@@ -34,7 +34,7 @@ const logoMap: Record<string, string> = {
 
 const mainNavItems = [
   { icon: LayoutDashboard, label: 'Dashboard', href: '/flowrev' },
-  { icon: Newspaper, label: 'Esteira de Produção', href: '/flowrev/producao' },
+  { icon: Newspaper, label: 'Esteira de Produção', href: '/flowrev/production' },
   { icon: Calendar, label: 'Calendário', href: '/flowrev/calendario' },
 ];
 
@@ -44,7 +44,7 @@ export function FlowrevSidebar() {
   const { data: produtos } = useProdutos();
 
   return (
-    <aside 
+    <aside
       className={cn(
         "fixed left-0 top-0 z-40 h-screen bg-sidebar transition-all duration-300",
         collapsed ? "w-20" : "w-64"
@@ -86,8 +86,8 @@ export function FlowrevSidebar() {
                   to={item.href}
                   className={cn(
                     "flex items-center gap-3 rounded-lg px-3 py-2.5 transition-colors",
-                    isActive 
-                      ? "bg-sidebar-primary text-sidebar-primary-foreground" 
+                    isActive
+                      ? "bg-sidebar-primary text-sidebar-primary-foreground"
                       : "text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-foreground"
                   )}
                 >
@@ -113,13 +113,13 @@ export function FlowrevSidebar() {
                       to={`/flowrev/produto/${produto.slug}`}
                       className={cn(
                         "flex items-center gap-3 rounded-lg px-3 py-2 transition-colors",
-                        isActive 
-                          ? "bg-sidebar-accent text-sidebar-foreground" 
+                        isActive
+                          ? "bg-sidebar-accent text-sidebar-foreground"
                           : "text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-foreground"
                       )}
                     >
-                      <img 
-                        src={logoMap[produto.slug]} 
+                      <img
+                        src={logoMap[produto.slug]}
                         alt={produto.nome}
                         className="h-6 w-6 rounded object-contain bg-white p-0.5"
                       />
@@ -139,8 +139,8 @@ export function FlowrevSidebar() {
                   to={`/flowrev/produto/${produto.slug}`}
                   className="flex justify-center"
                 >
-                  <img 
-                    src={logoMap[produto.slug]} 
+                  <img
+                    src={logoMap[produto.slug]}
                     alt={produto.nome}
                     className="h-8 w-8 rounded object-contain bg-white p-1 hover:ring-2 ring-primary transition-all"
                   />
