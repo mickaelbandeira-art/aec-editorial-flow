@@ -17,9 +17,10 @@ import { ptBR } from "date-fns/locale";
 interface ProductInsumoCardProps {
     insumo: Insumo;
     tipo: TipoInsumo | undefined;
+    onClick?: () => void;
 }
 
-export function ProductInsumoCard({ insumo, tipo }: ProductInsumoCardProps) {
+export function ProductInsumoCard({ insumo, tipo, onClick }: ProductInsumoCardProps) {
     const {
         attributes,
         listeners,
