@@ -4,7 +4,10 @@ import { useProdutos, useEdicaoAtual, useInsumos } from "@/hooks/useFlowrev";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card } from "@/components/ui/card";
 import { ProductInsumosBoard } from "@/components/flowrev/kanban/ProductInsumosBoard";
-import { Loader2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Plus } from "lucide-react";
+import { useCreateEdicao } from "@/hooks/useFlowrev";
+import { toast } from "sonner";
 
 export default function ProductPage() {
     const { slug } = useParams();
@@ -16,11 +19,31 @@ export default function ProductPage() {
     const { data: edicao, isLoading: loadingEdicao } = useEdicaoAtual(produto?.id || "");
     const { data: insumos, isLoading: loadingInsumos } = useInsumos(edicao?.id);
 
+    // ... inside component
+    const { mutate: createEdicao, isPending: creatingEdicao } = useCreateEdicao();
+
     if (!produto) {
         return <div className="p-8">Produto não encontrado</div>;
     }
 
     const isLoading = loadingEdicao || loadingInsumos;
+
+    const handleCreateEdicao = () => {
+        const now = new Date();
+        createEdicao({
+            produtoId: produto.id,
+            mes: now.getMonth() + 1,
+            ano: now.getFullYear()
+        }, {
+            onSuccess: () => {
+                toast.success("Edição criada com sucesso!");
+            },
+            onError: (error) => {
+                console.error(error);
+                toast.error("Erro ao criar edição. Verifique os tipos de insumo.");
+            }
+        });
+    };
 
     return (
         <div className="min-h-screen bg-background">
@@ -37,11 +60,36 @@ export default function ProductPage() {
                             <TabsTrigger value="list">Lista</TabsTrigger>
                             <TabsTrigger value="details">Detalhes da Edição</TabsTrigger>
                         </TabsList>
+
+                        {!edicao && !isLoading && (
+                            <Button onClick={handleCreateEdicao} disabled={creatingEdicao}>
+                                {creatingEdicao ? (
+                                    <>
+                                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                        Criando Edição...
+                                    </>
+                                ) : (
+                                    <>
+                                        <Plus className="mr-2 h-4 w-4" />
+                                        Iniciar Edição do Mês
+                                    </>
+                                )}
+                            </Button>
+                        )}
                     </div>
 
                     {isLoading ? (
                         <div className="flex items-center justify-center h-full">
                             <Loader2 className="w-8 h-8 animate-spin text-primary" />
+                        </div>
+                    ) : !edicao && !creatingEdicao ? (
+                        <div className="flex-1 flex flex-col items-center justify-center border-2 border-dashed rounded-lg bg-muted/50">
+                            <h3 className="text-xl font-semibold mb-2">Nenhuma edição encontrada para este mês</h3>
+                            <p className="text-muted-foreground mb-4">Inicie uma nova edição para começar a gerenciar os insumos.</p>
+                            <Button onClick={handleCreateEdicao}>
+                                <Plus className="mr-2 h-4 w-4" />
+                                Iniciar Edição Agora
+                            </Button>
                         </div>
                     ) : (
                         <>
@@ -52,7 +100,7 @@ export default function ProductPage() {
                             </TabsContent>
                             <TabsContent value="list">
                                 <Card className="p-4">
-                                    <p>Lista de insumos (TODO)</p>
+                                    <ProductInsumosBoard insumos={insumos || []} />
                                 </Card>
                             </TabsContent>
                         </>
