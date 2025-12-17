@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { FlowrevLayout } from "@/components/flowrev/Layout";
 import FlowrevDashboard from "@/pages/flowrev/Dashboard";
 import ProductionLine from "@/pages/flowrev/ProductionLine";
+import ProductPage from "@/pages/flowrev/ProductPage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -21,6 +22,7 @@ const App = () => (
           <Route path="/flowrev" element={<FlowrevLayout />}>
             <Route index element={<FlowrevDashboard />} />
             <Route path="production" element={<ProductionLine />} />
+            <Route path="produto/:slug" element={<ProductPage />} />
           </Route>
           <Route path="*" element={<NotFound />} />
         </Routes>
