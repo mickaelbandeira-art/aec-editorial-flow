@@ -11,7 +11,7 @@ export function useProdutos() {
         .select('*')
         .eq('ativo', true)
         .order('ordem');
-      
+
       if (error) throw error;
       return data as Produto[];
     },
@@ -27,7 +27,7 @@ export function useTiposInsumos() {
         .select('*')
         .eq('ativo', true)
         .order('ordem');
-      
+
       if (error) throw error;
       return data as TipoInsumo[];
     },
@@ -110,11 +110,11 @@ export function useUpdateInsumo() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({ 
-      insumoId, 
-      updates 
-    }: { 
-      insumoId: string; 
+    mutationFn: async ({
+      insumoId,
+      updates
+    }: {
+      insumoId: string;
       updates: Partial<Insumo>;
     }) => {
       const { data, error } = await supabase
@@ -137,24 +137,58 @@ export function useUpdateInsumoStatus() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({ 
-      insumoId, 
+    mutationFn: async ({
+      insumoId,
       status,
       motivo_ajuste
-    }: { 
-      insumoId: string; 
+    }: {
+      insumoId: string;
       status: InsumoStatus;
       motivo_ajuste?: string;
     }) => {
       const updates: Record<string, unknown> = { status };
-      
+
       if (status === 'ajuste_solicitado' && motivo_ajuste) {
         updates.motivo_ajuste = motivo_ajuste;
       }
-      
+
       if (status === 'enviado') {
         updates.enviado_em = new Date().toISOString();
       }
+
+      const { data, error } = await supabase
+        .from('flowrev_insumos')
+        .update(updates)
+        .eq('id', insumoId)
+        .select()
+        .single();
+
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['flowrev-insumos'] });
+    },
+  });
+}
+
+export function useUpdateInsumoContent() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({
+      insumoId,
+      conteudo_texto,
+      observacoes
+    }: {
+      insumoId: string;
+      conteudo_texto?: string;
+      observacoes?: string;
+    }) => {
+      const updates: Record<string, unknown> = {};
+
+      if (conteudo_texto !== undefined) updates.conteudo_texto = conteudo_texto;
+      if (observacoes !== undefined) updates.observacoes = observacoes;
 
       const { data, error } = await supabase
         .from('flowrev_insumos')
@@ -176,13 +210,13 @@ export function useCreateEdicao() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({ 
-      produtoId, 
-      mes, 
-      ano 
-    }: { 
-      produtoId: string; 
-      mes: number; 
+    mutationFn: async ({
+      produtoId,
+      mes,
+      ano
+    }: {
+      produtoId: string;
+      mes: number;
       ano: number;
     }) => {
       // Criar edição

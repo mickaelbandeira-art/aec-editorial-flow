@@ -57,7 +57,7 @@ export function ProductInsumoCard({ insumo, tipo }: ProductInsumoCardProps) {
     };
 
     return (
-        <div ref={setNodeRef} style={style} {...attributes} {...listeners}>
+        <div ref={setNodeRef} style={style} {...attributes} {...listeners} onClick={onClick}>
             <Card className="cursor-grab active:cursor-grabbing hover:border-primary/50 transition-all shadow-sm hover:shadow-md group">
                 <CardHeader className="p-3 pb-2 flex flex-row items-start justify-between space-y-0">
                     <div className="flex gap-2 items-start">
@@ -80,8 +80,8 @@ export function ProductInsumoCard({ insumo, tipo }: ProductInsumoCardProps) {
                     <div className="flex flex-wrap gap-2 mb-2">
                         {insumo.data_limite && (
                             <div className={`flex items-center gap-1 text-xs ${new Date(insumo.data_limite) < new Date() && insumo.status !== 'aprovado'
-                                    ? "text-destructive font-medium"
-                                    : "text-muted-foreground"
+                                ? "text-destructive font-medium"
+                                : "text-muted-foreground"
                                 }`}>
                                 <Calendar className="h-3 w-3" />
                                 <span>{format(new Date(insumo.data_limite), "dd/MMM", { locale: ptBR })}</span>
@@ -106,9 +106,9 @@ export function ProductInsumoCard({ insumo, tipo }: ProductInsumoCardProps) {
                     {/* Status Bar (optional visual indicator) */}
                     <div className={`h-1 w-full rounded-full bg-muted overflow-hidden mt-1`}>
                         <div className={`h-full ${insumo.status === 'aprovado' ? 'bg-success' :
-                                insumo.status === 'ajuste_solicitado' ? 'bg-destructive' :
-                                    insumo.status === 'enviado' ? 'bg-info' :
-                                        'bg-primary/50'
+                            insumo.status === 'ajuste_solicitado' ? 'bg-destructive' :
+                                insumo.status === 'enviado' ? 'bg-info' :
+                                    'bg-primary/50'
                             }`} style={{ width: '100%' }}></div>
                     </div>
                 </CardContent>

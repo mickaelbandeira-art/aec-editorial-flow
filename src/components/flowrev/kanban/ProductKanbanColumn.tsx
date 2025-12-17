@@ -14,9 +14,10 @@ interface Column {
 interface ProductKanbanColumnProps {
     column: Column;
     items: Insumo[];
+    onItemClick?: (insumo: Insumo) => void;
 }
 
-export function ProductKanbanColumn({ column, items }: ProductKanbanColumnProps) {
+export function ProductKanbanColumn({ column, items, onItemClick }: ProductKanbanColumnProps) {
     const itemsIds = useMemo(() => items.map((item) => item.id), [items]);
 
     const { setNodeRef, transform, transition, isDragging } = useSortable({
@@ -72,7 +73,12 @@ export function ProductKanbanColumn({ column, items }: ProductKanbanColumnProps)
                 <div className="flex flex-col gap-2 pb-2">
                     <SortableContext items={itemsIds}>
                         {items.map((item) => (
-                            <ProductInsumoCard key={item.id} insumo={item} tipo={item.tipo_insumo} />
+                            <ProductInsumoCard
+                                key={item.id}
+                                insumo={item}
+                                tipo={item.tipo_insumo}
+                                onClick={() => onItemClick?.(item)}
+                            />
                         ))}
                     </SortableContext>
                 </div>

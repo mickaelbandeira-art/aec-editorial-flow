@@ -1,8 +1,7 @@
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import {
     DndContext,
     DragEndEvent,
-    DragOverEvent,
     DragOverlay,
     DragStartEvent,
     PointerSensor,
@@ -13,8 +12,9 @@ import { createPortal } from "react-dom";
 import { ProductKanbanColumn } from "./ProductKanbanColumn";
 import { ProductInsumoCard } from "./ProductInsumoCard";
 import { Insumo, InsumoStatus } from "@/types/flowrev";
-import { useUpdateInsumoStatus } from "@/hooks/useFlowrev";
+import { useUpdateInsumoStatus, useUpdateInsumoContent } from "@/hooks/useFlowrev";
 import { toast } from "sonner";
+import { InsumoDetailsDialog } from "../insumo/InsumoDetailsDialog";
 
 interface ProductInsumosBoardProps {
     insumos: Insumo[];
@@ -31,10 +31,10 @@ const COLUMNS: { id: InsumoStatus, title: string }[] = [
 
 export function ProductInsumosBoard({ insumos }: ProductInsumosBoardProps) {
     const { mutate: updateStatus } = useUpdateInsumoStatus();
+    const { mutate: updateContent } = useUpdateInsumoContent();
     const [activeItem, setActiveItem] = useState<Insumo | null>(null);
-
-    // Local optimistic state could be added here, 
-    // but for simplicity we rely on React Query invalidation from the hook
+    const [selectedInsumo, setSelectedInsumo] = useState<Insumo | null>(null);
+    const [isDialogOpen, setIsDialogOpen] = useState(false);
 
     const sensors = useSensors(
         useSensor(PointerSensor, {
@@ -59,10 +59,8 @@ export function ProductInsumosBoard({ insumos }: ProductInsumosBoardProps) {
 
         const activeInsumo = insumos.find(i => i.id === activeId);
 
-        // Found the column we dropped into
         const overColumn = COLUMNS.find(c => c.id === overId);
 
-        // Or maybe we dropped onto another item in a different column
         const overInsumo = insumos.find(i => i.id === overId);
         const overInsumoStatus = overInsumo ? overInsumo.status : null;
 
@@ -83,27 +81,69 @@ export function ProductInsumosBoard({ insumos }: ProductInsumosBoardProps) {
         }
     }
 
+    const handleCardClick = (insumo: Insumo) => {
+        setSelectedInsumo(insumo);
+        setIsDialogOpen(true);
+    };
+
+    const handleSaveInsumo = (updatedData: Partial<Insumo>) => {
+        if (!selectedInsumo) return;
+
+        // Update status if changed
+        if (updatedData.status && updatedData.status !== selectedInsumo.status) {
+            updateStatus({ insumoId: selectedInsumo.id, status: updatedData.status });
+        }
+
+        // Update content if changed
+        if (updatedData.conteudo_texto !== selectedInsumo.conteudo_texto || updatedData.observacoes !== selectedInsumo.observacoes) {
+            updateContent({
+                insumoId: selectedInsumo.id,
+                conteudo_texto: updatedData.conteudo_texto || undefined,
+                observacoes: updatedData.observacoes || undefined
+            }, {
+                onSuccess: () => {
+                    toast.success("Conteúdo salvo com sucesso!");
+                },
+                onError: () => {
+                    toast.error("Erro ao salvar conteúdo.");
+                }
+            });
+        }
+
+        setIsDialogOpen(false);
+    };
+
     return (
-        <DndContext
-            sensors={sensors}
-            onDragStart={onDragStart}
-            onDragEnd={onDragEnd}
-        >
-            <div className="flex h-full gap-4 overflow-x-auto p-4 custom-scrollbar">
-                {COLUMNS.map(col => (
-                    <ProductKanbanColumn
-                        key={col.id}
-                        column={col}
-                        items={insumos.filter(i => i.status === col.id)}
-                    />
-                ))}
-            </div>
-            {createPortal(
-                <DragOverlay>
-                    {activeItem && <ProductInsumoCard insumo={activeItem} tipo={activeItem.tipo_insumo} />}
-                </DragOverlay>,
-                document.body
-            )}
-        </DndContext>
+        <>
+            <DndContext
+                sensors={sensors}
+                onDragStart={onDragStart}
+                onDragEnd={onDragEnd}
+            >
+                <div className="flex h-full gap-4 overflow-x-auto p-4 custom-scrollbar">
+                    {COLUMNS.map(col => (
+                        <ProductKanbanColumn
+                            key={col.id}
+                            column={col}
+                            items={insumos.filter(i => i.status === col.id)}
+                            onItemClick={handleCardClick}
+                        />
+                    ))}
+                </div>
+                {createPortal(
+                    <DragOverlay>
+                        {activeItem && <ProductInsumoCard insumo={activeItem} tipo={activeItem.tipo_insumo} />}
+                    </DragOverlay>,
+                    document.body
+                )}
+            </DndContext>
+
+            <InsumoDetailsDialog
+                isOpen={isDialogOpen}
+                onOpenChange={setIsDialogOpen}
+                insumo={selectedInsumo}
+                onSave={handleSaveInsumo}
+            />
+        </>
     );
 }
