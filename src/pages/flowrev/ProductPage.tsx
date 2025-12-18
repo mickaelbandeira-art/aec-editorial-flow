@@ -1,12 +1,11 @@
 import { useParams } from "react-router-dom";
 import { FlowrevHeader } from "@/components/flowrev/Header";
-import { useProdutos, useEdicaoAtual, useInsumos } from "@/hooks/useFlowrev";
+import { useProdutos, useEdicaoAtual, useInsumos, useCreateEdicao, useSyncInsumos } from "@/hooks/useFlowrev";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card } from "@/components/ui/card";
 import { ProductInsumosBoard } from "@/components/flowrev/kanban/ProductInsumosBoard";
 import { Button } from "@/components/ui/button";
-import { Plus } from "lucide-react";
-import { useCreateEdicao } from "@/hooks/useFlowrev";
+import { Plus, RefreshCw, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 
 export default function ProductPage() {
@@ -19,8 +18,9 @@ export default function ProductPage() {
     const { data: edicao, isLoading: loadingEdicao } = useEdicaoAtual(produto?.id || "");
     const { data: insumos, isLoading: loadingInsumos } = useInsumos(edicao?.id);
 
-    // ... inside component
+    // Mutations
     const { mutate: createEdicao, isPending: creatingEdicao } = useCreateEdicao();
+    const { mutate: syncInsumos, isPending: syncingInsumos } = useSyncInsumos();
 
     if (!produto) {
         return <div className="p-8">Produto não encontrado</div>;
@@ -41,6 +41,22 @@ export default function ProductPage() {
             onError: (error) => {
                 console.error(error);
                 toast.error("Erro ao criar edição. Verifique os tipos de insumo.");
+            }
+        });
+    };
+
+    const handleSyncInsumos = () => {
+        if (!edicao) return;
+        syncInsumos(edicao.id, {
+            onSuccess: (data) => {
+                if (data.count > 0) {
+                    toast.success(`${data.count} insumos sincronizados/criados!`);
+                } else {
+                    toast.info("Todos os insumos já estão sincronizados.");
+                }
+            },
+            onError: () => {
+                toast.error("Erro ao sincronizar insumos.");
             }
         });
     };
@@ -74,6 +90,17 @@ export default function ProductPage() {
                                         Iniciar Edição do Mês
                                     </>
                                 )}
+                            </Button>
+                        )}
+
+                        {edicao && !isLoading && (!insumos || insumos.length === 0) && (
+                            <Button onClick={handleSyncInsumos} disabled={syncingInsumos} variant="outline">
+                                {syncingInsumos ? (
+                                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                ) : (
+                                    <RefreshCw className="mr-2 h-4 w-4" />
+                                )}
+                                Gerar Insumos Faltantes
                             </Button>
                         )}
                     </div>
