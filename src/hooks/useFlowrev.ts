@@ -282,27 +282,51 @@ export function useDashboardStats() {
 
       if (edicoesError) throw edicoesError;
 
-      // Buscar insumos pendentes
-      const { data: insumosPendentes, error: insumosError } = await supabase
+      const edicoesIds = edicoes?.map(e => e.id) || [];
+
+      // Buscar TODOS os insumos das edições do mês
+      const { data: insumos, error: insumosError } = await supabase
         .from('flowrev_insumos')
         .select('*, edicao:flowrev_edicoes(mes, ano)')
-        .in('status', ['nao_iniciado', 'em_preenchimento', 'ajuste_solicitado']);
+        .in('edicao_id', edicoesIds);
 
       if (insumosError) throw insumosError;
 
-      // Buscar insumos atrasados (com data_limite passada e não aprovados)
-      const { data: insumosAtrasados, error: atrasadosError } = await supabase
-        .from('flowrev_insumos')
-        .select('*')
-        .lt('data_limite', new Date().toISOString().split('T')[0])
-        .neq('status', 'aprovado');
+      // Calcular estatísticas por edição
+      const statsPorEdicao: Record<string, { total: number; aprovados: number; pendentes: number; atrasados: number }> = {};
 
-      if (atrasadosError) throw atrasadosError;
+      const hoje = new Date().toISOString().split('T')[0];
+
+      insumos?.forEach(insumo => {
+        if (!statsPorEdicao[insumo.edicao_id]) {
+          statsPorEdicao[insumo.edicao_id] = { total: 0, aprovados: 0, pendentes: 0, atrasados: 0 };
+        }
+
+        const stats = statsPorEdicao[insumo.edicao_id];
+        stats.total++;
+
+        if (insumo.status === 'aprovado') {
+          stats.aprovados++;
+        } else {
+          // Pendentes (qualquer coisa não aprovada)
+          stats.pendentes++;
+
+          // Atrasados (não aprovado e data limite passou)
+          if (insumo.data_limite && insumo.data_limite < hoje) {
+            stats.atrasados++;
+          }
+        }
+      });
+
+      // Totais globais para os cards de cima
+      const totalPendentes = insumos?.filter(i => i.status !== 'aprovado').length || 0;
+      const totalAtrasados = insumos?.filter(i => i.status !== 'aprovado' && i.data_limite && i.data_limite < hoje).length || 0;
 
       return {
         edicoes: edicoes || [],
-        totalPendentes: insumosPendentes?.length || 0,
-        totalAtrasados: insumosAtrasados?.length || 0,
+        statsPorEdicao,
+        totalPendentes,
+        totalAtrasados,
         progressoGeral: edicoes?.reduce((acc, e) => acc + (e.percentual_conclusao || 0), 0) / (edicoes?.length || 1),
       };
     },

@@ -15,7 +15,7 @@ export default function FlowrevDashboard() {
   return (
     <div className="min-h-screen">
       <FlowrevHeader title="Dashboard" subtitle={`Edição de ${mesAtual}`} />
-      
+
       <div className="p-6 space-y-6 animate-fade-in">
         {/* Stats */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -51,8 +51,8 @@ export default function FlowrevDashboard() {
         {/* Timeline */}
         <Card>
           <CardContent className="p-6">
-            <FaseTimeline 
-              faseAtual={stats?.edicoes?.[0]?.fase_atual || 'kickoff'} 
+            <FaseTimeline
+              faseAtual={stats?.edicoes?.[0]?.fase_atual || 'kickoff'}
               percentualConclusao={Math.round(stats?.progressoGeral || 0)}
             />
           </CardContent>
@@ -67,18 +67,19 @@ export default function FlowrevDashboard() {
                 <Card key={i} className="h-48 animate-pulse bg-muted" />
               ))
             ) : (
-              produtos?.map((produto) => (
-                <ProductCard 
-                  key={produto.id} 
-                  produto={produto}
-                  insumosStats={{
-                    total: 17,
-                    aprovados: Math.floor(Math.random() * 10),
-                    pendentes: Math.floor(Math.random() * 5) + 2,
-                    atrasados: Math.floor(Math.random() * 3),
-                  }}
-                />
-              ))
+              produtos?.map((produto) => {
+                const edicao = stats?.edicoes?.find(e => e.produto_id === produto.id);
+                const produtoStats = edicao ? stats?.statsPorEdicao?.[edicao.id] : undefined;
+
+                return (
+                  <ProductCard
+                    key={produto.id}
+                    produto={produto}
+                    edicao={edicao}
+                    insumosStats={produtoStats}
+                  />
+                );
+              })
             )}
           </div>
         </div>
