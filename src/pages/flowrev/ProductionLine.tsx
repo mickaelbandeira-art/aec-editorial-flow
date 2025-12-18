@@ -57,7 +57,7 @@ function useAllInsumosOfMonth() {
 
 export default function ProductionLine() {
     const { data: allData, isLoading: loadingInsumos, refetch } = useAllInsumosOfMonth();
-    const { data: produtos, isLoading: loadingProdutos } = useProdutos();
+    const { data: produtos, isLoading: loadingProdutos, error: produtosError } = useProdutos();
 
     // Actions
     const { mutate: createEdicao, isPending: creatingEdicao } = useCreateEdicao();
@@ -123,9 +123,12 @@ export default function ProductionLine() {
 
                     {!produtos || produtos.length === 0 ? (
                         <div className="flex flex-col items-center justify-center h-full text-muted-foreground bg-muted/20 rounded-lg border border-dashed border-border p-8">
-                            <p className="font-semibold text-lg">Nenhum produto encontrado.</p>
-                            <p>Verifique se você rodou o script de "Seed" no banco de dados.</p>
-                            <p className="text-sm mt-2">Dica: O RLS já deve estar desativado se você rodou o script disable_rls.sql.</p>
+                            <p className="font-semibold text-lg text-red-500">Nenhum produto encontrado.</p>
+                            <p>Diagnosticando o problema:</p>
+                            <div className="bg-slate-950 text-white p-4 rounded mt-4 text-xs font-mono max-w-lg overflow-auto">
+                                <p>Status RLS/Erro: {produtosError ? JSON.stringify(produtosError) : "Nenhum erro reportado pela API (Lista vazia retornada)."}</p>
+                                <p>Sugestão: Se a lista está vazia sem erros, o banco está vazio. Rode o script check_data.sql</p>
+                            </div>
                         </div>
                     ) : (
                         <>

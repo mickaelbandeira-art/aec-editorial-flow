@@ -9,7 +9,6 @@ export function useProdutos() {
       const { data, error } = await supabase
         .from('flowrev_produtos')
         .select('*')
-        .eq('ativo', true)
         .order('ordem');
 
       if (error) {

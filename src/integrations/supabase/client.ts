@@ -8,6 +8,10 @@ const SUPABASE_PUBLISHABLE_KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
 // Import the supabase client like this:
 // import { supabase } from "@/integrations/supabase/client";
 
+console.log("Initializing Supabase Client...");
+console.log("URL:", SUPABASE_URL);
+console.log("Key Length:", SUPABASE_PUBLISHABLE_KEY?.length);
+
 export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
   auth: {
     storage: localStorage,
