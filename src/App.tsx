@@ -7,6 +7,7 @@ import { FlowrevLayout } from "@/components/flowrev/Layout";
 import FlowrevDashboard from "@/pages/flowrev/Dashboard";
 import ProductionLine from "@/pages/flowrev/ProductionLine";
 import ProductPage from "@/pages/flowrev/ProductPage";
+import CalendarPage from "@/pages/flowrev/CalendarPage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
