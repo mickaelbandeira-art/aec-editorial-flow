@@ -1,17 +1,20 @@
 import { useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import {
   LayoutDashboard,
   Newspaper,
   Calendar,
   ChevronLeft,
   ChevronRight,
+  LogOut
 } from 'lucide-react';
 import { useProdutos } from '@/hooks/useFlowrev';
-import { usePermissions } from '@/hooks/usePermission';
+import { usePermissions, useAuthStore } from '@/hooks/usePermission';
 import { Button } from '@/components/ui/button';
-import { UserSwitcher } from './UserSwitcher';
+// Removed UserSwitcher
+
 
 // Import logos
 import claroLogo from '@/assets/logos/claro.png';
@@ -39,6 +42,13 @@ export function FlowrevSidebar() {
   const location = useLocation();
   const { data: produtos } = useProdutos();
   const { canAccessProduct, user } = usePermissions();
+  const { logout } = useAuthStore();
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    logout();
+    navigate('/login');
+  };
 
   const filteredProdutos = produtos?.filter(p => canAccessProduct(p.slug));
 
@@ -149,16 +159,47 @@ export function FlowrevSidebar() {
           )}
         </nav>
 
-        {/* Footer with User Switcher */}
+        {/* Footer */}
         <div className="border-t border-sidebar-border p-4">
           {!collapsed ? (
-            <UserSwitcher />
-          ) : (
-            <div className="flex justify-center">
-              <Button variant="ghost" size="icon">
-                <div className="h-6 w-6 rounded-full bg-primary text-[10px] text-white flex items-center justify-center font-bold">
+            <div className="flex items-center gap-3">
+              <Avatar className="h-9 w-9">
+                <AvatarFallback className="bg-primary text-primary-foreground text-sm font-bold">
                   {user?.nome?.substring(0, 2).toUpperCase() || 'U'}
-                </div>
+                </AvatarFallback>
+              </Avatar>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium text-sidebar-foreground truncate">
+                  {user?.nome || 'Usuário'}
+                </p>
+                <p className="text-xs text-sidebar-foreground/60 truncate capitalize">
+                  {user?.role?.replace('_', ' ') || 'Cargo'}
+                </p>
+              </div>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="text-sidebar-foreground/70 hover:text-destructive hover:bg-destructive/10"
+                onClick={handleLogout}
+                title="Sair"
+              >
+                <LogOut className="h-4 w-4" />
+              </Button>
+            </div>
+          ) : (
+            <div className="flex flex-col items-center gap-2">
+              <Avatar className="h-9 w-9">
+                <AvatarFallback className="bg-primary text-primary-foreground text-sm font-bold">
+                  {user?.nome?.substring(0, 2).toUpperCase() || 'U'}
+                </AvatarFallback>
+              </Avatar>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="text-sidebar-foreground/70 hover:text-destructive hover:bg-destructive/10 h-8 w-8"
+                onClick={handleLogout}
+              >
+                <LogOut className="h-4 w-4" />
               </Button>
             </div>
           )}

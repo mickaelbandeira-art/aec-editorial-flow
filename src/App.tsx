@@ -9,6 +9,8 @@ import ProductionLine from "@/pages/flowrev/ProductionLine";
 import ProductPage from "@/pages/flowrev/ProductPage";
 import CalendarPage from "@/pages/flowrev/CalendarPage";
 import NotFound from "./pages/NotFound";
+import LoginPage from "@/pages/flowrev/LoginPage";
+import { ProtectedRoute } from "@/components/flowrev/auth/ProtectedRoute";
 
 const queryClient = new QueryClient();
 
@@ -20,11 +22,16 @@ const App = () => (
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Navigate to="/flowrev" replace />} />
-          <Route path="/flowrev" element={<FlowrevLayout />}>
-            <Route index element={<FlowrevDashboard />} />
-            <Route path="production" element={<ProductionLine />} />
-            <Route path="calendar" element={<CalendarPage />} />
-            <Route path="produto/:slug" element={<ProductPage />} />
+          <Route path="/login" element={<LoginPage />} />
+
+          {/* Protected FlowRev Routes */}
+          <Route element={<ProtectedRoute />}>
+            <Route path="/flowrev" element={<FlowrevLayout />}>
+              <Route index element={<FlowrevDashboard />} />
+              <Route path="production" element={<ProductionLine />} />
+              <Route path="calendar" element={<CalendarPage />} />
+              <Route path="produto/:slug" element={<ProductPage />} />
+            </Route>
           </Route>
           <Route path="*" element={<NotFound />} />
         </Routes>
