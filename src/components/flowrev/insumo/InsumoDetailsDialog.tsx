@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import {
     Dialog,
@@ -7,7 +7,6 @@ import {
     DialogFooter,
     DialogHeader,
     DialogTitle,
-    DialogTrigger,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -22,11 +21,14 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Insumo, InsumoStatus } from "@/types/flowrev";
+import { Insumo, InsumoStatus, Anexo } from "@/types/flowrev";
 import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import ImageExtension from '@tiptap/extension-image';
-import { Paperclip, Image as ImageIcon, FileText, Send, CheckCircle2, Clock, AlertTriangle } from "lucide-react";
+import { Paperclip, Image as ImageIcon, FileText, Send, CheckCircle2, Clock, Trash2, Download, UploadCloud, X } from "lucide-react";
+import { useUploadAnexo, useDeleteAnexo } from "@/hooks/useFlowrev";
+import { toast } from "sonner";
+import { Loader2 } from "lucide-react";
 
 interface InsumoDetailsDialogProps {
     isOpen: boolean;
@@ -83,6 +85,17 @@ export function InsumoDetailsDialog({
     const [texto, setTexto] = useState(insumo?.conteudo_texto || '');
     const [obs, setObs] = useState(insumo?.observacoes || '');
 
+    // Upload state
+    const [uploading, setUploading] = useState(false);
+    const [imageCaption, setImageCaption] = useState("");
+    const [imageFile, setImageFile] = useState<File | null>(null);
+    const [activeTab, setActiveTab] = useState("conteudo");
+
+    const { mutate: uploadFile } = useUploadAnexo();
+    const { mutate: deleteFile } = useDeleteAnexo();
+    const imageInputRef = useRef<HTMLInputElement>(null);
+    const pdfInputRef = useRef<HTMLInputElement>(null);
+
     if (!insumo) return null;
 
     const handleSave = () => {
@@ -92,7 +105,53 @@ export function InsumoDetailsDialog({
             conteudo_texto: texto,
             observacoes: obs,
         });
-        onOpenChange(false);
+        // Don't close immediately if you want to keep editing? 
+        // For now, follow existing pattern
+        // onOpenChange(false);
+    };
+
+    const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>, type: 'imagem' | 'pdf') => {
+        if (e.target.files && e.target.files[0]) {
+            const file = e.target.files[0];
+            if (type === 'imagem') {
+                setImageFile(file);
+                // Prompt for caption next
+            } else {
+                // PDF upload directly
+                startUpload(file, 'pdf');
+            }
+        }
+    };
+
+    const startUpload = (file: File, type: 'imagem' | 'pdf', caption?: string) => {
+        setUploading(true);
+        uploadFile({
+            insumoId: insumo.id,
+            file,
+            tipo,
+            legenda: caption
+        }, {
+            onSuccess: () => {
+                toast.success("Arquivo enviado com sucesso!");
+                setImageFile(null);
+                setImageCaption("");
+                setUploading(false);
+            },
+            onError: (error) => {
+                console.error(error);
+                toast.error("Erro no upload. Tente novamente.");
+                setUploading(false);
+            }
+        });
+    };
+
+    const handleDeleteAnexo = (anexoId: string) => {
+        if (confirm("Tem certeza que deseja excluir este anexo?")) {
+            deleteFile(anexoId, {
+                onSuccess: () => toast.success("Anexo excluído"),
+                onError: () => toast.error("Erro ao excluir anexo")
+            });
+        }
     };
 
     return (
@@ -116,30 +175,33 @@ export function InsumoDetailsDialog({
                                 )}
                             </DialogDescription>
                         </div>
-                        <Select value={status} onValueChange={(v) => setStatus(v as InsumoStatus)}>
-                            <SelectTrigger className="w-[180px]">
-                                <SelectValue placeholder="Status" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value="nao_iniciado">Não Iniciado</SelectItem>
-                                <SelectItem value="em_preenchimento">Em Preenchimento</SelectItem>
-                                <SelectItem value="enviado">Enviado</SelectItem>
-                                <SelectItem value="em_analise">Em Análise</SelectItem>
-                                <SelectItem value="ajuste_solicitado">Ajuste Solicitado</SelectItem>
-                                <SelectItem value="aprovado">Aprovado</SelectItem>
-                            </SelectContent>
-                        </Select>
+                        <div className="flex items-center gap-2">
+                            <Select value={status} onValueChange={(v) => setStatus(v as InsumoStatus)}>
+                                <SelectTrigger className="w-[180px]">
+                                    <SelectValue placeholder="Status" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="nao_iniciado">Não Iniciado</SelectItem>
+                                    <SelectItem value="em_preenchimento">Em Preenchimento</SelectItem>
+                                    <SelectItem value="enviado">Enviado</SelectItem>
+                                    <SelectItem value="em_analise">Em Análise</SelectItem>
+                                    <SelectItem value="ajuste_solicitado">Ajuste Solicitado</SelectItem>
+                                    <SelectItem value="aprovado">Aprovado</SelectItem>
+                                </SelectContent>
+                            </Select>
+                            <Button onClick={handleSave}>Salvar Alterações</Button>
+                        </div>
                     </div>
                 </DialogHeader>
 
                 <div className="flex-1 overflow-hidden flex">
                     {/* Main Content Area */}
                     <div className="flex-1 flex flex-col border-r h-full overflow-hidden">
-                        <Tabs defaultValue="conteudo" className="flex-1 flex flex-col">
+                        <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col">
                             <div className="px-6 pt-4">
                                 <TabsList className="w-full justify-start">
                                     <TabsTrigger value="conteudo">Conteúdo Textual</TabsTrigger>
-                                    <TabsTrigger value="anexos">Anexos & Mídia</TabsTrigger>
+                                    <TabsTrigger value="anexos">Anexos & Mídia ({insumo.anexos?.length || 0})</TabsTrigger>
                                 </TabsList>
                             </div>
 
@@ -155,19 +217,139 @@ export function InsumoDetailsDialog({
 
                                 <TabsContent value="anexos" className="p-6 mt-0">
                                     <div className="space-y-6">
-                                        <div className="border-2 border-dashed rounded-lg p-8 flex flex-col items-center justify-center bg-muted/30">
-                                            <ImageIcon className="h-10 w-10 text-muted-foreground mb-4" />
-                                            <h3 className="text-lg font-medium">Upload de Imagens</h3>
-                                            <p className="text-sm text-muted-foreground mb-4 text-center">
-                                                Arraste ou clique para selecionar. Legenda obrigatória.
-                                            </p>
-                                            <Button variant="outline">Selecionar Arquivos</Button>
+                                        {/* Image Upload Area */}
+                                        <div className="grid grid-cols-2 gap-4">
+                                            {/* Image Input */}
+                                            <div className="border-2 border-dashed rounded-lg p-6 flex flex-col items-center justify-center bg-muted/30 transition-colors hover:bg-muted/50">
+                                                <input
+                                                    type="file"
+                                                    ref={imageInputRef}
+                                                    className="hidden"
+                                                    accept="image/*"
+                                                    onChange={(e) => handleFileSelect(e, 'imagem')}
+                                                />
+                                                <ImageIcon className="h-8 w-8 text-muted-foreground mb-3" />
+                                                <h3 className="text-sm font-medium mb-1">Upload de Imagem</h3>
+                                                <p className="text-xs text-muted-foreground mb-3 text-center">
+                                                    PNG, JPG ou WEBP
+                                                </p>
+                                                <Button
+                                                    variant="outline"
+                                                    size="sm"
+                                                    onClick={() => imageInputRef.current?.click()}
+                                                    disabled={uploading}
+                                                >
+                                                    {uploading ? <Loader2 className="animate-spin h-4 w-4" /> : "Selecionar Imagem"}
+                                                </Button>
+                                            </div>
+
+                                            {/* PDF Input */}
+                                            <div className="border-2 border-dashed rounded-lg p-6 flex flex-col items-center justify-center bg-muted/30 transition-colors hover:bg-muted/50">
+                                                <input
+                                                    type="file"
+                                                    ref={pdfInputRef}
+                                                    className="hidden"
+                                                    accept="application/pdf"
+                                                    onChange={(e) => handleFileSelect(e, 'pdf')}
+                                                />
+                                                <FileText className="h-8 w-8 text-muted-foreground mb-3" />
+                                                <h3 className="text-sm font-medium mb-1">Upload de PDF</h3>
+                                                <p className="text-xs text-muted-foreground mb-3 text-center">
+                                                    PDF até 10MB
+                                                </p>
+                                                <Button
+                                                    variant="outline"
+                                                    size="sm"
+                                                    onClick={() => pdfInputRef.current?.click()}
+                                                    disabled={uploading}
+                                                >
+                                                    {uploading ? <Loader2 className="animate-spin h-4 w-4" /> : "Selecionar PDF"}
+                                                </Button>
+                                            </div>
                                         </div>
 
-                                        <div className="border-2 border-dashed rounded-lg p-8 flex flex-col items-center justify-center bg-muted/30">
-                                            <FileText className="h-10 w-10 text-muted-foreground mb-4" />
-                                            <h3 className="text-lg font-medium">Upload de PDF</h3>
-                                            <Button variant="outline">Selecionar PDF</Button>
+                                        {/* Image Caption Prompt */}
+                                        {imageFile && (
+                                            <div className="bg-background border rounded-lg p-4 shadow-lg animate-in fade-in zoom-in-95">
+                                                <div className="flex justify-between items-start mb-3">
+                                                    <h4 className="font-semibold text-sm">Adicionar Legenda Obrigatória</h4>
+                                                    <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => setImageFile(null)}>
+                                                        <X className="h-4 w-4" />
+                                                    </Button>
+                                                </div>
+                                                <div className="flex gap-4 items-center">
+                                                    <div className="h-16 w-16 bg-muted rounded object-cover overflow-hidden flex-shrink-0">
+                                                        <img src={URL.createObjectURL(imageFile)} alt="Preview" className="h-full w-full object-cover" />
+                                                    </div>
+                                                    <div className="flex-1 space-y-2">
+                                                        <Input
+                                                            placeholder="Descreva a imagem..."
+                                                            value={imageCaption}
+                                                            onChange={(e) => setImageCaption(e.target.value)}
+                                                            autoFocus
+                                                        />
+                                                        <Button
+                                                            size="sm"
+                                                            className="w-full"
+                                                            disabled={!imageCaption.trim() || uploading}
+                                                            onClick={() => startUpload(imageFile, 'imagem', imageCaption)}
+                                                        >
+                                                            {uploading ? "Enviando..." : "Confirmar Upload"}
+                                                        </Button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        )}
+
+                                        {/* Attachment List */}
+                                        <div className="space-y-3">
+                                            <h3 className="text-sm font-semibold text-muted-foreground">Arquivos Anexados</h3>
+
+                                            {insumo.anexos && insumo.anexos.length > 0 ? (
+                                                <div className="grid gap-3">
+                                                    {insumo.anexos.map((anexo) => (
+                                                        <div key={anexo.id} className="flex items-start gap-3 p-3 border rounded-lg hover:bg-muted/10 transition-colors">
+                                                            <div className="h-10 w-10 shrink-0 flex items-center justify-center bg-muted rounded-md overflow-hidden">
+                                                                {anexo.tipo === 'imagem' ? (
+                                                                    <img src={anexo.url} alt={anexo.nome_arquivo} className="h-full w-full object-cover" />
+                                                                ) : (
+                                                                    <FileText className="h-5 w-5 text-muted-foreground" />
+                                                                )}
+                                                            </div>
+                                                            <div className="flex-1 min-w-0">
+                                                                <p className="font-medium text-sm truncate" title={anexo.nome_arquivo}>
+                                                                    {anexo.nome_arquivo}
+                                                                </p>
+                                                                {anexo.legenda && (
+                                                                    <p className="text-xs text-muted-foreground italic">"{anexo.legenda}"</p>
+                                                                )}
+                                                                <p className="text-[10px] text-muted-foreground mt-1">
+                                                                    {anexo.tipo.toUpperCase()} • {(anexo.tamanho_bytes ? (anexo.tamanho_bytes / 1024).toFixed(0) + 'KB' : '')}
+                                                                </p>
+                                                            </div>
+                                                            <div className="flex gap-1">
+                                                                <Button variant="ghost" size="icon" className="h-8 w-8" asChild>
+                                                                    <a href={anexo.url} target="_blank" rel="noopener noreferrer">
+                                                                        <Download className="h-4 w-4" />
+                                                                    </a>
+                                                                </Button>
+                                                                <Button
+                                                                    variant="ghost"
+                                                                    size="icon"
+                                                                    className="h-8 w-8 text-destructive hover:text-destructive hover:bg-destructive/10"
+                                                                    onClick={() => handleDeleteAnexo(anexo.id)}
+                                                                >
+                                                                    <Trash2 className="h-4 w-4" />
+                                                                </Button>
+                                                            </div>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            ) : (
+                                                <div className="text-center py-8 text-sm text-muted-foreground bg-muted/10 rounded-lg border border-dashed">
+                                                    Nenhum arquivo anexado.
+                                                </div>
+                                            )}
                                         </div>
                                     </div>
                                 </TabsContent>
@@ -191,18 +373,19 @@ export function InsumoDetailsDialog({
                                         value={obs}
                                         onChange={(e) => setObs(e.target.value)}
                                     />
+                                    <p className="text-[10px] text-muted-foreground">
+                                        Use este campo para orientar ajustes ou aprovação.
+                                    </p>
                                 </div>
 
                                 {/* Placeholder for history log */}
                                 <div className="pt-4 border-t">
                                     <h4 className="text-xs font-semibold text-muted-foreground mb-3">HISTÓRICO RECENTE</h4>
                                     <div className="space-y-3">
-                                        <div className="flex gap-2 text-xs">
-                                            <div className="mt-0.5"><Clock className="w-3 h-3 text-muted-foreground" /></div>
-                                            <div>
-                                                <span className="font-medium">João Silva</span> mudou status para <span className="text-blue-500">Em Preenchimento</span>
-                                                <div className="text-[10px] text-muted-foreground">Há 2 horas</div>
-                                            </div>
+                                        {/* Mock history for now */}
+                                        <div className="flex gap-2 text-xs opacity-70">
+                                            <Clock className="w-3 h-3 mt-0.5" />
+                                            <span>Nenhuma alteração recente.</span>
                                         </div>
                                     </div>
                                 </div>
@@ -210,11 +393,6 @@ export function InsumoDetailsDialog({
                         </ScrollArea>
                     </div>
                 </div>
-
-                <DialogFooter className="p-4 border-t bg-card z-10">
-                    <Button variant="outline" onClick={() => onOpenChange(false)}>Cancelar</Button>
-                    <Button onClick={handleSave}>Salvar Alterações</Button>
-                </DialogFooter>
             </DialogContent>
         </Dialog>
     );

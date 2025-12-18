@@ -6,6 +6,8 @@ import { useProdutos, useDashboardStats } from '@/hooks/useFlowrev';
 import { Newspaper, Clock, AlertTriangle, CheckCircle2 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
+import { SeedInsumosBtn } from '@/components/flowrev/SeedInsumosBtn';
+
 export default function FlowrevDashboard() {
   const { data: produtos, isLoading: loadingProdutos } = useProdutos();
   const { data: stats, isLoading: loadingStats } = useDashboardStats();
@@ -14,7 +16,10 @@ export default function FlowrevDashboard() {
 
   return (
     <div className="min-h-screen">
-      <FlowrevHeader title="Dashboard" subtitle={`Edição de ${mesAtual}`} />
+      <div className="flex justify-between items-center pr-6">
+        <FlowrevHeader title="Dashboard" subtitle={`Edição de ${mesAtual}`} />
+        <SeedInsumosBtn />
+      </div>
 
       <div className="p-6 space-y-6 animate-fade-in">
         {/* Stats */}

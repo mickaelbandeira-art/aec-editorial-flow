@@ -332,3 +332,100 @@ export function useDashboardStats() {
     },
   });
 }
+
+export function useUploadAnexo() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({
+      insumoId,
+      file,
+      tipo,
+      legenda
+    }: {
+      insumoId: string;
+      file: File;
+      tipo: 'imagem' | 'pdf';
+      legenda?: string;
+    }) => {
+      // 1. Upload to Storage
+      // Create a unique file name
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${insumoId}/${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
+      const bucket = 'insumos'; // Assuming a bucket named 'insumos' exists or 'flowrev-insumos'
+
+      const { error: uploadError } = await supabase.storage
+        .from(bucket)
+        .upload(fileName, file);
+
+      if (uploadError) {
+        // Fallback: if 'insumos' bucket doesn't exist, try a public default
+        console.error("Bucket 'insumos' might not exist.", uploadError);
+        throw uploadError;
+      }
+
+      // 2. Get Public URL
+      const { data: { publicUrl } } = supabase.storage
+        .from(bucket)
+        .getPublicUrl(fileName);
+
+      // 3. Insert into flowrev_anexos
+      const { data, error: dbError } = await supabase
+        .from('flowrev_anexos')
+        .insert({
+          insumo_id: insumoId,
+          tipo,
+          nome_arquivo: file.name,
+          url: publicUrl,
+          legenda: legenda || null,
+          tamanho_bytes: file.size,
+          uploaded_por: (await supabase.auth.getUser()).data.user?.id
+        })
+        .select()
+        .single();
+
+      if (dbError) throw dbError;
+
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['flowrev-insumos'] });
+    },
+  });
+}
+
+export function useDeleteAnexo() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (anexoId: string) => {
+      // 1. Get anexo url to find path
+      const { data: anexo, error: fetchError } = await supabase
+        .from('flowrev_anexos')
+        .select('url')
+        .eq('id', anexoId)
+        .single();
+
+      if (fetchError) throw fetchError;
+
+      // Extract path from URL (basic logic assuming standard Supabase URL structure)
+      // .../storage/v1/object/public/bucket_name/path/to/file
+      const urlParts = anexo.url.split('/public/insumos/');
+      if (urlParts.length > 1) {
+        const path = urlParts[1];
+        await supabase.storage.from('insumos').remove([path]);
+      }
+
+      // 2. Delete from DB
+      const { error: deleteError } = await supabase
+        .from('flowrev_anexos')
+        .delete()
+        .eq('id', anexoId);
+
+      if (deleteError) throw deleteError;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['flowrev-insumos'] });
+    },
+  });
+}
