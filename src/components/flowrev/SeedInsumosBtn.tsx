@@ -1,7 +1,8 @@
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { Database } from "lucide-react";
+import { Database, Loader2 } from "lucide-react";
+import { useState } from "react";
 
 const INSUMO_TYPES = [
     "Sumário",
@@ -23,58 +24,96 @@ const INSUMO_TYPES = [
     "Jogo"
 ];
 
-export function SeedInsumosBtn() {
-    const handleSeed = async () => {
-        try {
-            toast.info("Iniciando seed de tipos de insumo...");
+const PRODUCTS = [
+    { nome: "Claro", slug: "claro", cor: "#ef3829" },
+    { nome: "iFood", slug: "ifood", cor: "#ea1d2c" },
+    { nome: "iFood Pago", slug: "ifood-pago", cor: "#ea1d2c" },
+    { nome: "Ton", slug: "ton", cor: "#00c868" },
+    { nome: "Inter", slug: "inter", cor: "#ff7a00" }
+];
 
-            // 1. Get existing types
-            const { data: existing, error: fetchError } = await supabase
+export function SeedInsumosBtn() {
+    const [loading, setLoading] = useState(false);
+
+    const handleSeed = async () => {
+        setLoading(true);
+        try {
+            // --- SEED PRODUCTS ---
+            const { data: existingProducts, error: prodFetchError } = await supabase
+                .from('flowrev_produtos')
+                .select('slug');
+
+            if (prodFetchError) throw new Error(`Erro ao buscar produtos: ${prodFetchError.message}`);
+
+            const existingProdSlugs = new Set(existingProducts?.map(p => p.slug));
+            const newProducts = PRODUCTS.filter(p => !existingProdSlugs.has(p.slug));
+
+            if (newProducts.length > 0) {
+                const { error: prodInsertError } = await supabase
+                    .from('flowrev_produtos')
+                    .insert(newProducts.map((p, i) => ({
+                        nome: p.nome,
+                        slug: p.slug,
+                        cor_tema: p.cor,
+                        ativo: true,
+                        ordem: (existingProducts?.length || 0) + i + 1,
+                        logo_url: null // Logos are imported in frontend, database just needs existence
+                    })));
+
+                if (prodInsertError) throw new Error(`Erro ao criar produtos: ${prodInsertError.message}`);
+                toast.success(`${newProducts.length} produtos criados!`);
+            } else {
+                toast.info("Produtos já existem.");
+            }
+
+            // --- SEED INSUMO TYPES ---
+            const { data: existingInsumos, error: insFetchError } = await supabase
                 .from('flowrev_tipos_insumos')
                 .select('nome');
 
-            if (fetchError) throw fetchError;
+            if (insFetchError) throw new Error(`Erro ao buscar tipos de insumo: ${insFetchError.message}`);
 
-            const existingNames = new Set(existing?.map(e => e.nome));
+            const existingNames = new Set(existingInsumos?.map(e => e.nome));
             const newTypes = INSUMO_TYPES.filter(t => !existingNames.has(t));
 
-            if (newTypes.length === 0) {
-                toast.info("Todos os tipos de insumo já existem.");
-                return;
+            if (newTypes.length > 0) {
+                const toInsert = newTypes.map((nome, index) => ({
+                    nome,
+                    slug: nome.toLowerCase()
+                        .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+                        .replace(/[^a-z0-9]+/g, '-')
+                        .replace(/^-+|-+$/g, ''),
+                    descricao: `Insumo do tipo ${nome}`,
+                    ordem: (existingInsumos?.length || 0) + index + 1,
+                    requer_imagem: true,
+                    requer_legenda: true,
+                    requer_pdf: true,
+                    ativo: true
+                }));
+
+                const { error: insertError } = await supabase
+                    .from('flowrev_tipos_insumos')
+                    .insert(toInsert);
+
+                if (insertError) throw new Error(`Erro ao criar tipos de insumo: ${insertError.message}`);
+
+                toast.success(`${newTypes.length} tipos de insumo criados!`);
+            } else {
+                toast.info("Tipos de insumo já existem.");
             }
 
-            // 2. Insert new types
-            const toInsert = newTypes.map((nome, index) => ({
-                nome,
-                slug: nome.toLowerCase()
-                    .normalize("NFD").replace(/[\u0300-\u036f]/g, "") // remove accents
-                    .replace(/[^a-z0-9]+/g, '-') // replace non-alphanum with dash
-                    .replace(/^-+|-+$/g, ''), // remove leading/trailing dashes
-                descricao: `Insumo do tipo ${nome}`,
-                ordem: (existing?.length || 0) + index + 1,
-                requer_imagem: true, // Default to true as per requirements usually implies media
-                requer_legenda: true,
-                requer_pdf: true,
-                ativo: true
-            }));
-
-            const { error: insertError } = await supabase
-                .from('flowrev_tipos_insumos')
-                .insert(toInsert);
-
-            if (insertError) throw insertError;
-
-            toast.success(`${newTypes.length} tipos de insumo criados com sucesso!`);
-        } catch (error) {
-            console.error("Erro ao seedar insumos:", error);
-            toast.error("Erro ao criar tipos de insumo. Verifique o console.");
+        } catch (error: any) {
+            console.error("Erro no seed:", error);
+            toast.error(error.message || "Erro desconhecido ao seedar dados");
+        } finally {
+            setLoading(false);
         }
     };
 
     return (
-        <Button onClick={handleSeed} variant="outline" size="sm" className="gap-2">
-            <Database className="w-4 h-4" />
-            Seed Insumos
+        <Button onClick={handleSeed} variant="outline" size="sm" className="gap-2" disabled={loading}>
+            {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Database className="w-4 h-4" />}
+            Seed Dados (Produtos & Insumos)
         </Button>
     );
 }
