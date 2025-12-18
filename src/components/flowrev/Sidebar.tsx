@@ -68,7 +68,7 @@ export function FlowrevSidebar() {
                 <Newspaper className="h-5 w-5 text-primary-foreground" />
               </div>
               <div>
-                <h1 className="text-sm font-bold text-sidebar-foreground">FlowRev</h1>
+                <h1 className="text-sm font-bold text-sidebar-foreground">Revistas do Treinamento</h1>
                 <p className="text-xs text-sidebar-foreground/60">IA Editorial</p>
               </div>
             </div>

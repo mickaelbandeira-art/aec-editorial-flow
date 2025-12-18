@@ -52,13 +52,15 @@ export default function LoginPage() {
         <div className="min-h-screen flex items-center justify-center bg-gray-100 dark:bg-gray-900 p-4">
             <Card className="w-full max-w-md">
                 <CardHeader className="space-y-1 flex flex-col items-center text-center">
-                    <div className="w-12 h-12 bg-primary rounded-xl flex items-center justify-center mb-4">
-                        <Newspaper className="w-6 h-6 text-primary-foreground" />
+                    <div className="flex flex-col items-center gap-2 mb-8">
+                        <div className="h-12 w-12 rounded-xl bg-primary flex items-center justify-center mb-2">
+                            <Newspaper className="h-7 w-7 text-primary-foreground" />
+                        </div>
+                        <h1 className="text-2xl font-bold text-center">Revistas do Treinamento</h1>
+                        <p className="text-sm text-muted-foreground text-center">
+                            Entre com seu e-mail corporativo e matrícula
+                        </p>
                     </div>
-                    <CardTitle className="text-2xl font-bold">FlowRev Login</CardTitle>
-                    <CardDescription>
-                        Entre com seu e-mail corporativo e matrícula para acessar
-                    </CardDescription>
                 </CardHeader>
                 <form onSubmit={handleLogin}>
                     <CardContent className="space-y-4">
