@@ -14,30 +14,35 @@ import { ProtectedRoute } from "@/components/flowrev/auth/ProtectedRoute";
 
 const queryClient = new QueryClient();
 
+import { ErrorBoundary } from "@/components/ui/ErrorBoundary";
+
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
       <Toaster />
       <Sonner />
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Navigate to="/flowrev" replace />} />
-          <Route path="/login" element={<LoginPage />} />
+      <ErrorBoundary>
+        <BrowserRouter>
+          <Routes>
+            <Route path="/" element={<Navigate to="/flowrev" replace />} />
+            <Route path="/login" element={<LoginPage />} />
 
-          {/* Protected FlowRev Routes */}
-          <Route element={<ProtectedRoute />}>
-            <Route path="/flowrev" element={<FlowrevLayout />}>
-              <Route index element={<FlowrevDashboard />} />
-              <Route path="production" element={<ProductionLine />} />
-              <Route path="calendar" element={<CalendarPage />} />
-              <Route path="produto/:slug" element={<ProductPage />} />
+            {/* Protected FlowRev Routes */}
+            <Route element={<ProtectedRoute />}>
+              <Route path="/flowrev" element={<FlowrevLayout />}>
+                <Route index element={<FlowrevDashboard />} />
+                <Route path="production" element={<ProductionLine />} />
+                <Route path="calendar" element={<CalendarPage />} />
+                <Route path="produto/:slug" element={<ProductPage />} />
+              </Route>
             </Route>
-          </Route>
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </BrowserRouter>
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </BrowserRouter>
+      </ErrorBoundary>
     </TooltipProvider>
   </QueryClientProvider>
 );
+
 
 export default App;
