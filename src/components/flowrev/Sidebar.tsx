@@ -5,17 +5,13 @@ import {
   LayoutDashboard,
   Newspaper,
   Calendar,
-  Settings,
-  Bell,
   ChevronLeft,
   ChevronRight,
-  LogOut,
-  User
 } from 'lucide-react';
 import { useProdutos } from '@/hooks/useFlowrev';
+import { usePermissions } from '@/hooks/usePermission';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { UserSwitcher } from './UserSwitcher';
 
 // Import logos
 import claroLogo from '@/assets/logos/claro.png';
@@ -42,6 +38,9 @@ export function FlowrevSidebar() {
   const [collapsed, setCollapsed] = useState(false);
   const location = useLocation();
   const { data: produtos } = useProdutos();
+  const { canAccessProduct, user } = usePermissions();
+
+  const filteredProdutos = produtos?.filter(p => canAccessProduct(p.slug));
 
   return (
     <aside
@@ -99,13 +98,13 @@ export function FlowrevSidebar() {
           </div>
 
           {/* Products */}
-          {!collapsed && (
+          {!collapsed && filteredProdutos && filteredProdutos.length > 0 && (
             <div className="mt-8">
               <h3 className="mb-3 px-3 text-xs font-semibold uppercase text-sidebar-foreground/50">
-                Produtos
+                Produtos Autorizados
               </h3>
               <div className="space-y-1">
-                {produtos?.map((produto) => {
+                {filteredProdutos.map((produto) => {
                   const isActive = location.pathname.includes(`/produto/${produto.slug}`);
                   return (
                     <Link
@@ -131,9 +130,9 @@ export function FlowrevSidebar() {
             </div>
           )}
 
-          {collapsed && produtos && (
+          {collapsed && filteredProdutos && (
             <div className="mt-8 space-y-2">
-              {produtos.map((produto) => (
+              {filteredProdutos.map((produto) => (
                 <Link
                   key={produto.id}
                   to={`/flowrev/produto/${produto.slug}`}
@@ -150,35 +149,17 @@ export function FlowrevSidebar() {
           )}
         </nav>
 
-        {/* Footer */}
+        {/* Footer with User Switcher */}
         <div className="border-t border-sidebar-border p-4">
           {!collapsed ? (
-            <div className="flex items-center gap-3">
-              <Avatar className="h-9 w-9">
-                <AvatarImage src="" />
-                <AvatarFallback className="bg-primary text-primary-foreground text-sm">
-                  U
-                </AvatarFallback>
-              </Avatar>
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-sidebar-foreground truncate">
-                  Usuário
-                </p>
-                <p className="text-xs text-sidebar-foreground/60 truncate">
-                  Coordenador
-                </p>
-              </div>
-              <Button variant="ghost" size="icon" className="text-sidebar-foreground/70 hover:text-sidebar-foreground">
-                <LogOut className="h-4 w-4" />
-              </Button>
-            </div>
+            <UserSwitcher />
           ) : (
             <div className="flex justify-center">
-              <Avatar className="h-9 w-9">
-                <AvatarFallback className="bg-primary text-primary-foreground text-sm">
-                  U
-                </AvatarFallback>
-              </Avatar>
+              <Button variant="ghost" size="icon">
+                <div className="h-6 w-6 rounded-full bg-primary text-[10px] text-white flex items-center justify-center font-bold">
+                  {user?.nome?.substring(0, 2).toUpperCase() || 'U'}
+                </div>
+              </Button>
             </div>
           )}
         </div>

@@ -15,6 +15,7 @@ import { Insumo, InsumoStatus } from "@/types/flowrev";
 import { useUpdateInsumoStatus, useUpdateInsumoContent } from "@/hooks/useFlowrev";
 import { toast } from "sonner";
 import { InsumoDetailsDialog } from "../insumo/InsumoDetailsDialog";
+import { usePermissions } from "@/hooks/usePermission";
 
 interface ProductInsumosBoardProps {
     insumos: Insumo[];
@@ -48,102 +49,111 @@ export function ProductInsumosBoard({ insumos }: ProductInsumosBoardProps) {
         }
     }
 
-    function onDragEnd(event: DragEndEvent) {
-        const { active, over } = event;
-        setActiveItem(null);
+    const { user } = usePermissions();
 
-        if (!over) return;
+    // ... inside onDragEnd
+    const activeInsumo = insumos.find(i => i.id === activeId);
+    const overColumn = COLUMNS.find(c => c.id === overId);
+    const newStatus = overColumn ? overColumn.id : null;
 
-        const activeId = active.id as string;
-        const overId = over.id as string;
+    if (!activeInsumo || !newStatus || activeInsumo.status === newStatus) return;
 
-        const activeInsumo = insumos.find(i => i.id === activeId);
-
-        const overColumn = COLUMNS.find(c => c.id === overId);
-
-        const overInsumo = insumos.find(i => i.id === overId);
-        const overInsumoStatus = overInsumo ? overInsumo.status : null;
-
-        const newStatus = overColumn ? overColumn.id : overInsumoStatus;
-
-        if (activeInsumo && newStatus && activeInsumo.status !== newStatus) {
-            updateStatus({
-                insumoId: activeId,
-                status: newStatus
-            }, {
-                onSuccess: () => {
-                    toast.success(`Status atualizado para ${newStatus.replace('_', ' ')}`);
-                },
-                onError: () => {
-                    toast.error("Erro ao atualizar status");
-                }
-            });
+    // PERMISSION CHECK FOR DRAG
+    if (user) {
+        if ((user.role === 'supervisor' || user.role === 'analista_pleno')) {
+            // Supervisors can only move TO: nao_iniciado, em_preenchimento, enviado
+            if (!['nao_iniciado', 'em_preenchimento', 'enviado'].includes(newStatus)) {
+                toast.error("Você não tem permissão para mover para este status.");
+                return;
+            }
+        }
+        if (user.role === 'analista') {
+            // Analistas can only move TO: em_analise, ajuste_solicitado, aprovado
+            if (!['em_analise', 'ajuste_solicitado', 'aprovado'].includes(newStatus)) {
+                // Maybe allow them to move back to processing? usually 'ajuste_solicitado' acts as that.
+                // Strict interpretation of prompt:
+                toast.error("Você não tem permissão para mover para este status.");
+                return;
+            }
         }
     }
 
-    const handleCardClick = (insumo: Insumo) => {
-        setSelectedInsumo(insumo);
-        setIsDialogOpen(true);
-    };
-
-    const handleSaveInsumo = (updatedData: Partial<Insumo>) => {
-        if (!selectedInsumo) return;
-
-        // Update status if changed
-        if (updatedData.status && updatedData.status !== selectedInsumo.status) {
-            updateStatus({ insumoId: selectedInsumo.id, status: updatedData.status });
+    updateStatus({
+        insumoId: activeId,
+        status: newStatus
+    }, {
+        onSuccess: () => {
+            toast.success(`Status atualizado para ${newStatus?.replace('_', ' ')}`);
+        },
+        onError: () => {
+            toast.error("Erro ao atualizar status");
         }
+    });
+}
 
-        // Update content if changed
-        if (updatedData.conteudo_texto !== selectedInsumo.conteudo_texto || updatedData.observacoes !== selectedInsumo.observacoes) {
-            updateContent({
-                insumoId: selectedInsumo.id,
-                conteudo_texto: updatedData.conteudo_texto || undefined,
-                observacoes: updatedData.observacoes || undefined
-            }, {
-                onSuccess: () => {
-                    toast.success("Conteúdo salvo com sucesso!");
-                },
-                onError: () => {
-                    toast.error("Erro ao salvar conteúdo.");
-                }
-            });
-        }
+const handleCardClick = (insumo: Insumo) => {
+    setSelectedInsumo(insumo);
+    setIsDialogOpen(true);
+};
 
-        setIsDialogOpen(false);
-    };
+const handleSaveInsumo = (updatedData: Partial<Insumo>) => {
+    if (!selectedInsumo) return;
 
-    return (
-        <>
-            <DndContext
-                sensors={sensors}
-                onDragStart={onDragStart}
-                onDragEnd={onDragEnd}
-            >
-                <div className="flex h-full gap-4 overflow-x-auto p-4 custom-scrollbar">
-                    {COLUMNS.map(col => (
-                        <ProductKanbanColumn
-                            key={col.id}
-                            column={col}
-                            items={insumos.filter(i => i.status === col.id)}
-                            onItemClick={handleCardClick}
-                        />
-                    ))}
-                </div>
-                {createPortal(
-                    <DragOverlay>
-                        {activeItem && <ProductInsumoCard insumo={activeItem} tipo={activeItem.tipo_insumo} />}
-                    </DragOverlay>,
-                    document.body
-                )}
-            </DndContext>
+    // Update status if changed
+    if (updatedData.status && updatedData.status !== selectedInsumo.status) {
+        updateStatus({ insumoId: selectedInsumo.id, status: updatedData.status });
+    }
 
-            <InsumoDetailsDialog
-                isOpen={isDialogOpen}
-                onOpenChange={setIsDialogOpen}
-                insumo={selectedInsumo}
-                onSave={handleSaveInsumo}
-            />
-        </>
-    );
+    // Update content if changed
+    if (updatedData.conteudo_texto !== selectedInsumo.conteudo_texto || updatedData.observacoes !== selectedInsumo.observacoes) {
+        updateContent({
+            insumoId: selectedInsumo.id,
+            conteudo_texto: updatedData.conteudo_texto || undefined,
+            observacoes: updatedData.observacoes || undefined
+        }, {
+            onSuccess: () => {
+                toast.success("Conteúdo salvo com sucesso!");
+            },
+            onError: () => {
+                toast.error("Erro ao salvar conteúdo.");
+            }
+        });
+    }
+
+    setIsDialogOpen(false);
+};
+
+return (
+    <>
+        <DndContext
+            sensors={sensors}
+            onDragStart={onDragStart}
+            onDragEnd={onDragEnd}
+        >
+            <div className="flex h-full gap-4 overflow-x-auto p-4 custom-scrollbar">
+                {COLUMNS.map(col => (
+                    <ProductKanbanColumn
+                        key={col.id}
+                        column={col}
+                        items={insumos.filter(i => i.status === col.id)}
+                        onItemClick={handleCardClick}
+                    />
+                ))}
+            </div>
+            {createPortal(
+                <DragOverlay>
+                    {activeItem && <ProductInsumoCard insumo={activeItem} tipo={activeItem.tipo_insumo} />}
+                </DragOverlay>,
+                document.body
+            )}
+        </DndContext>
+
+        <InsumoDetailsDialog
+            isOpen={isDialogOpen}
+            onOpenChange={setIsDialogOpen}
+            insumo={selectedInsumo}
+            onSave={handleSaveInsumo}
+        />
+    </>
+);
 }

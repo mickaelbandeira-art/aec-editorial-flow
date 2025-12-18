@@ -29,6 +29,7 @@ import { Paperclip, Image as ImageIcon, FileText, Send, CheckCircle2, Clock, Tra
 import { useUploadAnexo, useDeleteAnexo } from "@/hooks/useFlowrev";
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
+import { usePermissions } from "@/hooks/usePermission";
 
 interface InsumoDetailsDialogProps {
     isOpen: boolean;
@@ -93,8 +94,39 @@ export function InsumoDetailsDialog({
 
     const { mutate: uploadFile } = useUploadAnexo();
     const { mutate: deleteFile } = useDeleteAnexo();
+    const { user } = usePermissions();
     const imageInputRef = useRef<HTMLInputElement>(null);
     const pdfInputRef = useRef<HTMLInputElement>(null);
+
+    // Permission Logic
+    const getAvailableStatuses = () => {
+        const allStatuses: { value: InsumoStatus, label: string }[] = [
+            { value: 'nao_iniciado', label: 'Não Iniciado' },
+            { value: 'em_preenchimento', label: 'Em Preenchimento' },
+            { value: 'enviado', label: 'Enviado' },
+            { value: 'em_analise', label: 'Em Análise' },
+            { value: 'ajuste_solicitado', label: 'Ajuste Solicitado' },
+            { value: 'aprovado', label: 'Aprovado' },
+        ];
+
+        if (!user) return allStatuses;
+
+        if (user.role === 'supervisor' || user.role === 'analista_pleno') {
+            return allStatuses.filter(s => ['nao_iniciado', 'em_preenchimento', 'enviado'].includes(s.value));
+        }
+
+        if (user.role === 'analista') {
+            return allStatuses.filter(s => ['enviado', 'em_analise', 'ajuste_solicitado', 'aprovado'].includes(s.value));
+        }
+
+        if (user.role === 'coordenador' || user.role === 'gerente') {
+            return allStatuses;
+        }
+
+        return allStatuses;
+    };
+
+    const availableStatuses = getAvailableStatuses();
 
     if (!insumo) return null;
 
@@ -105,9 +137,6 @@ export function InsumoDetailsDialog({
             conteudo_texto: texto,
             observacoes: obs,
         });
-        // Don't close immediately if you want to keep editing? 
-        // For now, follow existing pattern
-        // onOpenChange(false);
     };
 
     const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>, type: 'imagem' | 'pdf') => {
@@ -176,17 +205,14 @@ export function InsumoDetailsDialog({
                             </DialogDescription>
                         </div>
                         <div className="flex items-center gap-2">
-                            <Select value={status} onValueChange={(v) => setStatus(v as InsumoStatus)}>
+                            <Select value={status} onValueChange={(v) => setStatus(v as InsumoStatus)} disabled={availableStatuses.length === 0}>
                                 <SelectTrigger className="w-[180px]">
                                     <SelectValue placeholder="Status" />
                                 </SelectTrigger>
                                 <SelectContent>
-                                    <SelectItem value="nao_iniciado">Não Iniciado</SelectItem>
-                                    <SelectItem value="em_preenchimento">Em Preenchimento</SelectItem>
-                                    <SelectItem value="enviado">Enviado</SelectItem>
-                                    <SelectItem value="em_analise">Em Análise</SelectItem>
-                                    <SelectItem value="ajuste_solicitado">Ajuste Solicitado</SelectItem>
-                                    <SelectItem value="aprovado">Aprovado</SelectItem>
+                                    {availableStatuses.map(s => (
+                                        <SelectItem key={s.value} value={s.value}>{s.label}</SelectItem>
+                                    ))}
                                 </SelectContent>
                             </Select>
                             <Button onClick={handleSave}>Salvar Alterações</Button>
