@@ -1,62 +1,10 @@
 import { useState } from "react";
 import { ProductInsumosBoard } from "@/components/flowrev/kanban/ProductInsumosBoard";
-import { useDashboardStats, useProdutos, useCreateEdicao, useSyncInsumos } from "@/hooks/useFlowrev";
-import { Loader2, Plus, RefreshCw } from "lucide-react";
-import { Insumo } from "@/types/flowrev";
-import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Button } from "@/components/ui/button";
-import { toast } from "sonner";
-
-// Inline hook for "All Insumos of the Month"
-function useAllInsumosOfMonth() {
-    return useQuery({
-        queryKey: ['flowrev-all-insumos-month'],
-        queryFn: async () => {
-            const now = new Date();
-            const mes = now.getMonth() + 1;
-            const ano = now.getFullYear();
-
-            // 1. Get editions
-            const { data: edicoes, error: edicoesError } = await supabase
-                .from('flowrev_edicoes')
-                .select(`
-            *,
-            produto:flowrev_produtos(*)
-        `)
-                .eq('mes', mes)
-                .eq('ano', ano);
-
-            if (edicoesError) throw edicoesError;
-            const edicoesIds = edicoes?.map(e => e.id) || [];
-
-            // We return empty if no editions, but we need the empty structure
-            if (edicoesIds.length === 0) return { insumos: [], edicoes: [] };
-
-            // 2. Get insumos
-            const { data: insumos, error: insumosError } = await supabase
-                .from('flowrev_insumos')
-                .select(`
-          *,
-          tipo_insumo:flowrev_tipos_insumos(*),
-          anexos:flowrev_anexos(*),
-          edicao:flowrev_edicoes(
-            *,
-            produto:flowrev_produtos(*)
-          )
-        `)
-                .in('edicao_id', edicoesIds)
-                .order('created_at');
-
-            if (insumosError) throw insumosError;
-            return { insumos: insumos as Insumo[], edicoes };
-        }
-    });
-}
+import { useDashboardStats, useProdutos, useCreateEdicao, useSyncInsumos, useAllInsumos } from "@/hooks/useFlowrev";
+// ... imports
 
 export default function ProductionLine() {
-    const { data: allData, isLoading: loadingInsumos, refetch } = useAllInsumosOfMonth();
+    const { data: allData, isLoading: loadingInsumos, refetch } = useAllInsumos();
     const { data: produtos, isLoading: loadingProdutos, error: produtosError } = useProdutos();
 
     // Actions

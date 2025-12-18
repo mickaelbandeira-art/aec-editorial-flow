@@ -35,7 +35,7 @@ const logoMap: Record<string, string> = {
 const mainNavItems = [
   { icon: LayoutDashboard, label: 'Dashboard', href: '/flowrev' },
   { icon: Newspaper, label: 'Esteira de Produção', href: '/flowrev/production' },
-  { icon: Calendar, label: 'Calendário', href: '/flowrev/calendario' },
+  { icon: Calendar, label: 'Calendário', href: '/flowrev/calendar' },
 ];
 
 export function FlowrevSidebar() {

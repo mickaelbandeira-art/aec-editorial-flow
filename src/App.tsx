@@ -22,6 +22,7 @@ const App = () => (
           <Route path="/flowrev" element={<FlowrevLayout />}>
             <Route index element={<FlowrevDashboard />} />
             <Route path="production" element={<ProductionLine />} />
+            <Route path="calendar" element={<CalendarPage />} />
             <Route path="produto/:slug" element={<ProductPage />} />
           </Route>
           <Route path="*" element={<NotFound />} />
