@@ -480,3 +480,48 @@ export function useSyncInsumos() {
     },
   });
 }
+
+export function useAllInsumos() {
+  return useQuery({
+    queryKey: ['flowrev-all-insumos'],
+    queryFn: async () => {
+      const now = new Date();
+      const mes = now.getMonth() + 1;
+      const ano = now.getFullYear();
+
+      // 1. Get editions
+      const { data: edicoes, error: edicoesError } = await supabase
+        .from('flowrev_edicoes')
+        .select(`
+          *,
+          produto:flowrev_produtos(*)
+        `)
+        .eq('mes', mes)
+        .eq('ano', ano);
+
+      if (edicoesError) throw edicoesError;
+      const edicoesIds = edicoes?.map(e => e.id) || [];
+
+      // We return empty if no editions, but we need the empty structure
+      if (edicoesIds.length === 0) return { insumos: [], edicoes: [] };
+
+      // 2. Get insumos
+      const { data: insumos, error: insumosError } = await supabase
+        .from('flowrev_insumos')
+        .select(`
+          *,
+          tipo_insumo:flowrev_tipos_insumos(*),
+          anexos:flowrev_anexos(*),
+          edicao:flowrev_edicoes(
+            *,
+            produto:flowrev_produtos(*)
+          )
+        `)
+        .in('edicao_id', edicoesIds)
+        .order('created_at');
+
+      if (insumosError) throw insumosError;
+      return { insumos: insumos as Insumo[], edicoes };
+    }
+  });
+}
