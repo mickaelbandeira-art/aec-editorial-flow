@@ -51,44 +51,49 @@ export function ProductInsumosBoard({ insumos }: ProductInsumosBoardProps) {
 
     const { user } = usePermissions();
 
-    // ... inside onDragEnd
-    const activeInsumo = insumos.find(i => i.id === activeId);
-    const overColumn = COLUMNS.find(c => c.id === overId);
-    const newStatus = overColumn ? overColumn.id : null;
+    function onDragEnd(event: DragEndEvent) {
+        const { active, over } = event;
+        if (!over) return;
 
-    if (!activeInsumo || !newStatus || activeInsumo.status === newStatus) return;
+        const activeId = active.id;
+        const overId = over.id;
 
-    // PERMISSION CHECK FOR DRAG
-    if (user) {
-        if ((user.role === 'supervisor' || user.role === 'analista_pleno')) {
-            // Supervisors can only move TO: nao_iniciado, em_preenchimento, enviado
-            if (!['nao_iniciado', 'em_preenchimento', 'enviado'].includes(newStatus)) {
-                toast.error("Você não tem permissão para mover para este status.");
-                return;
+        const activeInsumo = insumos.find(i => i.id === activeId);
+        const overColumn = COLUMNS.find(c => c.id === overId);
+        const newStatus = overColumn ? overColumn.id : null;
+
+        if (!activeInsumo || !newStatus || activeInsumo.status === newStatus) return;
+
+        // PERMISSION CHECK FOR DRAG
+        if (user) {
+            if ((user.role === 'supervisor' || user.role === 'analista_pleno')) {
+                // Supervisors can only move TO: nao_iniciado, em_preenchimento, enviado
+                if (!['nao_iniciado', 'em_preenchimento', 'enviado'].includes(newStatus)) {
+                    toast.error("Você não tem permissão para mover para este status.");
+                    return;
+                }
+            }
+            if (user.role === 'analista') {
+                // Analistas can only move TO: em_analise, ajuste_solicitado, aprovado
+                if (!['em_analise', 'ajuste_solicitado', 'aprovado'].includes(newStatus)) {
+                    toast.error("Você não tem permissão para mover para este status.");
+                    return;
+                }
             }
         }
-        if (user.role === 'analista') {
-            // Analistas can only move TO: em_analise, ajuste_solicitado, aprovado
-            if (!['em_analise', 'ajuste_solicitado', 'aprovado'].includes(newStatus)) {
-                // Maybe allow them to move back to processing? usually 'ajuste_solicitado' acts as that.
-                // Strict interpretation of prompt:
-                toast.error("Você não tem permissão para mover para este status.");
-                return;
+
+        updateStatus({
+            insumoId: activeId as string,
+            status: newStatus
+        }, {
+            onSuccess: () => {
+                toast.success(`Status atualizado para ${newStatus?.replace('_', ' ')}`);
+            },
+            onError: () => {
+                toast.error("Erro ao atualizar status");
             }
-        }
+        });
     }
-
-    updateStatus({
-        insumoId: activeId,
-        status: newStatus
-    }, {
-        onSuccess: () => {
-            toast.success(`Status atualizado para ${newStatus?.replace('_', ' ')}`);
-        },
-        onError: () => {
-            toast.error("Erro ao atualizar status");
-        }
-    });
 
 
     const handleCardClick = (insumo: Insumo) => {
