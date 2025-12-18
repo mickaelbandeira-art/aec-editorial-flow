@@ -89,71 +89,71 @@ export function ProductInsumosBoard({ insumos }: ProductInsumosBoardProps) {
             toast.error("Erro ao atualizar status");
         }
     });
-}
 
-const handleCardClick = (insumo: Insumo) => {
-    setSelectedInsumo(insumo);
-    setIsDialogOpen(true);
-};
 
-const handleSaveInsumo = (updatedData: Partial<Insumo>) => {
-    if (!selectedInsumo) return;
+    const handleCardClick = (insumo: Insumo) => {
+        setSelectedInsumo(insumo);
+        setIsDialogOpen(true);
+    };
 
-    // Update status if changed
-    if (updatedData.status && updatedData.status !== selectedInsumo.status) {
-        updateStatus({ insumoId: selectedInsumo.id, status: updatedData.status });
-    }
+    const handleSaveInsumo = (updatedData: Partial<Insumo>) => {
+        if (!selectedInsumo) return;
 
-    // Update content if changed
-    if (updatedData.conteudo_texto !== selectedInsumo.conteudo_texto || updatedData.observacoes !== selectedInsumo.observacoes) {
-        updateContent({
-            insumoId: selectedInsumo.id,
-            conteudo_texto: updatedData.conteudo_texto || undefined,
-            observacoes: updatedData.observacoes || undefined
-        }, {
-            onSuccess: () => {
-                toast.success("Conteúdo salvo com sucesso!");
-            },
-            onError: () => {
-                toast.error("Erro ao salvar conteúdo.");
-            }
-        });
-    }
+        // Update status if changed
+        if (updatedData.status && updatedData.status !== selectedInsumo.status) {
+            updateStatus({ insumoId: selectedInsumo.id, status: updatedData.status });
+        }
 
-    setIsDialogOpen(false);
-};
+        // Update content if changed
+        if (updatedData.conteudo_texto !== selectedInsumo.conteudo_texto || updatedData.observacoes !== selectedInsumo.observacoes) {
+            updateContent({
+                insumoId: selectedInsumo.id,
+                conteudo_texto: updatedData.conteudo_texto || undefined,
+                observacoes: updatedData.observacoes || undefined
+            }, {
+                onSuccess: () => {
+                    toast.success("Conteúdo salvo com sucesso!");
+                },
+                onError: () => {
+                    toast.error("Erro ao salvar conteúdo.");
+                }
+            });
+        }
 
-return (
-    <>
-        <DndContext
-            sensors={sensors}
-            onDragStart={onDragStart}
-            onDragEnd={onDragEnd}
-        >
-            <div className="flex h-full gap-4 overflow-x-auto p-4 custom-scrollbar">
-                {COLUMNS.map(col => (
-                    <ProductKanbanColumn
-                        key={col.id}
-                        column={col}
-                        items={insumos.filter(i => i.status === col.id)}
-                        onItemClick={handleCardClick}
-                    />
-                ))}
-            </div>
-            {createPortal(
-                <DragOverlay>
-                    {activeItem && <ProductInsumoCard insumo={activeItem} tipo={activeItem.tipo_insumo} />}
-                </DragOverlay>,
-                document.body
-            )}
-        </DndContext>
+        setIsDialogOpen(false);
+    };
 
-        <InsumoDetailsDialog
-            isOpen={isDialogOpen}
-            onOpenChange={setIsDialogOpen}
-            insumo={selectedInsumo}
-            onSave={handleSaveInsumo}
-        />
-    </>
-);
+    return (
+        <>
+            <DndContext
+                sensors={sensors}
+                onDragStart={onDragStart}
+                onDragEnd={onDragEnd}
+            >
+                <div className="flex h-full gap-4 overflow-x-auto p-4 custom-scrollbar">
+                    {COLUMNS.map(col => (
+                        <ProductKanbanColumn
+                            key={col.id}
+                            column={col}
+                            items={insumos.filter(i => i.status === col.id)}
+                            onItemClick={handleCardClick}
+                        />
+                    ))}
+                </div>
+                {createPortal(
+                    <DragOverlay>
+                        {activeItem && <ProductInsumoCard insumo={activeItem} tipo={activeItem.tipo_insumo} />}
+                    </DragOverlay>,
+                    document.body
+                )}
+            </DndContext>
+
+            <InsumoDetailsDialog
+                isOpen={isDialogOpen}
+                onOpenChange={setIsDialogOpen}
+                insumo={selectedInsumo}
+                onSave={handleSaveInsumo}
+            />
+        </>
+    );
 }
