@@ -11,7 +11,8 @@ import { toast } from "sonner";
 
 // Inline hook for "All Insumos of the Month"
 function useAllInsumosOfMonth() {
-    queryKey: ['flowrev-all-insumos-month'],
+    return useQuery({
+        queryKey: ['flowrev-all-insumos-month'],
         queryFn: async () => {
             const now = new Date();
             const mes = now.getMonth() + 1;
@@ -47,7 +48,7 @@ function useAllInsumosOfMonth() {
             if (insumosError) throw insumosError;
             return insumos as Insumo[];
         }
-});
+    });
 }
 
 export default function ProductionLine() {
