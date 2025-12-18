@@ -429,3 +429,51 @@ export function useDeleteAnexo() {
     },
   });
 }
+
+export function useSyncInsumos() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (edicaoId: string) => {
+      // 1. Get all active types
+      const { data: tipos, error: tiposError } = await supabase
+        .from('flowrev_tipos_insumos')
+        .select('id')
+        .eq('ativo', true);
+
+      if (tiposError) throw tiposError;
+
+      // 2. Get existing insumos for this edition
+      const { data: existingInsumos, error: insumosError } = await supabase
+        .from('flowrev_insumos')
+        .select('tipo_insumo_id')
+        .eq('edicao_id', edicaoId);
+
+      if (insumosError) throw insumosError;
+
+      const existingTypeIds = new Set(existingInsumos?.map(i => i.tipo_insumo_id));
+
+      // 3. Filter missing types
+      const missingTypes = tipos?.filter(t => !existingTypeIds.has(t.id)) || [];
+
+      if (missingTypes.length === 0) return { count: 0 };
+
+      // 4. Create missing insumos
+      const { error: insertError } = await supabase
+        .from('flowrev_insumos')
+        .insert(missingTypes.map(t => ({
+          edicao_id: edicaoId,
+          tipo_insumo_id: t.id,
+          status: 'nao_iniciado',
+          data_limite: new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0) // End of current month
+        })));
+
+      if (insertError) throw insertError;
+
+      return { count: missingTypes.length };
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['flowrev-insumos'] });
+    },
+  });
+}
