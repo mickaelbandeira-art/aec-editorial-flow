@@ -1,16 +1,17 @@
+import { useState } from "react";
 import { ProductInsumosBoard } from "@/components/flowrev/kanban/ProductInsumosBoard";
-import { Loader2 } from "lucide-react";
+import { useDashboardStats, useProdutos, useCreateEdicao, useSyncInsumos } from "@/hooks/useFlowrev";
+import { Loader2, Plus, RefreshCw } from "lucide-react";
 import { Insumo } from "@/types/flowrev";
-
-// Reseting connection for clean implementation
-import { useInsumos } from "@/hooks/useFlowrev"; // This takes ONE edition ID. We need ALL.
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
 
 // Inline hook for "All Insumos of the Month"
 function useAllInsumosOfMonth() {
-    return useQuery({
-        queryKey: ['flowrev-all-insumos-month'],
+    queryKey: ['flowrev-all-insumos-month'],
         queryFn: async () => {
             const now = new Date();
             const mes = now.getMonth() + 1;
@@ -46,7 +47,7 @@ function useAllInsumosOfMonth() {
             if (insumosError) throw insumosError;
             return insumos as Insumo[];
         }
-    });
+});
 }
 
 export default function ProductionLine() {
