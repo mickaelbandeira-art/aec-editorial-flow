@@ -6,13 +6,20 @@ import { useProdutos, useDashboardStats } from '@/hooks/useFlowrev';
 import { usePermissions } from '@/hooks/usePermission';
 import { Newspaper, Clock, AlertTriangle, CheckCircle2 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { ManagerDashboard } from '@/components/flowrev/dashboards/ManagerDashboard';
 
 export default function FlowrevDashboard() {
   const { data: allProdutos, isLoading: loadingProdutos } = useProdutos();
   const { data: stats, isLoading: loadingStats } = useDashboardStats();
-  const { canAccessProduct } = usePermissions();
+  const { canAccessProduct, user } = usePermissions();
 
   const produtos = allProdutos?.filter(p => canAccessProduct(p.slug));
+
+  if (user?.role === 'gerente' || user?.role === 'coordenador') {
+    return <ManagerDashboard />;
+  }
+
+  // OPERATIONAL DASHBOARD (Fallback/Analyst View)
 
   const mesAtual = new Date().toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' });
 

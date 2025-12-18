@@ -525,3 +525,133 @@ export function useAllInsumos() {
     }
   });
 }
+export function useManagerStats() {
+  return useQuery({
+    queryKey: ['flowrev-manager-stats'],
+    queryFn: async () => {
+      const now = new Date();
+      const mesAtual = now.getMonth() + 1;
+      const anoAtual = now.getFullYear();
+
+      // 1. Fetch current month editions and their insumos
+      const { data: edicoesAtual, error: errEdicoes } = await supabase
+        .from('flowrev_edicoes')
+        .select(`
+          *,
+          produto:flowrev_produtos(nome, slug)
+        `)
+        .eq('mes', mesAtual)
+        .eq('ano', anoAtual);
+
+      if (errEdicoes) throw errEdicoes;
+
+      const edicoesIds = edicoesAtual?.map(e => e.id) || [];
+      const { data: insumosAtual, error: errInsumos } = await supabase
+        .from('flowrev_insumos')
+        .select(`
+          *,
+          tipo_insumo:flowrev_tipos_insumos(*),
+          edicao:flowrev_edicoes(
+            id, 
+            produto:flowrev_produtos(nome, slug)
+          )
+        `)
+        .in('edicao_id', edicoesIds);
+
+      if (errInsumos) throw errInsumos;
+
+      // 2. Calculate KPI stats
+      const totalInsumos = insumosAtual?.length || 0;
+      const concluidos = insumosAtual?.filter(i => i.status === 'aprovado').length || 0;
+      const pendentes = totalInsumos - concluidos;
+      const today = new Date().toISOString().split('T')[0];
+      const atrasados = insumosAtual?.filter(i => i.status !== 'aprovado' && i.data_limite && i.data_limite < today) || [];
+
+      // 3. Product Progress
+      const progressoPorProduto = edicoesAtual?.map(edicao => {
+        const insumosEdicao = insumosAtual?.filter(i => i.edicao_id === edicao.id) || [];
+        const total = insumosEdicao.length;
+        const done = insumosEdicao.filter(i => i.status === 'aprovado').length;
+        return {
+          id: edicao.produto.slug,
+          nome: edicao.produto.nome,
+          total,
+          concluidos: done,
+          percentual: total > 0 ? Math.round((done / total) * 100) : 0,
+          status: total > 0 && (done / total) === 1 ? 'concluido' : 'em_andamento' // Simplify for now
+        };
+      }) || [];
+
+      // 4. Phase Progress (Simulated based on status groups)
+      const statusFaseMap = {
+        'nao_iniciado': 'Kickoff',
+        'em_preenchimento': 'Produção',
+        'enviado': 'Revisão',
+        'em_analise': 'Revisão',
+        'ajuste_solicitado': 'Ajustes',
+        'aprovado': 'Finalizado'
+      };
+
+      const progressoPorFase = Object.values(statusFaseMap).reduce((acc, fase) => {
+        acc[fase] = { total: 0, count: 0 };
+        return acc;
+      }, {} as Record<string, { total: number, count: number }>);
+
+      insumosAtual?.forEach(i => {
+        const fase = statusFaseMap[i.status as keyof typeof statusFaseMap] || 'Outros';
+        if (progressoPorFase[fase]) {
+          progressoPorFase[fase].total++;
+          if (i.status === 'aprovado') progressoPorFase[fase].count++; // Rough appx
+          // Better logic: Phase is completed if status is beyond it. 
+          // For simplicity in this iteration: Count items IN each bucket.
+          progressoPorFase[fase].count = insumosAtual.filter(item => statusFaseMap[item.status as keyof typeof statusFaseMap] === fase).length;
+        }
+      });
+
+      // Re-map for chart
+      const dadosFaseChart = Object.entries(progressoPorFase).map(([name, val]) => ({
+        name,
+        value: val.count
+      }));
+
+      // 5. Monthly Comparison (Mocked for previous months if no data exists, or query past months)
+      // Querying past 3 months
+      const prevMonth = mesAtual === 1 ? 12 : mesAtual - 1;
+      const prevYear = mesAtual === 1 ? anoAtual - 1 : anoAtual;
+
+      const { data: edicoesPrev } = await supabase
+        .from('flowrev_edicoes')
+        .select('percentual_conclusao')
+        .eq('mes', prevMonth)
+        .eq('ano', prevYear);
+
+      const prevAvg = edicoesPrev && edicoesPrev.length > 0
+        ? edicoesPrev.reduce((a, b) => a + (b.percentual_conclusao || 0), 0) / edicoesPrev.length
+        : 0;
+
+      return {
+        kpis: {
+          total: totalInsumos,
+          concluidos,
+          pendentes,
+          atrasadosCount: atrasados.length,
+          progressoGeral: totalInsumos > 0 ? Math.round((concluidos / totalInsumos) * 100) : 0
+        },
+        progressoPorProduto,
+        dadosFaseChart,
+        atrasadosList: atrasados.map(i => ({
+          id: i.id,
+          nome: i.tipo_insumo?.nome || 'Insumo',
+          produto: i.edicao?.produto?.nome || '?',
+          responsavel: 'Equipe', // Placeholder until user assignment implemented
+          data_limite: i.data_limite,
+          status: i.status
+        })),
+        comparativoMensal: [
+          { name: `${prevMonth}/${prevYear}`, progresso: Math.round(prevAvg) },
+          { name: `${mesAtual}/${anoAtual}`, progresso: totalInsumos > 0 ? Math.round((concluidos / totalInsumos) * 100) : 0 }
+        ]
+      };
+    }
+  });
+}
