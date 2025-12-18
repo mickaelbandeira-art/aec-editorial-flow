@@ -123,14 +123,8 @@ export default function ProductionLine() {
 
                     {!produtos || produtos.length === 0 ? (
                         <div className="flex flex-col items-center justify-center h-full text-muted-foreground bg-muted/20 rounded-lg border border-dashed border-border p-8">
-                            <p className="font-semibold text-lg text-red-500">Nenhum produto encontrado.</p>
-                            <p>Diagnosticando o problema:</p>
-                            <div className="bg-slate-950 text-white p-4 rounded mt-4 text-xs font-mono max-w-lg overflow-auto">
-                                <p><strong>Projeto Conectado:</strong> {supabase.supabaseUrl}</p>
-                                <p className="mt-2">Status RLS/Erro: {produtosError ? JSON.stringify(produtosError) : "Nenhum erro reportado pela API (Lista vazia retornada)."}</p>
-                                <p className="mt-2 text-yellow-300">IMPORTANTE: Verifique se o ID do projeto acima (ex: 'mnop...') é igual ao do seu Supabase Dashboard.</p>
-                                <p>Se for diferente, seu arquivo .env está errado.</p>
-                            </div>
+                            <p className="font-semibold text-lg">Nenhum produto encontrado.</p>
+                            <p>Verifique se os dados foram inseridos corretamente no banco.</p>
                         </div>
                     ) : (
                         <>
@@ -180,7 +174,7 @@ export default function ProductionLine() {
                         </>
                     )}
                 </Tabs>
-            </div>
-        </div>
+            </div >
+        </div >
     );
 }
