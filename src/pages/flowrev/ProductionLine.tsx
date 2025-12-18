@@ -1,7 +1,13 @@
 import { useState } from "react";
 import { ProductInsumosBoard } from "@/components/flowrev/kanban/ProductInsumosBoard";
 import { useDashboardStats, useProdutos, useCreateEdicao, useSyncInsumos, useAllInsumos } from "@/hooks/useFlowrev";
-// ... imports
+import { Loader2, Plus, RefreshCw } from "lucide-react";
+import { Insumo } from "@/types/flowrev";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
 
 export default function ProductionLine() {
     const { data: allData, isLoading: loadingInsumos, refetch } = useAllInsumos();
