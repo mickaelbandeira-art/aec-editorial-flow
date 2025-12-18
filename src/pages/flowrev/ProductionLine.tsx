@@ -1,21 +1,6 @@
 import { ProductInsumosBoard } from "@/components/flowrev/kanban/ProductInsumosBoard";
-import { useDashboardStats } from "@/hooks/useFlowrev";
 import { Loader2 } from "lucide-react";
 import { Insumo } from "@/types/flowrev";
-
-export default function ProductionLine() {
-    // We can use useDashboardStats to get all insumos for the current month across all products
-    // Or we could create a dedicated hook useAllInsumos()
-    const { data: stats, isLoading } = useDashboardStats();
-
-    // Extract all insumos from the stats query which fetches them to calculate totals
-    // But wait, useDashboardStats calculates metrics but doesn't return the raw array easily in the current return shape
-    // Let's modify useDashboardStats or just fetch them here?
-    // Actually, useDashboardStats returns 'edicoes' and logic inside computes stats. 
-    // We need the raw insumos.
-    // Let's look at useFlowrev.tsx again. useDashboardStats fetches insumos internally.
-    // Let's implementing a specific query here is better/cleaner.
-}
 
 // Reseting connection for clean implementation
 import { useInsumos } from "@/hooks/useFlowrev"; // This takes ONE edition ID. We need ALL.
