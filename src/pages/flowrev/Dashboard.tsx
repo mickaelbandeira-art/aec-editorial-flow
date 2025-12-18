@@ -3,12 +3,16 @@ import { StatsCard } from '@/components/flowrev/StatsCard';
 import { ProductCard } from '@/components/flowrev/ProductCard';
 import { FaseTimeline } from '@/components/flowrev/FaseTimeline';
 import { useProdutos, useDashboardStats } from '@/hooks/useFlowrev';
+import { usePermissions } from '@/hooks/usePermission';
 import { Newspaper, Clock, AlertTriangle, CheckCircle2 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 export default function FlowrevDashboard() {
-  const { data: produtos, isLoading: loadingProdutos } = useProdutos();
+  const { data: allProdutos, isLoading: loadingProdutos } = useProdutos();
   const { data: stats, isLoading: loadingStats } = useDashboardStats();
+  const { canAccessProduct } = usePermissions();
+
+  const produtos = allProdutos?.filter(p => canAccessProduct(p.slug));
 
   const mesAtual = new Date().toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' });
 

@@ -1,18 +1,33 @@
-import { useParams } from "react-router-dom";
+import { useParams, Navigate } from "react-router-dom";
 import { FlowrevHeader } from "@/components/flowrev/Header";
 import { useProdutos, useEdicaoAtual, useInsumos, useCreateEdicao, useSyncInsumos } from "@/hooks/useFlowrev";
+import { usePermissions } from "@/hooks/usePermission";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card } from "@/components/ui/card";
 import { ProductInsumosBoard } from "@/components/flowrev/kanban/ProductInsumosBoard";
 import { Button } from "@/components/ui/button";
-import { Plus, RefreshCw, Loader2 } from "lucide-react";
+import { Plus, RefreshCw, Loader2, Lock } from "lucide-react";
 import { toast } from "sonner";
 
 export default function ProductPage() {
     const { slug } = useParams();
     const { data: produtos } = useProdutos();
+    const { canAccessProduct } = usePermissions();
 
     const produto = produtos?.find(p => p.slug === slug);
+
+    if (produto && !canAccessProduct(produto.slug)) {
+        return (
+            <div className="flex flex-col items-center justify-center h-screen bg-background gap-4">
+                <div className="p-4 bg-destructive/10 rounded-full">
+                    <Lock className="w-8 h-8 text-destructive" />
+                </div>
+                <h1 className="text-xl font-bold">Acesso Negado</h1>
+                <p className="text-muted-foreground">Você não tem permissão para acessar o painel do produto "{produto.nome}".</p>
+                <Button variant="outline" onClick={() => window.history.back()}>Voltar</Button>
+            </div>
+        );
+    }
 
     // Fetch current edition for this product
     const { data: edicao, isLoading: loadingEdicao } = useEdicaoAtual(produto?.id || "");
