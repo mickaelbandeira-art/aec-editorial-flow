@@ -469,7 +469,7 @@ export function useSyncInsumos() {
           edicao_id: edicaoId,
           tipo_insumo_id: t.id,
           status: 'nao_iniciado',
-          data_limite: new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0) // End of current month
+          data_limite: new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0).toISOString() // End of current month
         })));
 
       if (insertError) throw insertError;
