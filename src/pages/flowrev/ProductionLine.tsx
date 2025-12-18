@@ -31,6 +31,7 @@ function useAllInsumosOfMonth() {
             if (edicoesError) throw edicoesError;
             const edicoesIds = edicoes?.map(e => e.id) || [];
 
+            // We return empty if no editions, but we need the empty structure
             if (edicoesIds.length === 0) return { insumos: [], edicoes: [] };
 
             // 2. Get insumos
@@ -120,52 +121,59 @@ export default function ProductionLine() {
                         </TabsList>
                     </div>
 
-                    <TabsContent value="todos" className="flex-1 h-full mt-0 overflow-hidden">
-                        <div className="h-full rounded-md border border-dashed border-border bg-card/50">
-                            <ProductInsumosBoard insumos={insumos} />
+                    {!produtos || produtos.length === 0 ? (
+                        <div className="flex flex-col items-center justify-center h-full text-muted-foreground bg-muted/20 rounded-lg border border-dashed border-border p-8">
+                            <p className="font-semibold text-lg">Nenhum produto encontrado.</p>
+                            <p>Verifique se você rodou o script de "Seed" no banco de dados.</p>
+                            <p className="text-sm mt-2">Dica: O RLS já deve estar desativado se você rodou o script disable_rls.sql.</p>
                         </div>
-                    </TabsContent>
-
-                    {produtos?.map(produto => {
-                        const edicao = edicoes.find(e => e.produto_id === produto.id);
-                        const insumosProduto = insumos.filter(i => i.edicao?.produto_id === produto.id);
-                        const hasEdicao = !!edicao;
-                        const hasInsumos = insumosProduto.length > 0;
-
-                        return (
-                            <TabsContent key={produto.id} value={produto.id} className="flex-1 h-full mt-0 overflow-hidden">
-                                <div className="flex flex-col h-full">
-                                    <div className="mb-4 flex gap-2">
-                                        {!hasEdicao && (
-                                            <Button onClick={() => handleCreateEdicao(produto.id)} disabled={creatingEdicao}>
-                                                {creatingEdicao ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Plus className="mr-2 h-4 w-4" />}
-                                                Iniciar Edição para {produto.nome}
-                                            </Button>
-                                        )}
-                                        {hasEdicao && !hasInsumos && (
-                                            <Button variant="outline" onClick={() => handleSyncInsumos(edicao.id)} disabled={syncingInsumos}>
-                                                {syncingInsumos ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <RefreshCw className="mr-2 h-4 w-4" />}
-                                                Gerar Insumos Faltantes
-                                            </Button>
-                                        )}
-                                    </div>
-
-                                    <div className="h-full rounded-md border border-dashed border-border bg-card/50">
-                                        {hasInsumos || hasEdicao ? (
-                                            <ProductInsumosBoard insumos={insumosProduto} />
-                                        ) : (
-                                            <div className="flex flex-col items-center justify-center h-full text-muted-foreground">
-                                                <p>Nenhuma edição iniciada para este produto neste mês.</p>
-                                                <Button variant="link" onClick={() => handleCreateEdicao(produto.id)} className="mt-2">
-                                                    Clique para iniciar
-                                                </Button>
-                                            </div>
-                                        )}
-                                    </div>
+                    ) : (
+                        <>
+                            <TabsContent value="todos" className="flex-1 h-full mt-0 overflow-hidden">
+                                <div className="h-full rounded-md border border-dashed border-border bg-card/50">
+                                    <ProductInsumosBoard insumos={insumos} />
                                 </div>
                             </TabsContent>
-                        );
-                    })}
+
+                            {produtos.map(produto => {
+                                const edicao = edicoes.find(e => e.produto_id === produto.id);
+                                const insumosProduto = insumos.filter(i => i.edicao?.produto_id === produto.id);
+                                const hasEdicao = !!edicao;
+                                const hasInsumos = insumosProduto.length > 0;
+
+                                return (
+                                    <TabsContent key={produto.id} value={produto.id} className="flex-1 h-full mt-0 overflow-hidden">
+                                        <div className="flex flex-col h-full">
+                                            <div className="mb-4 flex gap-2">
+                                                {!hasEdicao && (
+                                                    <Button onClick={() => handleCreateEdicao(produto.id)} disabled={creatingEdicao}>
+                                                        {creatingEdicao ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Plus className="mr-2 h-4 w-4" />}
+                                                        Iniciar Edição para {produto.nome}
+                                                    </Button>
+                                                )}
+                                                {hasEdicao && !hasInsumos && (
+                                                    <Button variant="outline" onClick={() => handleSyncInsumos(edicao.id)} disabled={syncingInsumos}>
+                                                        {syncingInsumos ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <RefreshCw className="mr-2 h-4 w-4" />}
+                                                        Gerar Insumos Faltantes
+                                                    </Button>
+                                                )}
+                                            </div>
+
+                                            <div className="h-full rounded-md border border-dashed border-border bg-card/50">
+                                                {hasInsumos || hasEdicao ? (
+                                                    <ProductInsumosBoard insumos={insumosProduto} />
+                                                ) : (
+                                                    <div className="flex flex-col items-center justify-center h-full text-muted-foreground">
+                                                        <p>Nenhuma edição iniciada para este produto neste mês.</p>
+                                                    </div>
+                                                )}
+                                            </div>
+                                        </div>
+                                    </TabsContent>
+                                );
+                            })}
+                        </>
+                    )}
                 </Tabs>
             </div>
         </div>
