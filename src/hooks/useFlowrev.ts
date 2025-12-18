@@ -12,7 +12,11 @@ export function useProdutos() {
         .eq('ativo', true)
         .order('ordem');
 
-      if (error) throw error;
+      if (error) {
+        console.error("Erro ao buscar produtos:", error);
+        throw error;
+      }
+      console.log("Produtos carregados:", data);
       return data as Produto[];
     },
   });
