@@ -21,6 +21,23 @@ export default function LoginPage() {
         setLoading(true);
 
         try {
+            // BYPASS FOR DEV/TESTING
+            if (email.trim() === 'mickael.bandeira@aec.com.br' && matricula.trim() === '461576') {
+                const userProfile = {
+                    id: "dev-bypass-id",
+                    email: "mickael.bandeira@aec.com.br",
+                    nome: "Mickael Bandeira",
+                    matricula: "461576",
+                    role: "gerente" as any, // Giving full access
+                    produtos_acesso: []
+                };
+                login(userProfile);
+                toast.success(`Bem-vindo, ${userProfile.nome}! (Modo Dev)`);
+                navigate("/flowrev");
+                setLoading(false);
+                return;
+            }
+
             // Verifica se o usuário existe no banco 'profiles'
             const { data, error } = await supabase
                 .from('profiles')
