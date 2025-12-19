@@ -390,7 +390,7 @@ export function useUploadAnexo() {
       // Create a unique file name
       const fileExt = file.name.split('.').pop();
       const fileName = `${insumoId}/${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
-      const bucket = 'insumos';
+      const bucket = 'flowrev-insumos';
 
       // Attempt upload
       const { data: uploadData, error: uploadError } = await supabase.storage
@@ -464,10 +464,10 @@ export function useDeleteAnexo() {
 
       // Extract path from URL (basic logic assuming standard Supabase URL structure)
       // .../storage/v1/object/public/bucket_name/path/to/file
-      const urlParts = anexo.url.split('/public/insumos/');
+      const urlParts = anexo.url.split('/public/flowrev-insumos/');
       if (urlParts.length > 1) {
         const path = urlParts[1];
-        await supabase.storage.from('insumos').remove([path]);
+        await supabase.storage.from('flowrev-insumos').remove([path]);
       }
 
       // 2. Delete from DB
