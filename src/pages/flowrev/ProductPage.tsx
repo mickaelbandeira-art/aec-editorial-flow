@@ -16,7 +16,10 @@ export default function ProductPage() {
 
     const produto = produtos?.find(p => p.slug === slug);
 
-    if (produto && !canAccessProduct(produto.slug)) {
+    const isMickael = user?.email === 'mickael.bandeira@aec.com.br';
+    const hasAccess = canAccessProduct(produto.slug) || (isMickael && produto.slug === 'claro');
+
+    if (produto && !hasAccess) {
         return (
             <div className="flex flex-col items-center justify-center h-screen bg-background gap-4">
                 <div className="p-4 bg-destructive/10 rounded-full">
