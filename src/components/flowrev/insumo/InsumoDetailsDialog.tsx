@@ -167,8 +167,8 @@ export function InsumoDetailsDialog({
                 setUploading(false);
             },
             onError: (error) => {
-                console.error(error);
-                toast.error("Erro no upload. Tente novamente.");
+                console.error("Upload error:", error);
+                toast.error(`Erro no upload: ${error instanceof Error ? error.message : "Desconhecido"}`);
                 setUploading(false);
             }
         });
