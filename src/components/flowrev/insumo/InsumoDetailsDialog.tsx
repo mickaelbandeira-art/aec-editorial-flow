@@ -347,7 +347,7 @@ export function InsumoDetailsDialog({
                                                                 </p>
                                                             </div>
                                                             <div className="flex gap-1">
-                                                                <Button variant="ghost" size="icon" className="h-8 w-8" asChild>
+                                                                <Button variant="ghost" size="icon" className="h-8 w-8" asChild onClick={() => console.log("Opening URL:", anexo.url)}>
                                                                     <a href={anexo.url} target="_blank" rel="noopener noreferrer">
                                                                         <Download className="h-4 w-4" />
                                                                     </a>
