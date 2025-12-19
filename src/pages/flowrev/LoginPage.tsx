@@ -67,37 +67,6 @@ export default function LoginPage() {
                 return;
             }
 
-
-
-            // Verifica se o usuário existe no banco 'profiles' buscando apenas pelo e-mail primeiro para debug
-            const { data, error } = await supabase
-                .from('profiles')
-                .select('id, email, matricula, full_name, role')
-                .eq('email', email.trim())
-                .maybeSingle(); // Usar maybeSingle para não estourar erro se não achar
-
-            if (error) {
-                console.error("Erro ao buscar usuário:", error);
-                toast.error("Erro de conexão ao buscar usuário.");
-                setLoading(false);
-                return;
-            }
-
-            if (!data) {
-                console.error("Usuário não encontrado com este e-mail.");
-                toast.error("E-mail não encontrado na base de dados.");
-                setLoading(false);
-                return;
-            }
-
-            // Validação da Matrícula
-            if (data.matricula !== matricula.trim()) {
-                console.error(`Matrícula inválida. Esperado: ${data.matricula}, Recebido: ${matricula.trim()}`);
-                toast.error("Matrícula incorreta para este usuário.");
-                setLoading(false);
-                return;
-            }
-
             // Mapeia para o formato esperado pelo AuthStore
             // Assume que role do profile é compatível ou faz cast, e produtos_acesso vazio por enquanto
             const userProfile = {
