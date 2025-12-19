@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import React, { useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import {
     Dialog,
@@ -56,6 +56,13 @@ const TiptapEditor = ({ content, onChange, editable = true }: { content: string,
         },
     });
 
+    // Sync content if it changes externally (e.g. switching cards)
+    React.useEffect(() => {
+        if (editor && content !== editor.getHTML()) {
+            editor.commands.setContent(content || '');
+        }
+    }, [content, editor]);
+
     if (!editor) {
         return null;
     }
@@ -82,9 +89,18 @@ export function InsumoDetailsDialog({
     insumo,
     onSave,
 }: InsumoDetailsDialogProps) {
-    const [status, setStatus] = useState<InsumoStatus>(insumo?.status || 'nao_iniciado');
-    const [texto, setTexto] = useState(insumo?.conteudo_texto || '');
-    const [obs, setObs] = useState(insumo?.observacoes || '');
+    const [status, setStatus] = useState<InsumoStatus>('nao_iniciado');
+    const [texto, setTexto] = useState('');
+    const [obs, setObs] = useState('');
+
+    // Sync state when insumo changes
+    React.useEffect(() => {
+        if (insumo) {
+            setStatus(insumo.status || 'nao_iniciado');
+            setTexto(insumo.conteudo_texto || '');
+            setObs(insumo.observacoes || '');
+        }
+    }, [insumo]);
 
     // Upload state
     const [uploading, setUploading] = useState(false);
