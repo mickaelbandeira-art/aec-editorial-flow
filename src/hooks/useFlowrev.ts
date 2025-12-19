@@ -367,6 +367,8 @@ export function useDashboardStats() {
   });
 }
 
+import { useAuthStore } from './usePermission';
+
 export function useUploadAnexo() {
   const queryClient = useQueryClient();
 
@@ -382,20 +384,22 @@ export function useUploadAnexo() {
       tipo: 'imagem' | 'pdf';
       legenda?: string;
     }) => {
+      console.log("Iniciando upload...", { insumoId, file, tipo });
+
       // 1. Upload to Storage
       // Create a unique file name
       const fileExt = file.name.split('.').pop();
       const fileName = `${insumoId}/${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
-      const bucket = 'insumos'; // Assuming a bucket named 'insumos' exists or 'flowrev-insumos'
+      const bucket = 'insumos';
 
-      const { error: uploadError } = await supabase.storage
+      // Attempt upload
+      const { data: uploadData, error: uploadError } = await supabase.storage
         .from(bucket)
         .upload(fileName, file);
 
       if (uploadError) {
-        // Fallback: if 'insumos' bucket doesn't exist, try a public default
-        console.error("Bucket 'insumos' might not exist.", uploadError);
-        throw uploadError;
+        console.error("Erro no upload Storage:", uploadError);
+        throw new Error(`Erro no upload: ${uploadError.message}`);
       }
 
       // 2. Get Public URL
@@ -403,7 +407,14 @@ export function useUploadAnexo() {
         .from(bucket)
         .getPublicUrl(fileName);
 
-      // 3. Insert into flowrev_anexos
+      // 3. Prepare User ID (Fallback to custom auth store if supabase auth is missing)
+      const supabaseUser = (await supabase.auth.getUser()).data.user;
+      const customUser = useAuthStore.getState().user;
+      const userId = supabaseUser?.id || customUser?.id || null;
+
+      console.log("Inserindo anexo no banco...", { publicUrl, userId });
+
+      // 4. Insert into flowrev_anexos
       const { data, error: dbError } = await supabase
         .from('flowrev_anexos')
         .insert({
@@ -413,12 +424,15 @@ export function useUploadAnexo() {
           url: publicUrl,
           legenda: legenda || null,
           tamanho_bytes: file.size,
-          uploaded_por: (await supabase.auth.getUser()).data.user?.id
+          uploaded_por: userId // Use the resolved ID
         })
         .select()
         .single();
 
-      if (dbError) throw dbError;
+      if (dbError) {
+        console.error("Erro no insert DB:", dbError);
+        throw new Error(`Erro ao salvar no banco: ${dbError.message}`);
+      }
 
       return data;
     },
