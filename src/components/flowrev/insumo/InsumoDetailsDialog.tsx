@@ -145,20 +145,14 @@ export function InsumoDetailsDialog({
             if (type === 'imagem') {
                 setImageFile(file);
                 // Prompt for caption next
+            } else {
+                // PDF upload directly
+                startUpload(file, 'pdf');
             }
         }
     };
-    if (e.target.files && e.target.files[0]) {
-        const file = e.target.files[0];
-        if (type === 'imagem') {
-            setImageFile(file);
-            // Prompt for caption next
-        } else {
-            // PDF upload directly
-            startUpload(file, 'pdf');
-        }
-    }
-    const startUpload = (file: File, type: 'imagem' | 'pdf', caption?: string) => {
+
+    const startUpload = (file: File, tipo: 'imagem' | 'pdf', caption?: string) => {
         setUploading(true);
         uploadFile({
             insumoId: insumo.id,
