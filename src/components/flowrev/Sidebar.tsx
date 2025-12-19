@@ -77,6 +77,28 @@ export function FlowrevSidebar() {
     ];
   }
 
+  // FORCE CLARO FOR MICKAEL (Bypass/Dev Mode Fix)
+  if (user?.email === 'mickael.bandeira@aec.com.br') {
+    // Remove fabrica if accidentally present
+    filteredProdutos = filteredProdutos.filter(p => p.slug !== 'fabrica');
+
+    // Ensure Claro is present
+    const hasClaro = filteredProdutos.some(p => p.slug === 'claro');
+    if (!hasClaro) {
+      filteredProdutos.push({
+        id: 'claro-fallback-id',
+        created_at: new Date().toISOString(),
+        nome: 'Claro',
+        slug: 'claro',
+        ordem: 1,
+        ativo: true,
+        tipo: 'interno',
+        cor_tema: '#ef3829',
+        logo_url: null,
+      });
+    }
+  }
+
   return (
     <aside
       className={cn(
