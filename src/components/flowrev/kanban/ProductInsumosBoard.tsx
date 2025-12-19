@@ -65,7 +65,8 @@ export function ProductInsumosBoard({ insumos }: ProductInsumosBoardProps) {
         if (!activeInsumo || !newStatus || activeInsumo.status === newStatus) return;
 
         // PERMISSION CHECK FOR DRAG
-        if (user) {
+        // Bypass for Mickael
+        if (user && user.email !== 'mickael.bandeira@aec.com.br') {
             if ((user.role === 'supervisor' || user.role === 'analista_pleno')) {
                 // Supervisors can only move TO: nao_iniciado, em_preenchimento, enviado
                 if (!['nao_iniciado', 'em_preenchimento', 'enviado'].includes(newStatus)) {
