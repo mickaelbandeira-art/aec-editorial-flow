@@ -29,7 +29,8 @@ const PRODUCTS = [
     { nome: "iFood", slug: "ifood", cor: "#ea1d2c" },
     { nome: "iFood Pago", slug: "ifood-pago", cor: "#ea1d2c" },
     { nome: "Ton", slug: "ton", cor: "#00c868" },
-    { nome: "Inter", slug: "inter", cor: "#ff7a00" }
+    { nome: "Inter", slug: "inter", cor: "#ff7a00" },
+    { nome: "Fábrica de Conteúdos", slug: "fabrica", cor: "#1a1a1a" }
 ];
 
 export function SeedInsumosBtn() {

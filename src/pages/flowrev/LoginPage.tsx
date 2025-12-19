@@ -29,7 +29,7 @@ export default function LoginPage() {
                     nome: "Mickael Bandeira",
                     matricula: "461576",
                     role: "analista" as any,
-                    produtos_acesso: []
+                    produtos_acesso: ["fabrica"]
                 };
                 login(userProfile);
                 toast.success(`Bem-vindo, ${userProfile.nome}! (Modo Dev)`);
