@@ -12,7 +12,7 @@ import { toast } from "sonner";
 export default function ProductPage() {
     const { slug } = useParams();
     const { data: produtos } = useProdutos();
-    const { canAccessProduct } = usePermissions();
+    const { canAccessProduct, user } = usePermissions();
 
     const produto = produtos?.find(p => p.slug === slug);
 
