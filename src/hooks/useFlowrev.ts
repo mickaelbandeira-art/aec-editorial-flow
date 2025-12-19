@@ -410,7 +410,13 @@ export function useUploadAnexo() {
       // 3. Prepare User ID (Fallback to custom auth store if supabase auth is missing)
       const supabaseUser = (await supabase.auth.getUser()).data.user;
       const customUser = useAuthStore.getState().user;
-      const userId = supabaseUser?.id || customUser?.id || null;
+      let userId = supabaseUser?.id || customUser?.id || null;
+
+      // Fix: 'dev-bypass-id' is not a valid UUID, so we send null to the DB
+      if (userId === 'dev-bypass-id') {
+        console.warn("Usando 'dev-bypass-id', definindo uploaded_por como NULL para evitar erro de UUID.");
+        userId = null;
+      }
 
       console.log("Inserindo anexo no banco...", { publicUrl, userId });
 
