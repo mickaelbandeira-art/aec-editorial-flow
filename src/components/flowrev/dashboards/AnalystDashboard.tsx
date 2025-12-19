@@ -39,7 +39,7 @@ import { Insumo } from "@/types/flowrev";
 import { toast } from "sonner";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
-import { SeedInsumosBtn } from "../../SeedInsumosBtn";
+import { SeedInsumosBtn } from "../SeedInsumosBtn";
 
 export function AnalystDashboard() {
     const { data, isLoading } = useAllInsumos();
