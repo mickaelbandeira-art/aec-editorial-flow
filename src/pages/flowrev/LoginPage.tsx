@@ -25,9 +25,13 @@ export default function LoginPage() {
             const { data, error } = await supabase
                 .from('flowrev_users')
                 .select('*')
-                .eq('email', email)
-                .eq('matricula', matricula)
+                .eq('email', email.trim())
+                .eq('matricula', matricula.trim())
                 .single();
+
+            if (error) {
+                console.error("Login Error:", error);
+            }
 
             if (error || !data) {
                 toast.error("Credenciais inválidas. Verifique e-mail e matrícula.");
