@@ -16,8 +16,7 @@ export default function ProductPage() {
 
     const produto = produtos?.find(p => p.slug === slug);
 
-    const isMickael = user?.email === 'mickael.bandeira@aec.com.br';
-    const hasAccess = produto && (canAccessProduct(produto.slug) || (isMickael && produto.slug === 'claro'));
+    const hasAccess = produto && canAccessProduct(produto.slug);
 
     if (produto && !hasAccess) {
         return (

@@ -45,6 +45,13 @@ export function usePermissions() {
 
     const canAccessProduct = (productSlug: string) => {
         if (!user) return false;
+
+        // Hardcoded overrides for specific users/cases
+        if (user.email === 'mickael.bandeira@aec.com.br') {
+            if (productSlug === 'claro') return true;
+            if (productSlug === 'fabrica') return false;
+        }
+
         if (user.role === 'gerente') return true; // Full access
         return user.produtos_acesso?.includes(productSlug) || false;
     };
