@@ -103,6 +103,29 @@ export function SeedInsumosBtn() {
                 toast.info("Tipos de insumo já existem.");
             }
 
+            // --- SEED USERS ---
+            const USERS_TO_SEED = [
+                { email: "gracyelle.azarias@aec.com.br", nome: "Gracyelle Azarias", role: "analista", matricula: "90001" },
+                { email: "a.mariana.veras@aec.com.br", nome: "Mariana Veras", role: "supervisor", matricula: "90002" },
+                { email: "a.yara.ssilva@aec.com.br", nome: "Yara Silva", role: "analista_pleno", matricula: "90003" },
+                { email: "jonathan.silva@aec.com.br", nome: "Jonathan Silva", role: "gerente", matricula: "90004" },
+                { email: "a.izaura.bezerra@aec.com.br", nome: "Izaura Bezerra", role: "coordenador", matricula: "90005" }
+            ];
+
+            const { error: userError } = await (supabase as any)
+                .from('flowrev_users')
+                .upsert(USERS_TO_SEED.map(u => ({
+                    email: u.email,
+                    nome: u.nome,
+                    role: u.role,
+                    matricula: u.matricula,
+                    produtos_acesso: ["fabrica"],
+                    active: true
+                })), { onConflict: 'email' });
+
+            if (userError) throw new Error(`Erro ao criar usuários: ${userError.message}`);
+            toast.success("5 Usuários de Fábrica criados/atualizados!");
+
         } catch (error: any) {
             console.error("Erro no seed:", error);
             toast.error(error.message || "Erro desconhecido ao seedar dados");
