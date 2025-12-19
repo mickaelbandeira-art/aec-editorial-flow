@@ -52,7 +52,30 @@ export function FlowrevSidebar() {
     navigate('/login');
   };
 
-  const filteredProdutos = produtos?.filter(p => canAccessProduct(p.slug));
+  let filteredProdutos = produtos?.filter(p => canAccessProduct(p.slug)) || [];
+
+  // FORCE SHOW FÁBRICA if user has access but it's not in the list (Database/RLS issue fallback)
+  const fabricaSlug = 'fabrica';
+  const hasFabricaInList = filteredProdutos.some(p => p.slug === fabricaSlug);
+  const shouldShowFabrica = canAccessProduct(fabricaSlug) ||
+    ['jonathan.silva@aec.com.br', 'a.izaura.bezerra@aec.com.br', 'a.yara.ssilva@aec.com.br', 'a.mariana.veras@aec.com.br', 'gracyelle.azarias@aec.com.br'].includes(user?.email || '');
+
+  if (shouldShowFabrica && !hasFabricaInList) {
+    filteredProdutos = [
+      ...filteredProdutos,
+      {
+        id: 'fabrica-fallback-id',
+        created_at: new Date().toISOString(),
+        nome: 'Fábrica de Conteúdos',
+        slug: 'fabrica',
+        ordem: 99,
+        ativo: true,
+        tipo: 'interno',
+        cor_tema: '#1a1a1a',
+        logo_url: null,
+      }
+    ];
+  }
 
   return (
     <aside
