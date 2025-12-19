@@ -169,8 +169,39 @@ export function useUpdateInsumoStatus() {
       if (error) throw error;
       return data;
     },
-    onSuccess: () => {
+    onMutate: async ({ insumoId, status }) => {
+      // Cancelar queries em andamento para não sobrescrever o update otimista
+      await queryClient.cancelQueries({ queryKey: ['flowrev-all-insumos'] });
+      await queryClient.cancelQueries({ queryKey: ['flowrev-insumos'] });
+
+      // Snapshot dos dados anteriores
+      const previousAllInsumos = queryClient.getQueryData(['flowrev-all-insumos']);
+
+      // Update Otimista para 'flowrev-all-insumos'
+      queryClient.setQueryData(['flowrev-all-insumos'], (old: any) => {
+        if (!old || !old.insumos) return old;
+        return {
+          ...old,
+          insumos: old.insumos.map((insumo: Insumo) =>
+            insumo.id === insumoId ? { ...insumo, status } : insumo
+          ),
+        };
+      });
+
+      return { previousAllInsumos };
+    },
+    onError: (err, newTodo, context) => {
+      // Rollback em caso de erro
+      if (context?.previousAllInsumos) {
+        queryClient.setQueryData(['flowrev-all-insumos'], context.previousAllInsumos);
+      }
+      toast.error("Erro ao atualizar status. Revertendo alteração.");
+    },
+    onSettled: () => {
+      // Revalidar para garantir sincronia
+      queryClient.invalidateQueries({ queryKey: ['flowrev-all-insumos'] });
       queryClient.invalidateQueries({ queryKey: ['flowrev-insumos'] });
+      queryClient.invalidateQueries({ queryKey: ['flowrev-dashboard-stats'] });
     },
   });
 }
