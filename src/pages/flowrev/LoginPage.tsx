@@ -21,10 +21,10 @@ export default function LoginPage() {
         setLoading(true);
 
         try {
-            // Verifica se o usuário existe no banco
+            // Verifica se o usuário existe no banco 'profiles'
             const { data, error } = await supabase
-                .from('flowrev_users')
-                .select('*')
+                .from('profiles')
+                .select('id, email, matricula, full_name, role')
                 .eq('email', email.trim())
                 .eq('matricula', matricula.trim())
                 .single();
@@ -39,9 +39,21 @@ export default function LoginPage() {
                 return;
             }
 
+            // Mapeia para o formato esperado pelo AuthStore
+            // Assume que role do profile é compatível ou faz cast, e produtos_acesso vazio por enquanto
+            const userProfile = {
+                id: data.id,
+                email: data.email,
+                nome: data.full_name,
+                matricula: data.matricula || "",
+                role: (data.role as any) || "analista", // Fallback seguro
+                produtos_acesso: [] // TODO: Buscar de tabela de permissões se existir
+            };
+
             // Login bem sucedido
-            login(data);
-            toast.success(`Bem-vindo, ${data.nome}!`);
+            // Login bem sucedido
+            login(userProfile);
+            toast.success(`Bem-vindo, ${userProfile.nome}!`);
             navigate("/flowrev");
 
         } catch (error) {
