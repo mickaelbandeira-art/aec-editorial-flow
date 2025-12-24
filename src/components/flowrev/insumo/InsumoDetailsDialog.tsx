@@ -36,7 +36,8 @@ import {
     Trash2,
     X,
     Clock,
-    Loader2
+    Loader2,
+    UploadCloud
 } from "lucide-react";
 import { useUploadAnexo, useDeleteAnexo } from "@/hooks/useFlowrev";
 import { toast } from "sonner";
