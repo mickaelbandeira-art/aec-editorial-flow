@@ -56,11 +56,11 @@ export function ProductKanbanColumn({ column, items, onItemClick }: ProductKanba
         <div
             ref={setNodeRef}
             style={style}
-            className={`w-[300px] h-full rounded-xl flex flex-col border ${statusColorMap[column.id]}`}
+            className={`min-w-[280px] w-[300px] h-full rounded-xl flex flex-col border border-slate-200 bg-slate-50 p-3`}
         >
-            <CardHeader className="p-3 border-b border-border/50 bg-card/30 rounded-t-xl sticky top-0 z-10 backdrop-blur-sm">
+            <CardHeader className="p-0 mb-4 bg-transparent border-none">
                 <div className="flex items-center justify-between">
-                    <CardTitle className="text-sm font-semibold flex items-center gap-2">
+                    <CardTitle className="text-sm font-bold text-slate-700 flex items-center justify-between w-full">
                         {column.title}
                         <span className="flex items-center justify-center min-w-[1.25rem] h-5 px-1 rounded-full bg-background/50 text-[10px] font-normal border border-border">
                             {items.length}

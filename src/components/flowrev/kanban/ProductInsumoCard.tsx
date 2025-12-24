@@ -59,30 +59,33 @@ export function ProductInsumoCard({ insumo, tipo, onClick }: ProductInsumoCardPr
 
     return (
         <div ref={setNodeRef} style={style} {...attributes} {...listeners} onClick={onClick}>
-            <Card className="cursor-grab active:cursor-grabbing hover:border-primary/50 transition-all shadow-sm hover:shadow-md group">
-                <CardHeader className="p-3 pb-2 flex flex-row items-start justify-between space-y-0">
-                    <div className="flex gap-2 items-start">
-                        <div className="mt-0.5 text-muted-foreground">
-                            {getIcon()}
+            <Card className="cursor-grab active:cursor-grabbing bg-white border border-slate-200 border-l-4 border-l-blue-600 rounded-lg shadow-sm hover:shadow-lg hover:-translate-y-0.5 hover:border-slate-300 transition-all duration-200 mb-3 group">
+                <CardHeader className="p-3 pb-2">
+                    <div className="flex justify-between items-start gap-2">
+                        <div className="flex gap-2 items-start w-full">
+                            <div className="mt-0.5 text-slate-400 shrink-0">
+                                {getIcon()}
+                            </div>
+                            <h3 className="text-[0.95rem] font-semibold text-slate-800 leading-tight">
+                                {tipo?.nome || "Insumo"}
+                            </h3>
                         </div>
-                        <CardTitle className="text-sm font-medium leading-snug">
-                            {tipo?.nome || "Insumo"}
-                        </CardTitle>
+                        {insumo.status === 'aprovado' && (
+                            <Badge variant="outline" className="bg-emerald-50 text-emerald-600 border-emerald-200 text-[10px] px-1.5 py-0 h-5 shrink-0">
+                                OK
+                            </Badge>
+                        )}
                     </div>
-                    {insumo.status === 'aprovado' && (
-                        <Badge variant="outline" className="bg-success/10 text-success border-success/20 text-[10px] px-1.5 py-0 h-5">
-                            OK
-                        </Badge>
-                    )}
                 </CardHeader>
 
                 <CardContent className="p-3 pt-2">
                     {/* Metadata Chips */}
-                    <div className="flex flex-wrap gap-2 mb-2">
+                    {/* Metadata Footer */}
+                    <div className="flex items-center gap-3 mt-2 pt-2 border-t border-slate-100 text-xs text-slate-500">
                         {insumo.data_limite && (
-                            <div className={`flex items-center gap-1 text-xs ${new Date(insumo.data_limite) < new Date() && insumo.status !== 'aprovado'
-                                ? "text-destructive font-medium"
-                                : "text-muted-foreground"
+                            <div className={`flex items-center gap-1 ${new Date(insumo.data_limite) < new Date() && insumo.status !== 'aprovado'
+                                ? "text-red-500 font-medium"
+                                : ""
                                 }`}>
                                 <Calendar className="h-3 w-3" />
                                 <span>{format(new Date(insumo.data_limite), "dd/MMM", { locale: ptBR })}</span>
@@ -90,14 +93,14 @@ export function ProductInsumoCard({ insumo, tipo, onClick }: ProductInsumoCardPr
                         )}
 
                         {insumo.observacoes && (
-                            <div className="flex items-center gap-1 text-xs text-amber-500">
+                            <div className="flex items-center gap-1" title="Possui observações">
                                 <MessageSquare className="h-3 w-3" />
                                 <span>Obs</span>
                             </div>
                         )}
 
                         {insumo.anexos && insumo.anexos.length > 0 && (
-                            <div className="flex items-center gap-1 text-xs text-blue-500">
+                            <div className="flex items-center gap-1" title={`${insumo.anexos.length} anexos`}>
                                 <Paperclip className="h-3 w-3" />
                                 <span>{insumo.anexos.length}</span>
                             </div>
@@ -105,13 +108,7 @@ export function ProductInsumoCard({ insumo, tipo, onClick }: ProductInsumoCardPr
                     </div>
 
                     {/* Status Bar (optional visual indicator) */}
-                    <div className={`h-1 w-full rounded-full bg-muted overflow-hidden mt-1`}>
-                        <div className={`h-full ${insumo.status === 'aprovado' ? 'bg-success' :
-                            insumo.status === 'ajuste_solicitado' ? 'bg-destructive' :
-                                insumo.status === 'enviado' ? 'bg-info' :
-                                    'bg-primary/50'
-                            }`} style={{ width: '100%' }}></div>
-                    </div>
+
                 </CardContent>
             </Card>
         </div>
