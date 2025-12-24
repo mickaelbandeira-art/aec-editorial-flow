@@ -236,6 +236,7 @@ export function useUpdateInsumoContent() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['flowrev-insumos'] });
+      queryClient.invalidateQueries({ queryKey: ['flowrev-all-insumos'] });
     },
   });
 }
