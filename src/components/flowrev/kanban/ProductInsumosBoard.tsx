@@ -34,8 +34,10 @@ export function ProductInsumosBoard({ insumos }: ProductInsumosBoardProps) {
     const { mutate: updateStatus } = useUpdateInsumoStatus();
     const { mutate: updateContent } = useUpdateInsumoContent();
     const [activeItem, setActiveItem] = useState<Insumo | null>(null);
-    const [selectedInsumo, setSelectedInsumo] = useState<Insumo | null>(null);
+    const [selectedInsumoId, setSelectedInsumoId] = useState<string | null>(null);
     const [isDialogOpen, setIsDialogOpen] = useState(false);
+
+    const selectedInsumo = insumos.find(i => i.id === selectedInsumoId) || null;
 
     const sensors = useSensors(
         useSensor(PointerSensor, {
@@ -98,7 +100,7 @@ export function ProductInsumosBoard({ insumos }: ProductInsumosBoardProps) {
 
 
     const handleCardClick = (insumo: Insumo) => {
-        setSelectedInsumo(insumo);
+        setSelectedInsumoId(insumo.id);
         setIsDialogOpen(true);
     };
 
@@ -111,6 +113,7 @@ export function ProductInsumosBoard({ insumos }: ProductInsumosBoardProps) {
         }
 
         // Update content if changed
+        // We compare against the current fresh data
         if (updatedData.conteudo_texto !== selectedInsumo.conteudo_texto || updatedData.observacoes !== selectedInsumo.observacoes) {
             updateContent({
                 insumoId: selectedInsumo.id,

@@ -51,7 +51,7 @@ export function AnalystDashboard() {
     const [statusFilter, setStatusFilter] = useState<string>("all");
     const [productFilter, setProductFilter] = useState<string>("all");
 
-    const [selectedInsumo, setSelectedInsumo] = useState<Insumo | null>(null);
+    const [selectedInsumoId, setSelectedInsumoId] = useState<string | null>(null);
     const [isDetailsOpen, setIsDetailsOpen] = useState(false);
 
     // Adjustment Dialog State
@@ -59,6 +59,10 @@ export function AnalystDashboard() {
     const [adjustmentComment, setAdjustmentComment] = useState("");
 
     const insumos = data?.insumos?.filter(i => canAccessProduct(i.edicao?.produto?.slug || '')) || [];
+
+    // Derive selected insumo from the fresh list
+    const selectedInsumo = insumos.find(i => i.id === selectedInsumoId) || null;
+
     const activeProducts = Array.from(new Set(insumos.map(i => i.edicao?.produto?.nome))).filter(Boolean);
 
     // Filtering Logic
@@ -175,6 +179,7 @@ export function AnalystDashboard() {
                             </SelectTrigger>
                             <SelectContent>
                                 <SelectItem value="all">Todos os Produtos</SelectItem>
+                                <SelectItem value="all">Todos os Produtos</SelectItem>
                                 {activeProducts.map((p: any) => (
                                     <SelectItem key={p} value={p}>{p}</SelectItem>
                                 ))}
@@ -281,7 +286,7 @@ export function AnalystDashboard() {
                                             variant="ghost"
                                             className="h-8 w-8 p-0"
                                             onClick={() => {
-                                                setSelectedInsumo(insumo);
+                                                setSelectedInsumoId(insumo.id);
                                                 setIsDetailsOpen(true);
                                             }}
                                             title="Ver Detalhes"
