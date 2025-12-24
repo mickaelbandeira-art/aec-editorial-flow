@@ -320,7 +320,12 @@ export function InsumoDetailsDialog({
                                     <TabsContent value="conteudo" className="m-0 focus-visible:ring-0">
                                         <div className="space-y-4">
                                             <Label className="block mb-2 font-semibold text-slate-700">Texto Rico</Label>
-                                            <TiptapEditor content={texto} onChange={setTexto} />
+                                            <Textarea
+                                                placeholder="Digite o conteúdo aqui..."
+                                                className="min-h-[350px] bg-white border-slate-200 focus:border-blue-600 focus:ring-blue-600 resize-y text-base"
+                                                value={texto}
+                                                onChange={(e) => setTexto(e.target.value)}
+                                            />
                                         </div>
                                     </TabsContent>
 
