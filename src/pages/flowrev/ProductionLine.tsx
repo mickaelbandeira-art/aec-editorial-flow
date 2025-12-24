@@ -1,17 +1,20 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { ProductInsumosBoard } from "@/components/flowrev/kanban/ProductInsumosBoard";
 import { useDashboardStats, useProdutos, useCreateEdicao, useSyncInsumos, useAllInsumos } from "@/hooks/useFlowrev";
-import { Loader2, Plus, RefreshCw } from "lucide-react";
+import { usePermissions } from "@/hooks/usePermission";
+import { Loader2, Plus, RefreshCw, Lock } from "lucide-react";
 import { Insumo } from "@/types/flowrev";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 export default function ProductionLine() {
     const { data: allData, isLoading: loadingInsumos, refetch } = useAllInsumos();
     const { data: produtos, isLoading: loadingProdutos, error: produtosError } = useProdutos();
+    const { user, canAccessProduct } = usePermissions();
 
     // Actions
     const { mutate: createEdicao, isPending: creatingEdicao } = useCreateEdicao();
@@ -42,6 +45,19 @@ export default function ProductionLine() {
         });
     };
 
+    // Filter products based on permissions
+    const filteredProdutos = useMemo(() => {
+        if (!produtos || !user) return [];
+
+        // Managers and Coordinators see all
+        if (user.role === 'gerente' || user.role === 'coordenador') {
+            return produtos;
+        }
+
+        // Others see only what they have access to
+        return produtos.filter(p => canAccessProduct(p.slug));
+    }, [produtos, user, canAccessProduct]);
+
     if (loadingInsumos || loadingProdutos) {
         return (
             <div className="flex items-center justify-center h-screen">
@@ -52,6 +68,24 @@ export default function ProductionLine() {
 
     const insumos = allData?.insumos || [];
     const edicoes = allData?.edicoes || [];
+
+    // If user has no access to any product
+    if (filteredProdutos.length === 0) {
+        return (
+            <div className="flex flex-col h-full bg-background p-8 items-center justify-center">
+                <div className="max-w-md w-full">
+                    <Alert variant="destructive" className="mb-4">
+                        <Lock className="h-4 w-4" />
+                        <AlertTitle>Acesso Restrito</AlertTitle>
+                        <AlertDescription>
+                            Você não possui permissão para visualizar nenhum produto nesta esteira.
+                            Entre em contato com seu coordenador.
+                        </AlertDescription>
+                    </Alert>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="flex flex-col h-full bg-background">
@@ -66,8 +100,12 @@ export default function ProductionLine() {
                 <Tabs defaultValue="todos" className="flex-1 flex flex-col overflow-hidden">
                     <div className="flex items-center justify-between mb-4">
                         <TabsList className="w-full justify-start overflow-x-auto">
-                            <TabsTrigger value="todos">Visão Geral (Todos)</TabsTrigger>
-                            {produtos?.map(produto => (
+                            {/* "Visão Geral" only for Managers/Coordinators */}
+                            {(user?.role === 'gerente' || user?.role === 'coordenador') && (
+                                <TabsTrigger value="todos">Visão Geral (Todos)</TabsTrigger>
+                            )}
+
+                            {filteredProdutos.map(produto => (
                                 <TabsTrigger key={produto.id} value={produto.id}>
                                     {produto.nome}
                                 </TabsTrigger>
@@ -75,60 +113,54 @@ export default function ProductionLine() {
                         </TabsList>
                     </div>
 
-                    {!produtos || produtos.length === 0 ? (
-                        <div className="flex flex-col items-center justify-center h-full text-muted-foreground bg-muted/20 rounded-lg border border-dashed border-border p-8">
-                            <p className="font-semibold text-lg">Nenhum produto encontrado.</p>
-                            <p>Verifique se os dados foram inseridos corretamente no banco.</p>
-                        </div>
-                    ) : (
-                        <>
-                            <TabsContent value="todos" className="flex-1 h-full mt-0 overflow-hidden">
-                                <div className="h-full rounded-md border border-dashed border-border bg-card/50">
-                                    <ProductInsumosBoard insumos={insumos} />
+                    {/* "Visão Geral" Content - Only render if allowed */}
+                    {(user?.role === 'gerente' || user?.role === 'coordenador') && (
+                        <TabsContent value="todos" className="flex-1 h-full mt-0 overflow-hidden">
+                            <div className="h-full rounded-md border border-dashed border-border bg-card/50">
+                                <ProductInsumosBoard insumos={insumos} />
+                            </div>
+                        </TabsContent>
+                    )}
+
+                    {filteredProdutos.map(produto => {
+                        const edicao = edicoes.find(e => e.produto_id === produto.id);
+                        const insumosProduto = insumos.filter(i => i.edicao?.produto_id === produto.id);
+                        const hasEdicao = !!edicao;
+                        const hasInsumos = insumosProduto.length > 0;
+
+                        return (
+                            <TabsContent key={produto.id} value={produto.id} className="flex-1 h-full mt-0 overflow-hidden">
+                                <div className="flex flex-col h-full">
+                                    <div className="mb-4 flex gap-2">
+                                        {!hasEdicao && (
+                                            <Button onClick={() => handleCreateEdicao(produto.id)} disabled={creatingEdicao}>
+                                                {creatingEdicao ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Plus className="mr-2 h-4 w-4" />}
+                                                Iniciar Edição para {produto.nome}
+                                            </Button>
+                                        )}
+                                        {hasEdicao && !hasInsumos && (
+                                            <Button variant="outline" onClick={() => handleSyncInsumos(edicao.id)} disabled={syncingInsumos}>
+                                                {syncingInsumos ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <RefreshCw className="mr-2 h-4 w-4" />}
+                                                Gerar Insumos Faltantes
+                                            </Button>
+                                        )}
+                                    </div>
+
+                                    <div className="h-full rounded-md border border-dashed border-border bg-card/50">
+                                        {hasInsumos || hasEdicao ? (
+                                            <ProductInsumosBoard insumos={insumosProduto} />
+                                        ) : (
+                                            <div className="flex flex-col items-center justify-center h-full text-muted-foreground">
+                                                <p>Nenhuma edição iniciada para este produto neste mês.</p>
+                                            </div>
+                                        )}
+                                    </div>
                                 </div>
                             </TabsContent>
-
-                            {produtos.map(produto => {
-                                const edicao = edicoes.find(e => e.produto_id === produto.id);
-                                const insumosProduto = insumos.filter(i => i.edicao?.produto_id === produto.id);
-                                const hasEdicao = !!edicao;
-                                const hasInsumos = insumosProduto.length > 0;
-
-                                return (
-                                    <TabsContent key={produto.id} value={produto.id} className="flex-1 h-full mt-0 overflow-hidden">
-                                        <div className="flex flex-col h-full">
-                                            <div className="mb-4 flex gap-2">
-                                                {!hasEdicao && (
-                                                    <Button onClick={() => handleCreateEdicao(produto.id)} disabled={creatingEdicao}>
-                                                        {creatingEdicao ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Plus className="mr-2 h-4 w-4" />}
-                                                        Iniciar Edição para {produto.nome}
-                                                    </Button>
-                                                )}
-                                                {hasEdicao && !hasInsumos && (
-                                                    <Button variant="outline" onClick={() => handleSyncInsumos(edicao.id)} disabled={syncingInsumos}>
-                                                        {syncingInsumos ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <RefreshCw className="mr-2 h-4 w-4" />}
-                                                        Gerar Insumos Faltantes
-                                                    </Button>
-                                                )}
-                                            </div>
-
-                                            <div className="h-full rounded-md border border-dashed border-border bg-card/50">
-                                                {hasInsumos || hasEdicao ? (
-                                                    <ProductInsumosBoard insumos={insumosProduto} />
-                                                ) : (
-                                                    <div className="flex flex-col items-center justify-center h-full text-muted-foreground">
-                                                        <p>Nenhuma edição iniciada para este produto neste mês.</p>
-                                                    </div>
-                                                )}
-                                            </div>
-                                        </div>
-                                    </TabsContent>
-                                );
-                            })}
-                        </>
-                    )}
+                        );
+                    })}
                 </Tabs>
-            </div >
-        </div >
+            </div>
+        </div>
     );
 }
