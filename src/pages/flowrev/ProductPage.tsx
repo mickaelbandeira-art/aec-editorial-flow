@@ -139,12 +139,12 @@ export default function ProductPage() {
                         <>
                             <TabsContent value="board" className="flex-1 mt-0 h-full">
                                 <div className="h-full border border-dashed border-border rounded-lg bg-card/50">
-                                    {insumos && <ProductInsumosBoard insumos={insumos} />}
+                                    {insumos && <ProductInsumosBoard insumos={insumos} edicaoId={edicao.id} />}
                                 </div>
                             </TabsContent>
                             <TabsContent value="list">
                                 <Card className="p-4">
-                                    <ProductInsumosBoard insumos={insumos || []} />
+                                    <ProductInsumosBoard insumos={insumos || []} edicaoId={edicao.id} />
                                 </Card>
                             </TabsContent>
                         </>

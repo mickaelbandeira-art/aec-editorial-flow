@@ -22,6 +22,7 @@ import { Button } from "@/components/ui/button";
 
 interface ProductInsumosBoardProps {
     insumos: Insumo[];
+    edicaoId?: string;
 }
 
 const COLUMNS: { id: InsumoStatus, title: string }[] = [
@@ -33,7 +34,7 @@ const COLUMNS: { id: InsumoStatus, title: string }[] = [
     { id: 'aprovado', title: 'Aprovado' },
 ];
 
-export function ProductInsumosBoard({ insumos }: ProductInsumosBoardProps) {
+export function ProductInsumosBoard({ insumos, edicaoId }: ProductInsumosBoardProps) {
     const { mutate: updateStatus } = useUpdateInsumoStatus();
     const { mutate: updateContent } = useUpdateInsumoContent();
     const { mutate: updateInsumo } = useUpdateInsumo();
@@ -194,6 +195,7 @@ export function ProductInsumosBoard({ insumos }: ProductInsumosBoardProps) {
                                 column={col}
                                 items={insumos.filter(i => i.status === col.id)}
                                 onItemClick={handleCardClick}
+                                edicaoId={edicaoId}
                             />
                         ))}
                     </div>

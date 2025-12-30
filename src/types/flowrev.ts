@@ -1,20 +1,20 @@
 export type FlowrevRole = 'coordenador' | 'supervisor' | 'analista' | 'gerente';
 
-export type InsumoStatus = 
-  | 'nao_iniciado' 
-  | 'em_preenchimento' 
-  | 'enviado' 
-  | 'em_analise' 
-  | 'ajuste_solicitado' 
+export type InsumoStatus =
+  | 'nao_iniciado'
+  | 'em_preenchimento'
+  | 'enviado'
+  | 'em_analise'
+  | 'ajuste_solicitado'
   | 'aprovado';
 
-export type ProducaoFase = 
-  | 'kickoff' 
-  | 'envio_textuais' 
-  | 'envio_dados_finais' 
-  | 'construcao' 
-  | 'finalizacao' 
-  | 'validacao' 
+export type ProducaoFase =
+  | 'kickoff'
+  | 'envio_textuais'
+  | 'envio_dados_finais'
+  | 'construcao'
+  | 'finalizacao'
+  | 'validacao'
   | 'concluido';
 
 export interface Produto {
@@ -78,6 +78,7 @@ export interface Insumo {
   created_at: string;
   updated_at: string;
   tipo_insumo?: TipoInsumo;
+  titulo?: string;
   anexos?: Anexo[];
 }
 

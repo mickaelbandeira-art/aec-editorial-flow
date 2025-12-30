@@ -136,6 +136,53 @@ export function useUpdateInsumo() {
   });
 }
 
+export function useCreateInsumo() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({
+      titulo,
+      edicaoId,
+      status
+    }: {
+      titulo: string;
+      edicaoId: string;
+      status: InsumoStatus;
+    }) => {
+      // 1. Need a valid tipo_insumo_id. We'll pick the first active one or a default.
+      const { data: tipos, error: tiposError } = await supabase
+        .from('flowrev_tipos_insumos')
+        .select('id')
+        .eq('ativo', true)
+        .order('ordem')
+        .limit(1)
+        .single();
+
+      if (tiposError) throw tiposError;
+      if (!tipos) throw new Error("Nenhum tipo de insumo ativo encontrado.");
+
+      const { data, error } = await supabase
+        .from('flowrev_insumos')
+        .insert({
+          edicao_id: edicaoId,
+          tipo_insumo_id: tipos.id,
+          status: status,
+          titulo: titulo, // New column
+          created_at: new Date().toISOString()
+        })
+        .select()
+        .single();
+
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['flowrev-insumos'] });
+    },
+  });
+}
+
+
 export function useUpdateInsumoStatus() {
   const queryClient = useQueryClient();
 

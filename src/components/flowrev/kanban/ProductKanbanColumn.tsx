@@ -1,13 +1,12 @@
-import { SortableContext, useSortable } from "@dnd-kit/sortable";
-import { CSS } from "@dnd-kit/utilities";
-import { useMemo } from "react";
-import { ProductInsumoCard } from "./ProductInsumoCard";
-import { CardHeader, CardTitle } from "@/components/ui/card";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { Insumo, InsumoStatus } from "@/types/flowrev";
+// Add missing imports
+import { useState } from "react";
+import { Plus, X } from "lucide-react";
+import { useCreateInsumo } from "@/hooks/useFlowrev";
+import { toast } from "sonner";
+import { Button } from "@/components/ui/button";
 
 interface Column {
-    id: InsumoStatus;
+    id: InsumoStatus; // Ensure this is imported or available
     title: string;
 }
 
@@ -15,10 +14,16 @@ interface ProductKanbanColumnProps {
     column: Column;
     items: Insumo[];
     onItemClick?: (insumo: Insumo) => void;
+    edicaoId?: string;
 }
 
-export function ProductKanbanColumn({ column, items, onItemClick }: ProductKanbanColumnProps) {
+export function ProductKanbanColumn({ column, items, onItemClick, edicaoId }: ProductKanbanColumnProps) {
     const itemsIds = useMemo(() => items.map((item) => item.id), [items]);
+    const { mutate: createInsumo, isPending: isCreating } = useCreateInsumo();
+
+    // Quick Add State
+    const [isAdding, setIsAdding] = useState(false);
+    const [newCardTitle, setNewCardTitle] = useState("");
 
     const { setNodeRef, transform, transition, isDragging } = useSortable({
         id: column.id,
@@ -33,13 +38,36 @@ export function ProductKanbanColumn({ column, items, onItemClick }: ProductKanba
         transition,
     };
 
-    const statusColorMap: Record<InsumoStatus, string> = {
-        nao_iniciado: "bg-status-nao-iniciado/10 border-status-nao-iniciado/20",
-        em_preenchimento: "bg-status-em-preenchimento/10 border-status-em-preenchimento/20",
-        enviado: "bg-status-enviado/10 border-status-enviado/20",
-        em_analise: "bg-status-em-analise/10 border-status-em-analise/20",
-        ajuste_solicitado: "bg-status-ajuste/10 border-status-ajuste/20",
-        aprovado: "bg-status-aprovado/10 border-status-aprovado/20",
+    const handleAddCard = () => {
+        if (!newCardTitle.trim()) return;
+        if (!edicaoId) {
+            toast.error("Edição não identificada.");
+            return;
+        }
+
+        createInsumo({
+            titulo: newCardTitle,
+            edicaoId: edicaoId,
+            status: 'nao_iniciado'
+        }, {
+            onSuccess: () => {
+                toast.success("Cartão criado!");
+                setNewCardTitle("");
+                // Keep input open for rapid entry, or close? Trello usually keeps it open.
+                // User script: `textarea.focus(); // Mantém o foco para adicionar outro rapidamente`
+                // So we keep it open.
+            },
+            onError: () => {
+                toast.error("Erro ao criar cartão.");
+            }
+        });
+    };
+
+    const handleKeyDown = (e: React.KeyboardEvent) => {
+        if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
+            handleAddCard();
+        }
     };
 
     if (isDragging) {
@@ -56,20 +84,20 @@ export function ProductKanbanColumn({ column, items, onItemClick }: ProductKanba
         <div
             ref={setNodeRef}
             style={style}
-            className={`min-w-[280px] w-[300px] h-full rounded-xl flex flex-col border border-slate-200 bg-slate-50 p-3`}
+            className={`min-w-[280px] w-[300px] h-full rounded-xl flex flex-col border border-slate-200 bg-slate-50 p-2`} // Reduced padding to match Trello compactness
         >
-            <CardHeader className="p-0 mb-4 bg-transparent border-none">
+            <CardHeader className="p-3 pb-2 bg-transparent border-none">
                 <div className="flex items-center justify-between">
                     <CardTitle className="text-sm font-bold text-slate-700 flex items-center justify-between w-full">
                         {column.title}
-                        <span className="flex items-center justify-center min-w-[1.25rem] h-5 px-1 rounded-full bg-background/50 text-[10px] font-normal border border-border">
+                        <span className="flex items-center justify-center min-w-[1.25rem] h-5 px-1 rounded-full bg-slate-200 text-slate-600 text-[10px] font-semibold border border-transparent">
                             {items.length}
                         </span>
                     </CardTitle>
                 </div>
             </CardHeader>
 
-            <ScrollArea className="flex-1 p-2">
+            <ScrollArea className="flex-1 px-2">
                 <div className="flex flex-col gap-2 pb-2">
                     <SortableContext items={itemsIds}>
                         {items.map((item) => (
@@ -83,6 +111,50 @@ export function ProductKanbanColumn({ column, items, onItemClick }: ProductKanba
                     </SortableContext>
                 </div>
             </ScrollArea>
+
+            {/* Quick Add Footer - Only for 'nao_iniciado' */}
+            {column.id === 'nao_iniciado' && edicaoId && (
+                <div className="px-2 pb-2 pt-1">
+                    {!isAdding ? (
+                        <button
+                            onClick={() => setIsAdding(true)}
+                            className="flex items-center gap-2 w-full text-left text-slate-500 hover:bg-slate-200 p-2 rounded-lg text-sm transition-colors"
+                        >
+                            <Plus className="h-4 w-4" />
+                            <span>Adicionar cartão</span>
+                        </button>
+                    ) : (
+                        <div className="bg-white rounded-lg p-2 shadow-sm border border-slate-200 animate-in fade-in zoom-in-95 duration-100">
+                            <textarea
+                                autoFocus
+                                className="w-full text-sm resize-none border-none focus:ring-0 p-0 placeholder:text-slate-400 min-h-[60px]"
+                                placeholder="Insira um título para este cartão..."
+                                value={newCardTitle}
+                                onChange={e => setNewCardTitle(e.target.value)}
+                                onKeyDown={handleKeyDown}
+                            />
+                            <div className="flex items-center gap-2 mt-2">
+                                <Button
+                                    size="sm"
+                                    className="h-8 bg-blue-600 hover:bg-blue-700 text-white"
+                                    onClick={handleAddCard}
+                                    disabled={isCreating}
+                                >
+                                    {isCreating ? "Adicionando..." : "Adicionar cartão"}
+                                </Button>
+                                <Button
+                                    size="sm"
+                                    variant="ghost"
+                                    className="h-8 w-8 p-0 text-slate-500 hover:bg-slate-100"
+                                    onClick={() => setIsAdding(false)}
+                                >
+                                    <X className="h-5 w-5" />
+                                </Button>
+                            </div>
+                        </div>
+                    )}
+                </div>
+            )}
         </div>
     );
 }
