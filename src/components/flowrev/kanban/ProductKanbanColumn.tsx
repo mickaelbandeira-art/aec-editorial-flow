@@ -53,7 +53,7 @@ export function ProductKanbanColumn({ column, items, onItemClick, edicaoId }: Pr
         createInsumo({
             titulo: newCardTitle,
             edicaoId: edicaoId,
-            status: 'nao_iniciado'
+            status: column.id
         }, {
             onSuccess: () => {
                 toast.success("Cartão criado!");
@@ -118,8 +118,8 @@ export function ProductKanbanColumn({ column, items, onItemClick, edicaoId }: Pr
                 </div>
             </ScrollArea>
 
-            {/* Quick Add Footer - Only for 'nao_iniciado' */}
-            {column.id === 'nao_iniciado' && edicaoId && (
+            {/* Quick Add Footer - Available for all columns */}
+            {edicaoId && (
                 <div className="px-2 pb-2 pt-1">
                     {!isAdding ? (
                         <button
