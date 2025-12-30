@@ -97,13 +97,21 @@ export function useInsumos(edicaoId?: string) {
         .select(`
           *,
           tipo_insumo:flowrev_tipos_insumos(*),
-          anexos:flowrev_anexos(*)
+          anexos:flowrev_anexos(*),
+          tags:flowrev_insumo_tags(tag:flowrev_tags(*)),
+          responsaveis:flowrev_insumo_responsaveis(usuario:flowrev_users(*))
         `)
         .eq('edicao_id', edicaoId)
         .order('created_at');
 
       if (error) throw error;
-      return data as Insumo[];
+
+      // Transform nested structure to flat arrays
+      return (data as any[]).map(item => ({
+        ...item,
+        tags: item.tags?.map((t: any) => t.tag) || [],
+        responsaveis: item.responsaveis?.map((r: any) => r.usuario) || []
+      })) as Insumo[];
     },
     enabled: !!edicaoId,
   });
@@ -751,6 +759,101 @@ export function useManagerStats() {
           { name: `${mesAtual}/${anoAtual}`, progresso: totalInsumos > 0 ? Math.round((concluidos / totalInsumos) * 100) : 0 }
         ]
       };
+    }
+  });
+}
+
+// --- Tags & Members Hooks ---
+
+export function useTags() {
+  return useQuery({
+    queryKey: ['flowrev-tags'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('flowrev_tags')
+        .select('*')
+        .order('nome');
+      if (error) throw error;
+      return data;
+    }
+  });
+}
+
+export function useUsers() {
+  return useQuery({
+    queryKey: ['flowrev-users'],
+    queryFn: async () => {
+      // Fetch users from flowrev_users table
+      const { data, error } = await supabase
+        .from('flowrev_users')
+        .select('id, nome, email, role')
+        .order('nome');
+      if (error) throw error;
+      return data;
+    }
+  });
+}
+
+export function useAddTag() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ insumoId, tagId }: { insumoId: string, tagId: string }) => {
+      const { error } = await supabase
+        .from('flowrev_insumo_tags')
+        .insert({ insumo_id: insumoId, tag_id: tagId });
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['flowrev-insumos'] });
+    }
+  });
+}
+
+export function useRemoveTag() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ insumoId, tagId }: { insumoId: string, tagId: string }) => {
+      const { error } = await supabase
+        .from('flowrev_insumo_tags')
+        .delete()
+        .eq('insumo_id', insumoId)
+        .eq('tag_id', tagId);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['flowrev-insumos'] });
+    }
+  });
+}
+
+export function useAddMember() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ insumoId, userId }: { insumoId: string, userId: string }) => {
+      const { error } = await supabase
+        .from('flowrev_insumo_responsaveis')
+        .insert({ insumo_id: insumoId, user_id: userId });
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['flowrev-insumos'] });
+    }
+  });
+}
+
+export function useRemoveMember() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ insumoId, userId }: { insumoId: string, userId: string }) => {
+      const { error } = await supabase
+        .from('flowrev_insumo_responsaveis')
+        .delete()
+        .eq('insumo_id', insumoId)
+        .eq('user_id', userId);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['flowrev-insumos'] });
     }
   });
 }

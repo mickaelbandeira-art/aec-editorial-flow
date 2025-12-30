@@ -62,25 +62,7 @@ export interface Edicao {
   produto?: Produto;
 }
 
-export interface Insumo {
-  id: string;
-  edicao_id: string;
-  tipo_insumo_id: string;
-  conteudo_texto: string | null;
-  observacoes: string | null;
-  status: InsumoStatus;
-  data_limite: string | null;
-  enviado_por: string | null;
-  enviado_em: string | null;
-  revisado_por: string | null;
-  revisado_em: string | null;
-  motivo_ajuste: string | null;
-  created_at: string;
-  updated_at: string;
-  tipo_insumo?: TipoInsumo;
-  titulo?: string;
-  anexos?: Anexo[];
-}
+
 
 export interface Anexo {
   id: string;
@@ -140,3 +122,45 @@ export const STATUS_COLORS: Record<InsumoStatus, string> = {
   ajuste_solicitado: 'bg-status-ajuste',
   aprovado: 'bg-status-aprovado',
 };
+
+export interface Tag {
+  id: string;
+  nome: string;
+  cor: string;
+}
+
+export interface InsumoTag {
+  tag: Tag;
+}
+
+export interface InsumoResponsavel {
+  usuario: {
+    id: string;
+    nome: string;
+    email: string;
+    // Add other user fields if needed for UI avatar?
+    // flowrev_users usually has 'nome'.
+  };
+}
+
+export interface Insumo {
+  id: string;
+  edicao_id: string;
+  tipo_insumo_id: string;
+  conteudo_texto: string | null;
+  observacoes: string | null;
+  status: InsumoStatus;
+  data_limite: string | null;
+  enviado_por: string | null;
+  enviado_em: string | null;
+  revisado_por: string | null;
+  revisado_em: string | null;
+  motivo_ajuste: string | null;
+  created_at: string;
+  updated_at: string;
+  tipo_insumo?: TipoInsumo;
+  titulo?: string;
+  anexos?: Anexo[];
+  tags?: Tag[]; // Flat array is easier for UI, but DB returns nested. Ideally we transform it.
+  responsaveis?: { id: string, nome: string }[]; // Simplified
+}
