@@ -262,3 +262,56 @@ function pesquisarCartoes(textoDigitado) {
         atualizarContadoresColunas();
     }
 }
+
+/**
+ * 6. Função para Adicionar Cartão com Integração Backend
+ */
+async function adicionarCartao(btn) {
+    let textarea = btn.parentElement.parentElement.querySelector('textarea');
+    let titulo = textarea.value;
+
+    // Descobre em que coluna estamos
+    // Sobe até achar a div .column e pega o ID
+    let colunaId = btn.closest('.column').id;
+
+    if (titulo.trim()) {
+        // 1. Chama o Backend PRIMEIRO para garantir que salvou
+        if (typeof apiService !== 'undefined') {
+            const novoCartaoDados = await apiService.criarCartao(titulo, colunaId);
+
+            if (novoCartaoDados) {
+                // 2. Se salvou, cria o HTML usando o ID real que veio do Java
+                // Supondo que o Java devolveu: { id: 55, titulo: "Teste", ... }
+
+                const novoDiv = document.createElement('div');
+                novoDiv.className = 'card';
+                novoDiv.id = 'card-' + novoCartaoDados.id; // IMPORTANTE: ID real
+                novoDiv.draggable = true;
+                novoDiv.innerText = novoCartaoDados.titulo;
+
+                // Reatribui os eventos de drag
+                // Verifique se a função 'drag' existe no escopo global
+                if (typeof drag === 'function') {
+                    novoDiv.ondragstart = drag;
+                }
+                novoDiv.onclick = function () { abrirModal(this.id); };
+
+                // Adiciona na área de cartões da coluna
+                const cardsContainer = btn.closest('.column').querySelector('.cards-container');
+                if (cardsContainer) {
+                    cardsContainer.appendChild(novoDiv);
+                } else {
+                    console.error("Container de cartões não encontrado.");
+                }
+
+                textarea.value = '';
+                textarea.focus();
+            } else {
+                alert("Erro ao criar cartão. Tente novamente.");
+            }
+        } else {
+            console.error("apiService não definido. Não é possível criar cartão no backend.");
+            alert("Erro de configuração: apiService ausente.");
+        }
+    }
+}
