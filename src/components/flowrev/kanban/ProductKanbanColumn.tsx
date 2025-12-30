@@ -1,5 +1,10 @@
-// Add missing imports
-import { useState } from "react";
+import { SortableContext, useSortable } from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
+import { useMemo, useState } from "react";
+import { ProductInsumoCard } from "./ProductInsumoCard";
+import { CardHeader, CardTitle } from "@/components/ui/card";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Insumo, InsumoStatus } from "@/types/flowrev";
 import { Plus, X } from "lucide-react";
 import { useCreateInsumo } from "@/hooks/useFlowrev";
 import { toast } from "sonner";
