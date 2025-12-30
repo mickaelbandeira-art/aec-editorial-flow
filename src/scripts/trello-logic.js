@@ -215,8 +215,19 @@ function drop(ev) {
     if (targetColumn && targetColumn.classList.contains('column')) {
         targetColumn.appendChild(card);
 
-        // NOVIDADE: Chama a verificação de cor logo após soltar!
+        // Atualiza a cor (visual)
         verificarCorData(card);
+
+        // --- INTEGRAÇÃO BACKEND AQUI ---
+        // Pega o ID do cartão (ex: "card-123") e remove o prefixo se necessário
+        // Pega o ID da nova coluna
+        const cardId = card.id ? card.id.replace('card-', '') : '';
+        const novaColunaId = targetColumn.id;
+
+        // Chama o serviço para salvar
+        if (typeof apiService !== 'undefined') {
+            apiService.moverCartao(cardId, novaColunaId);
+        }
     }
 }
 
