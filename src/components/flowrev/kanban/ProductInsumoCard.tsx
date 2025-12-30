@@ -71,10 +71,10 @@ export function ProductInsumoCard({ insumo, tipo, onClick }: ProductInsumoCardPr
                 </div>
 
                 {/* Metadata Footer */}
-                <div className="card-meta flex items-center flex-wrap gap-x-3 gap-y-1 text-xs text-slate-500">
+                <div className="card-meta">
                     {insumo.data_limite && (
-                        <div className={`badge-date flex items-center gap-1 p-[2px] rounded ${new Date(insumo.data_limite) < new Date() && insumo.status !== 'aprovado'
-                            ? "bg-red-100 text-red-600"
+                        <div className={`badge-date ${new Date(insumo.data_limite) < new Date() && insumo.status !== 'aprovado'
+                            ? "atrasado"
                             : ""
                             }`}>
                             <Clock className="h-3 w-3" />
