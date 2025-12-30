@@ -13,7 +13,7 @@
   <meta property="og:description" content="Revista de Treinamento AeC" />
   <meta property="og:type" content="website" />
   <meta property="og:image" content="/favicon.png" />
-  
+
   <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js'></script>
 
 
@@ -22,7 +22,30 @@
 
   <!-- Calendar Container (Hybrid Integration) -->
   <div id='calendar-container' style="display: none; padding: 20px;">
-      <div id='calendar'></div>
+    <div id='calendar'></div>
+  </div>
+
+  <!-- Vanilla JS Modal (Hidden by default) -->
+  <div id="modal-card"
+    style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 9999; align-items: center; justify-content: center;">
+    <div style="background: white; padding: 20px; border-radius: 8px; width: 500px; max-width: 90%;">
+      <input type="hidden" id="modal-card-id-hidden">
+      <h3>Detalhes do Cartão</h3>
+
+      <!-- Attachment Section (User Request) -->
+      <div class="sidebar-section">
+        <h4>Anexos</h4>
+        <div id="lista-anexos" class="attachment-list"></div>
+        <input type="file" id="input-anexo" style="display: none;" onchange="uploadArquivo(this)">
+        <button class="sidebar-btn" onclick="document.getElementById('input-anexo').click()"
+          style="padding: 8px 16px; background: #eaecf0; border: none; border-radius: 3px; cursor: pointer;">
+          📎 Adicionar Anexo
+        </button>
+      </div>
+
+      <button onclick="document.getElementById('modal-card').style.display='none'"
+        style="margin-top: 20px;">Fechar</button>
+    </div>
   </div>
   <script type="module" src="/src/main.tsx"></script>
 </body>

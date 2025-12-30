@@ -83,12 +83,21 @@ const apiService = {
  */
 function abrirModal(cardId) {
     // 1. Guarda o ID do cartão no input escondido do modal
-    document.getElementById('modal-card-id-hidden').value = cardId;
+    const hiddenInput = document.getElementById('modal-card-id-hidden');
+    if (hiddenInput) hiddenInput.value = cardId;
 
-    // 2. Simulação: Pega o texto atual do cartão para por no modal (se quiseres)
-    // Na prática, farias uma chamada ao servidor aqui para buscar os dados reais.
+    // 2. Abre o modal (Agora temos um modal real no HTML)
+    const modal = document.getElementById('modal-card');
+    if (modal) {
+        modal.style.display = 'flex';
 
-    // 3. Abre o modal (código do teu sistema atual para mostrar a div)
+        // Limpa a lista de anexos (visual) para não mostrar de outros cartões
+        const lista = document.getElementById('lista-anexos');
+        if (lista) lista.innerHTML = '';
+
+        // Dica: Aqui poderias chamar algo como carregarAnexos(cardId) do backend
+    }
+
     console.log("Editando o cartão: " + cardId);
 }
 
@@ -536,4 +545,114 @@ window.mostrarView = function (tipo) {
         // Se usarmos carregarQuadroDoBanco(), vamos sobrescrever o React DOM.
         // Melhor deixar o React cuidar do quadro, e o script cuidar do calendário.
     }
+};
+
+/**
+ * 9. UPLOAD DE ARQUIVOS (Vanilla JS - UI Otimista)
+ */
+async function uploadArquivo(input) {
+    if (input.files.length === 0) return;
+
+    const arquivo = input.files[0];
+
+    // Tenta pegar o ID. Se falhar, usa um dummy para não travar (ou avisa)
+    const hiddenInput = document.getElementById('modal-card-id-hidden');
+    const cardId = hiddenInput ? hiddenInput.value.replace('card-', '') : '0';
+
+    if (cardId === '0') console.warn("Card ID não encontrado no input hidden");
+
+    // 1. UI OTIMISTA: Cria o elemento visual IMEDIATAMENTE (antes de enviar)
+    const lista = document.getElementById('lista-anexos');
+
+    // Cria um ID temporário para este elemento
+    const tempId = 'temp-' + Date.now();
+
+    const itemHtml = document.createElement('div');
+    itemHtml.className = 'attachment-item loading'; // Começa com classe de carregando
+    itemHtml.id = tempId;
+    itemHtml.innerHTML = `
+        <span class="file-icon">⏳</span>
+        <div class="file-details">
+            <span class="file-name">${arquivo.name}</span>
+            <span class="file-status">Enviando...</span>
+        </div>
+    `;
+
+    if (lista) {
+        lista.appendChild(itemHtml);
+    } else {
+        console.error("Elemento #lista-anexos não encontrado!");
+        return; // Não adianta continuar sem UI
+    }
+
+    // 2. Prepara o envio
+    const formData = new FormData();
+    formData.append('file', arquivo);
+
+    try {
+        // 3. Envia para o Backend (Java)
+        // Ajuste URL conforme necessário
+        const baseUrl = (typeof apiService !== 'undefined' && apiService.baseUrl)
+            ? apiService.baseUrl
+            : "http://localhost:8080/api/cartoes";
+
+        const response = await fetch(`${baseUrl}/${cardId}/anexos`, {
+            method: 'POST',
+            body: formData
+            // Nota: Não defina Content-Type aqui, o browser faz isso automaticamente para Multipart
+        });
+
+        if (!response.ok) throw new Error('Erro no upload');
+
+        const anexoSalvo = await response.json(); // O Java devolve os dados finais
+
+        // 4. SUCESSO: Atualiza o visual para "Concluído"
+        const itemAtualizado = document.getElementById(tempId);
+        if (itemAtualizado) {
+            itemAtualizado.classList.remove('loading');
+            itemAtualizado.innerHTML = `
+                <span class="file-icon">📄</span>
+                <div class="file-details">
+                    <a href="${anexoSalvo.url}" target="_blank" class="file-name">${anexoSalvo.nomeArquivo || arquivo.name}</a>
+                    <span class="file-status">Adicionado agora</span>
+                </div>
+                <button class="btn-remove-attach" onclick="removerAnexo('${anexoSalvo.id}', this)">✕</button>
+            `;
+        }
+
+    } catch (erro) {
+        // 5. ERRO: Mostra visualmente que falhou
+        const itemErro = document.getElementById(tempId);
+        if (itemErro) {
+            const statusEl = itemErro.querySelector('.file-status');
+            const iconEl = itemErro.querySelector('.file-icon');
+            if (statusEl) {
+                statusEl.innerText = "Falha no envio";
+                statusEl.style.color = "red";
+            }
+            if (iconEl) iconEl.innerText = "⚠️";
+        }
+        console.error(erro);
+    }
+
+    // Limpa o input para poder selecionar o mesmo arquivo de novo se quiser
+    input.value = '';
+}
+
+// Globaliza para ser acessível no HTML onclick
+window.uploadArquivo = uploadArquivo;
+
+/**
+ * 10. REMOVER ANEXO (Vanilla JS)
+ */
+window.removerAnexo = async function (anexoId, btnRemove) {
+    if (!confirm("Excluir anexo?")) return;
+
+    // Remove visualmente (Otimista)
+    const item = btnRemove.closest('.attachment-item');
+    if (item) item.remove();
+
+    // Call API (Exemplo)
+    // await fetch(`.../anexos/${anexoId}`, { method: 'DELETE' });
+    console.log("Anexo removido (Visualmente): " + anexoId);
 };
