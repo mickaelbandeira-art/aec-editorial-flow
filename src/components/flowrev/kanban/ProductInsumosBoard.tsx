@@ -44,6 +44,21 @@ export function ProductInsumosBoard({ insumos, edicaoId }: ProductInsumosBoardPr
     const [isDialogOpen, setIsDialogOpen] = useState(false);
     const [viewMode, setViewMode] = useState<'board' | 'calendar'>('board');
 
+
+    const [searchTerm, setSearchTerm] = useState('');
+
+    const filteredInsumos = insumos.filter(i => {
+        const term = searchTerm.toLowerCase();
+        if (!term) return true;
+        return (
+            i.titulo?.toLowerCase().includes(term) ||
+            i.conteudo_texto?.toLowerCase().includes(term) ||
+            i.id.toLowerCase().includes(term) ||
+            i.tags?.some(tag => tag.nome.toLowerCase().includes(term)) ||
+            i.responsaveis?.some(user => user.nome.toLowerCase().includes(term))
+        );
+    });
+
     const selectedInsumo = insumos.find(i => i.id === selectedInsumoId) || null;
 
     const sensors = useSensors(
@@ -159,7 +174,18 @@ export function ProductInsumosBoard({ insumos, edicaoId }: ProductInsumosBoardPr
 
     return (
         <div className="h-full flex flex-col">
-            <div className="flex justify-end px-4 pb-2">
+            <div className="flex justify-between items-center px-4 pb-2">
+                <div className="relative w-64">
+                    <span className="absolute left-2 top-2 text-slate-400 text-xs">🔍</span>
+                    <input
+                        type="text"
+                        placeholder="Pesquisar cartões..."
+                        className="pl-7 pr-4 py-1.5 w-full border border-slate-200 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                    />
+                </div>
+
                 <div className="flex items-center bg-slate-100 p-1 rounded-lg border border-slate-200">
                     <Button
                         variant="ghost"
@@ -193,7 +219,7 @@ export function ProductInsumosBoard({ insumos, edicaoId }: ProductInsumosBoardPr
                             <ProductKanbanColumn
                                 key={col.id}
                                 column={col}
-                                items={insumos.filter(i => i.status === col.id)}
+                                items={filteredInsumos.filter(i => i.status === col.id)}
                                 onItemClick={handleCardClick}
                                 edicaoId={edicaoId}
                             />
@@ -209,7 +235,7 @@ export function ProductInsumosBoard({ insumos, edicaoId }: ProductInsumosBoardPr
             ) : (
                 <div className="flex-1 p-4 min-h-0 overflow-hidden">
                     <ProductInsumosCalendar
-                        insumos={insumos}
+                        insumos={filteredInsumos}
                         onUpdateDate={handleUpdateDate}
                         onInsumoClick={handleCardClick}
                     />
