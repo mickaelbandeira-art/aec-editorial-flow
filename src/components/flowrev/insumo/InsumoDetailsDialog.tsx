@@ -37,8 +37,18 @@ import {
     X,
     Clock,
     Loader2,
-    UploadCloud
+    UploadCloud,
+    Calendar as CalendarIcon
 } from "lucide-react";
+import { format } from "date-fns";
+import { ptBR } from "date-fns/locale";
+import { Calendar } from "@/components/ui/calendar";
+import {
+    Popover,
+    PopoverContent,
+    PopoverTrigger,
+} from "@/components/ui/popover";
+import { cn } from "@/lib/utils";
 import { useUploadAnexo, useDeleteAnexo } from "@/hooks/useFlowrev";
 import { toast } from "sonner";
 import { usePermissions } from "@/hooks/usePermission";
@@ -151,6 +161,7 @@ export function InsumoDetailsDialog({
     const [status, setStatus] = useState<InsumoStatus>('nao_iniciado');
     const [texto, setTexto] = useState('');
     const [obs, setObs] = useState('');
+    const [dataLimite, setDataLimite] = useState<Date | undefined>(undefined);
 
     // Sync state when insumo changes
     React.useEffect(() => {
@@ -158,6 +169,7 @@ export function InsumoDetailsDialog({
             setStatus(insumo.status || 'nao_iniciado');
             setTexto(insumo.conteudo_texto || '');
             setObs(insumo.observacoes || '');
+            setDataLimite(insumo.data_limite ? new Date(insumo.data_limite) : undefined);
         }
     }, [insumo]);
 
@@ -210,6 +222,7 @@ export function InsumoDetailsDialog({
             status,
             conteudo_texto: texto,
             observacoes: obs,
+            data_limite: dataLimite ? dataLimite.toISOString() : null,
         });
     };
 
@@ -446,6 +459,34 @@ export function InsumoDetailsDialog({
                     <aside className="w-[350px] bg-slate-50/50 flex flex-col overflow-hidden border-l border-slate-200">
                         <ScrollArea className="flex-1 p-6">
                             <div className="space-y-6">
+                                <div className="space-y-3">
+                                    <h3 className="font-semibold text-sm text-slate-900">Data de Entrega</h3>
+                                    <Popover>
+                                        <PopoverTrigger asChild>
+                                            <Button
+                                                variant={"outline"}
+                                                className={cn(
+                                                    "w-full justify-start text-left font-normal border-slate-200",
+                                                    !dataLimite && "text-muted-foreground"
+                                                )}
+                                            >
+                                                <CalendarIcon className="mr-2 h-4 w-4" />
+                                                {dataLimite ? format(dataLimite, "PPP", { locale: ptBR }) : <span>Selecione uma data</span>}
+                                            </Button>
+                                        </PopoverTrigger>
+                                        <PopoverContent className="w-auto p-0" align="start">
+                                            <Calendar
+                                                mode="single"
+                                                selected={dataLimite}
+                                                onSelect={setDataLimite}
+                                                initialFocus
+                                            />
+                                        </PopoverContent>
+                                    </Popover>
+                                </div>
+
+                                <div className="h-px bg-slate-200 my-4" />
+
                                 <div>
                                     <h3 className="font-semibold text-sm text-slate-900 mb-2">Observações</h3>
                                     <p className="text-sm text-slate-500 leading-relaxed">

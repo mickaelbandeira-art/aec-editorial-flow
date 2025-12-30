@@ -11,11 +11,14 @@ import {
 import { createPortal } from "react-dom";
 import { ProductKanbanColumn } from "./ProductKanbanColumn";
 import { ProductInsumoCard } from "./ProductInsumoCard";
+import { ProductInsumosCalendar } from "./ProductInsumosCalendar";
 import { Insumo, InsumoStatus } from "@/types/flowrev";
-import { useUpdateInsumoStatus, useUpdateInsumoContent } from "@/hooks/useFlowrev";
+import { useUpdateInsumoStatus, useUpdateInsumoContent, useUpdateInsumo } from "@/hooks/useFlowrev";
 import { toast } from "sonner";
 import { InsumoDetailsDialog } from "../insumo/InsumoDetailsDialog";
 import { usePermissions } from "@/hooks/usePermission";
+import { Calendar as CalendarIcon, Kanban as KanbanIcon } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 interface ProductInsumosBoardProps {
     insumos: Insumo[];
@@ -33,9 +36,12 @@ const COLUMNS: { id: InsumoStatus, title: string }[] = [
 export function ProductInsumosBoard({ insumos }: ProductInsumosBoardProps) {
     const { mutate: updateStatus } = useUpdateInsumoStatus();
     const { mutate: updateContent } = useUpdateInsumoContent();
+    const { mutate: updateInsumo } = useUpdateInsumo();
+
     const [activeItem, setActiveItem] = useState<Insumo | null>(null);
     const [selectedInsumoId, setSelectedInsumoId] = useState<string | null>(null);
     const [isDialogOpen, setIsDialogOpen] = useState(false);
+    const [viewMode, setViewMode] = useState<'board' | 'calendar'>('board');
 
     const selectedInsumo = insumos.find(i => i.id === selectedInsumoId) || null;
 
@@ -112,6 +118,14 @@ export function ProductInsumosBoard({ insumos }: ProductInsumosBoardProps) {
             updateStatus({ insumoId: selectedInsumo.id, status: updatedData.status });
         }
 
+        // Update generic fields (like data_limite)
+        if (updatedData.data_limite !== selectedInsumo.data_limite) {
+            updateInsumo({
+                insumoId: selectedInsumo.id,
+                updates: { data_limite: updatedData.data_limite }
+            });
+        }
+
         // Update content if changed
         // We compare against the current fresh data
         if (updatedData.conteudo_texto !== selectedInsumo.conteudo_texto || updatedData.observacoes !== selectedInsumo.observacoes) {
@@ -132,30 +146,73 @@ export function ProductInsumosBoard({ insumos }: ProductInsumosBoardProps) {
         setIsDialogOpen(false);
     };
 
+    const handleUpdateDate = (insumoId: string, newDate: Date) => {
+        updateInsumo({
+            insumoId,
+            updates: { data_limite: newDate.toISOString() }
+        }, {
+            onSuccess: () => toast.success("Data atualizada!"),
+            onError: () => toast.error("Erro ao mudar data.")
+        });
+    };
+
     return (
-        <>
-            <DndContext
-                sensors={sensors}
-                onDragStart={onDragStart}
-                onDragEnd={onDragEnd}
-            >
-                <div className="flex h-full gap-4 overflow-x-auto p-4 custom-scrollbar">
-                    {COLUMNS.map(col => (
-                        <ProductKanbanColumn
-                            key={col.id}
-                            column={col}
-                            items={insumos.filter(i => i.status === col.id)}
-                            onItemClick={handleCardClick}
-                        />
-                    ))}
+        <div className="h-full flex flex-col">
+            <div className="flex justify-end px-4 pb-2">
+                <div className="flex items-center bg-slate-100 p-1 rounded-lg border border-slate-200">
+                    <Button
+                        variant="ghost"
+                        size="sm"
+                        className={`h-7 px-3 text-xs gap-2 ${viewMode === 'board' ? 'bg-white shadow-sm font-semibold text-blue-600' : 'text-slate-500'}`}
+                        onClick={() => setViewMode('board')}
+                    >
+                        <KanbanIcon className="h-3.5 w-3.5" />
+                        Quadro
+                    </Button>
+                    <Button
+                        variant="ghost"
+                        size="sm"
+                        className={`h-7 px-3 text-xs gap-2 ${viewMode === 'calendar' ? 'bg-white shadow-sm font-semibold text-blue-600' : 'text-slate-500'}`}
+                        onClick={() => setViewMode('calendar')}
+                    >
+                        <CalendarIcon className="h-3.5 w-3.5" />
+                        Calendário
+                    </Button>
                 </div>
-                {createPortal(
-                    <DragOverlay>
-                        {activeItem && <ProductInsumoCard insumo={activeItem} tipo={activeItem.tipo_insumo} />}
-                    </DragOverlay>,
-                    document.body
-                )}
-            </DndContext>
+            </div>
+
+            {viewMode === 'board' ? (
+                <DndContext
+                    sensors={sensors}
+                    onDragStart={onDragStart}
+                    onDragEnd={onDragEnd}
+                >
+                    <div className="flex-1 flex gap-4 overflow-x-auto p-4 custom-scrollbar min-h-0">
+                        {COLUMNS.map(col => (
+                            <ProductKanbanColumn
+                                key={col.id}
+                                column={col}
+                                items={insumos.filter(i => i.status === col.id)}
+                                onItemClick={handleCardClick}
+                            />
+                        ))}
+                    </div>
+                    {createPortal(
+                        <DragOverlay>
+                            {activeItem && <ProductInsumoCard insumo={activeItem} tipo={activeItem.tipo_insumo} />}
+                        </DragOverlay>,
+                        document.body
+                    )}
+                </DndContext>
+            ) : (
+                <div className="flex-1 p-4 min-h-0 overflow-hidden">
+                    <ProductInsumosCalendar
+                        insumos={insumos}
+                        onUpdateDate={handleUpdateDate}
+                        onInsumoClick={handleCardClick}
+                    />
+                </div>
+            )}
 
             <InsumoDetailsDialog
                 isOpen={isDialogOpen}
@@ -163,6 +220,6 @@ export function ProductInsumosBoard({ insumos }: ProductInsumosBoardProps) {
                 insumo={selectedInsumo}
                 onSave={handleSaveInsumo}
             />
-        </>
+        </div>
     );
 }
