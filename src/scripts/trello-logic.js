@@ -1,3 +1,68 @@
+const apiService = {
+    // A URL base do teu backend Java
+    baseUrl: "http://localhost:8080/api/cartoes",
+
+    /**
+     * 1. Mover Cartão (Drag & Drop)
+     */
+    async moverCartao(id, novaColuna) {
+        try {
+            const response = await fetch(`${this.baseUrl}/${id}/mover`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ coluna: novaColuna })
+            });
+
+            if (!response.ok) throw new Error('Falha ao mover no servidor');
+            console.log("✅ Movimento salvo no banco!");
+        } catch (erro) {
+            console.error("❌ Erro ao salvar movimento:", erro);
+            alert("Erro de conexão: O cartão pode não ter sido salvo.");
+        }
+    },
+
+    /**
+     * 2. Atualizar Detalhes (Data, Título, Responsável)
+     */
+    async atualizarCartao(id, dados) {
+        // dados é um objeto tipo: { dataEntrega: '2023-12-30', titulo: '...' }
+        try {
+            const response = await fetch(`${this.baseUrl}/${id}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(dados)
+            });
+
+            if (!response.ok) throw new Error('Falha ao atualizar');
+            console.log("✅ Dados atualizados!");
+        } catch (erro) {
+            console.error("❌ Erro:", erro);
+        }
+    },
+
+    /**
+     * 3. Criar Novo Cartão
+     */
+    async criarCartao(titulo, coluna) {
+        try {
+            const response = await fetch(this.baseUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ titulo: titulo, coluna: coluna })
+            });
+
+            if (!response.ok) throw new Error('Falha ao criar');
+
+            // O Java deve devolver o objeto criado com o ID novo
+            const novoCartao = await response.json();
+            return novoCartao; // Retorna para usarmos no HTML
+        } catch (erro) {
+            console.error("❌ Erro ao criar:", erro);
+            return null;
+        }
+    }
+};
+
 /**
  * 1. Função Simulada para Abrir o Modal
  * Quando clicas no cartão, passamos o ID e preenchemos o hidden input.
