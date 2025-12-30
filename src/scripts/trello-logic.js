@@ -412,3 +412,96 @@ async function carregarQuadroDoBanco() {
 window.addEventListener('DOMContentLoaded', () => {
     carregarQuadroDoBanco();
 });
+
+// --- INTEGRAÇÃO CALENDÁRIO (FULLCALENDAR) ---
+let calendar; // Variável global para guardar a instância
+
+function iniciarCalendario() {
+    var calendarEl = document.getElementById('calendar');
+
+    // Evita recriar se já existir
+    if (calendar) {
+        calendar.render();
+        return;
+    }
+
+    calendar = new FullCalendar.Calendar(calendarEl, {
+        initialView: 'dayGridMonth', // Vista mensal clássica
+        locale: 'pt-br', // Português do Brasil
+        headerToolbar: {
+            left: 'prev,next today',
+            center: 'title',
+            right: 'dayGridMonth,timeGridWeek'
+        },
+        editable: true, // Permite arrastar no calendário!
+
+        // 1. CARREGAR EVENTOS (Busca do nosso Backend)
+        events: async function (info, successCallback, failureCallback) {
+            try {
+                // Usa o teu serviço existente
+                if (typeof apiService === 'undefined') {
+                    console.error("apiService não definido para o calendário.");
+                    failureCallback("apiService missing");
+                    return;
+                }
+                const cartoes = await apiService.listarCartoes();
+
+                // Traduz o formato do Teu Java para o formato do FullCalendar
+                const eventos = cartoes
+                    .filter(c => c.dataEntrega) // Só queremos os que têm data
+                    .map(c => ({
+                        id: c.id,
+                        title: c.titulo,
+                        start: c.dataEntrega, // Formato YYYY-MM-DD funciona nativo
+                        // Opcional: Cores baseadas na coluna
+                        backgroundColor: c.coluna === 'concluido' || c.coluna === 'aprovado' || c.coluna === 'enviado' ? '#61bd4f' : '#0079bf',
+                        borderColor: 'transparent'
+                    }));
+
+                successCallback(eventos);
+            } catch (error) {
+                console.error("Erro ao carregar calendário", error);
+                failureCallback(error);
+            }
+        },
+
+        // 2. ARRASTAR E SOLTAR NO CALENDÁRIO (Atualiza a Data)
+        eventDrop: async function (info) {
+            const cardId = info.event.id;
+            const novaData = info.event.start.toISOString().split('T')[0]; // Pega YYYY-MM-DD
+
+            if (confirm(`Mover "${info.event.title}" para ${formatarDataCurta(novaData)}?`)) {
+                // Chama o teu backend
+                await apiService.atualizarCartao(cardId, { dataEntrega: novaData });
+
+                // Atualiza também o cartão na esteira se estiver visível
+                const cardElement = document.getElementById('card-' + cardId);
+                if (cardElement) {
+                    // Atualiza o atributo visual
+                    cardElement.setAttribute('data-prazo', novaData);
+                    const dateText = cardElement.querySelector('.date-text');
+                    if (dateText) dateText.innerText = formatarDataCurta(novaData);
+                    verificarCorData(cardElement); // Recalcula cor (atrasado/hoje)
+                }
+            } else {
+                info.revert(); // Cancela o movimento visualmente se o usuário negar
+            }
+        },
+
+        // 3. CLICAR NO EVENTO (Abre o Modal de Edição)
+        eventClick: function (info) {
+            // Reutiliza a tua função existente!
+            // Nota: o ID do evento é o ID puro do banco (ex: 55), mas abrirModal espera card-55?
+            // Verifica como o evento foi criado: id: c.id
+            // abrirModal espera cardId. E no onload do div nos fizemos id = 'card-' + id
+            // Então aqui devemos passar 'card-' + info.event.id se abrirModal esperar o ID do DOM.
+            // Mas abrirModal linha 70 diz: document.getElementById('modal-card-id-hidden').value = cardId;
+            // Se cardId for só o numero, ok. Se for o ID do DOM, ok.
+            // A função `abrirModal` define o value do hidden input.
+            // Vou passar 'card-' + id para ser consistente com o click no board
+            abrirModal('card-' + info.event.id);
+        }
+    });
+
+    calendar.render();
+}
