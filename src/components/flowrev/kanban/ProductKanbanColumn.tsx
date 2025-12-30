@@ -89,7 +89,8 @@ export function ProductKanbanColumn({ column, items, onItemClick, edicaoId }: Pr
         <div
             ref={setNodeRef}
             style={style}
-            className={`min-w-[280px] w-[300px] h-full rounded-xl flex flex-col border border-slate-200 bg-slate-50 p-2`} // Reduced padding to match Trello compactness
+            id={column.id}
+            className={`column min-w-[280px] w-[300px] h-full rounded-xl flex flex-col border border-slate-200 bg-slate-50 p-2`} // Reduced padding to match Trello compactness
         >
             <CardHeader className="p-3 pb-2 bg-transparent border-none">
                 <div className="flex items-center justify-between">

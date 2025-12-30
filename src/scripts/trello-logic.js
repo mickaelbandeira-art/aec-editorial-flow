@@ -79,3 +79,59 @@ function salvarAlteracoesCard() {
     // fecharModal(); // Chama a tua função de fechar
     alert("Data atualizada no quadro!");
 }
+
+/**
+ * Verifica o estado do cartão e pinta a data
+ * @param {HTMLElement} cardElement - O elemento HTML do cartão inteiro
+ */
+function verificarCorData(cardElement) {
+    // 1. Pega os elementos necessários
+    const badgeDate = cardElement.querySelector('.badge-date');
+    const dateText = cardElement.querySelector('.date-text').innerText; // Ex: "30 Dez"
+
+    // Se não tiver data visível ou configurada, sai da função
+    if (badgeDate.style.display === 'none' || !dateText) return;
+
+    // 2. Descobre em qual coluna o cartão está
+    // O .closest procura o pai mais próximo que seja uma coluna
+    const colunaPai = cardElement.closest('.column');
+    const idColuna = colunaPai ? colunaPai.id : '';
+
+    // 3. Recupera a data real (precisamos ter guardado isso em algum lugar)
+    // DICA: O ideal é guardar a data formato ISO num atributo data- do HTML
+    // Exemplo no HTML: <div class="card" data-prazo="2023-12-30">
+    const dataPrazoString = cardElement.getAttribute('data-prazo');
+
+    if (!dataPrazoString) return; // Segurança
+
+    const dataPrazo = new Date(dataPrazoString);
+    // Zerar horas para comparar apenas dias
+    dataPrazo.setHours(0, 0, 0, 0);
+
+    const hoje = new Date();
+    hoje.setHours(0, 0, 0, 0);
+
+    // 4. Limpa as classes antigas para recalcular
+    badgeDate.classList.remove('status-concluido', 'status-atrasado', 'status-atencao');
+
+    // --- LÓGICA DE DECISÃO ---
+
+    // CASO A: Está na coluna de concluídos? (Ex: id="done" ou "concluido")
+    // Adapta "done" para o ID real da tua coluna de concluídos
+    if (idColuna === 'done' || idColuna === 'concluido' || idColuna === 'arquivado' || idColuna === 'aprovado') {
+        badgeDate.classList.add('status-concluido');
+        badgeDate.title = "Tarefa Concluída";
+        return;
+    }
+
+    // CASO B: A data já passou? (Atrasado)
+    if (dataPrazo < hoje) {
+        badgeDate.classList.add('status-atrasado');
+        badgeDate.title = "Esta tarefa está atrasada!";
+    }
+    // CASO C: É para hoje? (Atenção)
+    else if (dataPrazo.getTime() === hoje.getTime()) {
+        badgeDate.classList.add('status-atencao');
+        badgeDate.title = "Entrega hoje!";
+    }
+}

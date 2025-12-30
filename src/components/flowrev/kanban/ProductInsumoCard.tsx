@@ -58,7 +58,7 @@ export function ProductInsumoCard({ insumo, tipo, onClick }: ProductInsumoCardPr
     };
 
     return (
-        <div ref={setNodeRef} style={style} {...attributes} {...listeners} onClick={onClick} id={`card-${insumo.id}`}>
+        <div ref={setNodeRef} style={style} {...attributes} {...listeners} onClick={onClick} id={`card-${insumo.id}`} data-prazo={insumo.data_limite}>
             <div className="card group relative bg-white rounded-[8px] p-[10px] mb-[8px] cursor-grab transition-all duration-200 shadow-[0_1px_3px_rgba(0,0,0,0.12)] hover:bg-[#f4f5f7] hover:shadow-[0_2px_5px_rgba(0,0,0,0.2)] active:cursor-grabbing">
 
                 {/* Trello-like colored label */}
