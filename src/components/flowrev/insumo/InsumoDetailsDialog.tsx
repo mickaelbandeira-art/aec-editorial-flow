@@ -199,7 +199,10 @@ export function InsumoDetailsDialog({
     // Upload state
     const [uploading, setUploading] = useState(false);
     const [imageCaption, setImageCaption] = useState("");
+    const [uploading, setUploading] = useState(false);
+    const [imageCaption, setImageCaption] = useState("");
     const [imageFile, setImageFile] = useState<File | null>(null);
+    const [optimisticAnexos, setOptimisticAnexos] = useState<{ id: string, nome_arquivo: string, loading: boolean, tipo: 'imagem' | 'pdf' }[]>([]);
 
     // Permission Logic
     const getAvailableStatuses = () => {
@@ -281,37 +284,41 @@ export function InsumoDetailsDialog({
         });
     };
 
-    const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>, type: 'imagem' | 'pdf') => {
+    const handleInstantUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files && e.target.files[0]) {
             const file = e.target.files[0];
-            if (type === 'imagem') {
-                setImageFile(file);
-            } else {
-                startUpload(file, 'pdf');
-            }
-        }
-    };
+            const tempId = 'temp-' + Date.now();
+            const isImage = file.type.startsWith('image/');
+            const tipo = isImage ? 'imagem' : 'pdf';
 
-    const startUpload = (file: File, tipo: 'imagem' | 'pdf', caption?: string) => {
-        setUploading(true);
-        uploadFile({
-            insumoId: insumo.id,
-            file,
-            tipo,
-            legenda: caption
-        }, {
-            onSuccess: () => {
-                toast.success("Arquivo enviado com sucesso!");
-                setImageFile(null);
-                setImageCaption("");
-                setUploading(false);
-            },
-            onError: (error) => {
-                console.error("Upload error:", error);
-                toast.error(`Erro no upload: ${error instanceof Error ? error.message : "Desconhecido"}`);
-                setUploading(false);
-            }
-        });
+            // 1. UI Otimista (Instantâneo)
+            setOptimisticAnexos(prev => [...prev, { id: tempId, nome_arquivo: file.name, loading: true, tipo }]);
+
+            // 2. Upload Assíncrono
+            uploadFile({
+                insumoId: insumo.id,
+                file,
+                tipo,
+                legenda: file.name // Usa nome do arquivo como legenda padrão para ser instantâneo
+            }, {
+                onSuccess: () => {
+                    toast.success("Arquivo enviado!");
+                    // Remove item temporário (o real virá pelo refresh do React Query)
+                    setOptimisticAnexos(prev => prev.filter(a => a.id !== tempId));
+                    setUploading(false);
+                },
+                onError: (error) => {
+                    console.error("Upload error:", error);
+                    toast.error("Erro ao enviar arquivo.");
+                    // Remove item temporário em falha também
+                    setOptimisticAnexos(prev => prev.filter(a => a.id !== tempId));
+                    setUploading(false);
+                }
+            });
+
+            // Limpa input para permitir selecionar o mesmo arquivo novamente
+            e.target.value = '';
+        }
     };
 
     const handleDeleteAnexo = (anexoId: string) => {
@@ -444,65 +451,7 @@ export function InsumoDetailsDialog({
                             )}
 
                             {/* ... Attachments & Activity (Same as before) ... */}
-                            {/* Attachments Section */}
-                            <div className="space-y-3">
-                                <div className="flex items-center gap-3 justify-between">
-                                    <div className="flex items-center gap-3">
-                                        <ImageIcon className="h-6 w-6 text-slate-700" />
-                                        <h3 className="text-lg font-semibold text-slate-800">Anexos</h3>
-                                    </div>
-                                </div>
-                                <div className="pl-9 space-y-4">
-                                    {insumo.anexos && insumo.anexos.length > 0 ? (
-                                        <div className="grid gap-3">
-                                            {insumo.anexos.map((anexo) => (
-                                                <div key={anexo.id} className="flex items-start gap-3 p-2 hover:bg-slate-200 rounded transition-colors group">
-                                                    <div className="h-20 w-28 shrink-0 flex items-center justify-center bg-slate-200 rounded overflow-hidden text-slate-500">
-                                                        {anexo.tipo === 'imagem' ? (
-                                                            <img src={anexo.url} alt={anexo.nome_arquivo} className="h-full w-full object-cover" />
-                                                        ) : (
-                                                            <FileText className="h-8 w-8 text-slate-400" />
-                                                        )}
-                                                    </div>
-                                                    <div className="flex-1 min-w-0 py-1">
-                                                        <p className="font-semibold text-sm text-slate-800 truncate" title={anexo.nome_arquivo}>
-                                                            {anexo.nome_arquivo}
-                                                        </p>
-                                                        <p className="text-xs text-slate-500 mt-1">
-                                                            Adicionado em {format(new Date(anexo.created_at), "dd 'de' MMM", { locale: ptBR })}
-                                                        </p>
-                                                        <div className="flex gap-1 mt-2">
-                                                            <a href={anexo.url} target="_blank" rel="noopener noreferrer" className="text-xs underline text-slate-500 hover:text-slate-800">
-                                                                Baixar
-                                                            </a>
-                                                            <span className="text-slate-300">•</span>
-                                                            <button className="text-xs underline text-slate-500 hover:text-red-600" onClick={() => handleDeleteAnexo(anexo.id)}>
-                                                                Excluir
-                                                            </button>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            ))}
-                                        </div>
-                                    ) : (
-                                        <p className="text-sm text-slate-500">Nenhum anexo.</p>
-                                    )}
-                                    <Button variant="secondary" size="sm" className="bg-slate-200 hover:bg-slate-300 text-slate-700" onClick={() => imageInputRef.current?.click()}>
-                                        Adicionar anexo
-                                    </Button>
-                                    <input type="file" ref={imageInputRef} className="hidden" accept="image/*" onChange={(e) => handleFileSelect(e, 'imagem')} />
-                                    {imageFile && (
-                                        <div className="bg-white border border-slate-200 rounded p-3 mt-2 shadow-sm">
-                                            <p className="text-sm font-semibold mb-2">Legenda para a imagem:</p>
-                                            <Input value={imageCaption} onChange={e => setImageCaption(e.target.value)} className="mb-2" placeholder="Descreva a imagem..." />
-                                            <div className="flex gap-2">
-                                                <Button size="sm" onClick={() => startUpload(imageFile, 'imagem', imageCaption)} disabled={uploading}>{uploading ? "Enviando..." : "Enviar"}</Button>
-                                                <Button size="sm" variant="ghost" onClick={() => setImageFile(null)}>Cancelar</Button>
-                                            </div>
-                                        </div>
-                                    )}
-                                </div>
-                            </div>
+                            {/* Attachments moved to Sidebar as per User Request */}
                             {/* Activity Section */}
                             <div className="space-y-3">
                                 <div className="flex items-center gap-3">
@@ -633,69 +582,107 @@ export function InsumoDetailsDialog({
                                     </PopoverContent>
                                 </Popover>
 
-                                <Button
-                                    variant="secondary"
-                                    className="w-full justify-start bg-[#eaecf0] hover:bg-[#dfe1e6] text-[#172b4d] font-medium transition-colors h-8"
-                                    onClick={() => imageInputRef.current?.click()}
-                                >
-                                    <span className="mr-2">📎</span> Anexos
-                                </Button>
-                            </div>
+                                <div className="space-y-2">
+                                    <div className="flex items-center justify-between">
+                                        <span className="text-xs font-semibold text-slate-500 uppercase tracking-wide">Anexos</span>
+                                    </div>
 
-                            {/* Suggestion: Actions */}
-                            {/* Actions - Fully Implemented */}
-                            <div className="space-y-2">
-                                <span className="text-xs font-semibold text-slate-500 uppercase tracking-wide">Ações</span>
+                                    {/* Lista de Anexos (Real + Otimista) */}
+                                    <div className="space-y-1 max-h-[200px] overflow-y-auto">
+                                        {/* 1. Anexos Reais */}
+                                        {insumo.anexos?.map((anexo) => (
+                                            <div key={anexo.id} className="group flex items-center gap-2 p-2 rounded hover:bg-slate-100 text-sm">
+                                                {anexo.tipo === 'imagem' ? <ImageIcon className="h-4 w-4 text-slate-500" /> : <FileText className="h-4 w-4 text-slate-500" />}
+                                                <a href={anexo.url} target="_blank" rel="noreferrer" className="flex-1 truncate text-slate-700 hover:underline">{anexo.nome_arquivo}</a>
+                                                <button onClick={() => handleDeleteAnexo(anexo.id)} className="opacity-0 group-hover:opacity-100 text-slate-400 hover:text-red-600">
+                                                    <Trash2 className="h-3.5 w-3.5" />
+                                                </button>
+                                            </div>
+                                        ))}
 
-                                <Popover>
-                                    <PopoverTrigger asChild>
-                                        <Button
-                                            variant="secondary"
-                                            className="w-full justify-start bg-[#eaecf0] hover:bg-[#dfe1e6] text-[#172b4d] font-medium transition-colors h-8"
-                                        >
-                                            <span className="mr-2">➡️</span> Mover
-                                        </Button>
-                                    </PopoverTrigger>
-                                    <PopoverContent className="w-48 p-0" align="start">
-                                        <div className="p-3 border-b border-slate-100"><h4 className="text-sm font-semibold text-center text-slate-700">Mover para...</h4></div>
-                                        <div className="p-1">
-                                            {Object.entries(STATUS_LABELS).map(([key, label]) => (
-                                                <Button
-                                                    key={key}
-                                                    variant="ghost"
-                                                    className={cn("w-full justify-start text-xs h-7", insumo.status === key && "bg-slate-100 text-blue-600")}
-                                                    onClick={() => handleMove(key as InsumoStatus)}
-                                                >
-                                                    {label}
-                                                </Button>
-                                            ))}
-                                        </div>
-                                    </PopoverContent>
-                                </Popover>
+                                        {/* 2. Anexos Otimistas (Loading) */}
+                                        {optimisticAnexos.map((anexo) => (
+                                            <div key={anexo.id} className="flex items-center gap-2 p-2 rounded bg-blue-50 text-sm border border-blue-100">
+                                                <Loader2 className="h-3.5 w-3.5 animate-spin text-blue-600" />
+                                                <span className="flex-1 truncate text-slate-700 italic">{anexo.nome_arquivo}</span>
+                                            </div>
+                                        ))}
 
-                                <Button
-                                    variant="secondary"
-                                    className="w-full justify-start bg-[#eaecf0] hover:bg-[#dfe1e6] text-[#172b4d] font-medium transition-colors h-8"
-                                    onClick={handleDuplicate}
-                                    disabled={duplicating}
-                                >
-                                    <span className="mr-2">📋</span> {duplicating ? "Copiando..." : "Copiar"}
-                                </Button>
-                                <Button
-                                    variant="secondary"
-                                    className="w-full justify-start bg-[#eaecf0] hover:bg-[#dfe1e6] text-[#172b4d] font-medium transition-colors h-8 hover:bg-red-50 hover:text-red-600"
-                                    onClick={handleArchive}
-                                    disabled={deleting}
-                                >
-                                    <span className="mr-2">🗑️</span> {deleting ? "Arquivando..." : "Arquivar"}
-                                </Button>
-                            </div>
+                                        {(!insumo.anexos?.length && !optimisticAnexos.length) && (
+                                            <p className="text-xs text-slate-400 px-2 italic">Sem anexos</p>
+                                        )}
+                                    </div>
 
-                            {/* Meta Info */}
-                            <div className="mt-8 text-xs text-slate-400">
-                                <p>Criado em {format(new Date(insumo.created_at), "dd 'de' MMMM", { locale: ptBR })}</p>
-                                <p>ID: {insumo.id.slice(0, 8)}</p>
-                            </div>
+                                    <Button
+                                        variant="secondary"
+                                        className="w-full justify-start bg-[#eaecf0] hover:bg-[#dfe1e6] text-[#172b4d] font-medium transition-colors h-8"
+                                        onClick={() => imageInputRef.current?.click()}
+                                    >
+                                        <span className="mr-2">📎</span> Adicionar Anexo
+                                    </Button>
+                                    <input
+                                        type="file"
+                                        ref={imageInputRef}
+                                        className="hidden"
+                                        onChange={handleInstantUpload}
+                                    /* Aceita qualquer arquivo por padrao, ou imagem/pdf */
+                                    />
+                                </div>
+
+                                {/* Suggestion: Actions */}
+                                {/* Actions - Fully Implemented */}
+                                <div className="space-y-2">
+                                    <span className="text-xs font-semibold text-slate-500 uppercase tracking-wide">Ações</span>
+
+                                    <Popover>
+                                        <PopoverTrigger asChild>
+                                            <Button
+                                                variant="secondary"
+                                                className="w-full justify-start bg-[#eaecf0] hover:bg-[#dfe1e6] text-[#172b4d] font-medium transition-colors h-8"
+                                            >
+                                                <span className="mr-2">➡️</span> Mover
+                                            </Button>
+                                        </PopoverTrigger>
+                                        <PopoverContent className="w-48 p-0" align="start">
+                                            <div className="p-3 border-b border-slate-100"><h4 className="text-sm font-semibold text-center text-slate-700">Mover para...</h4></div>
+                                            <div className="p-1">
+                                                {Object.entries(STATUS_LABELS).map(([key, label]) => (
+                                                    <Button
+                                                        key={key}
+                                                        variant="ghost"
+                                                        className={cn("w-full justify-start text-xs h-7", insumo.status === key && "bg-slate-100 text-blue-600")}
+                                                        onClick={() => handleMove(key as InsumoStatus)}
+                                                    >
+                                                        {label}
+                                                    </Button>
+                                                ))}
+                                            </div>
+                                        </PopoverContent>
+                                    </Popover>
+
+                                    <Button
+                                        variant="secondary"
+                                        className="w-full justify-start bg-[#eaecf0] hover:bg-[#dfe1e6] text-[#172b4d] font-medium transition-colors h-8"
+                                        onClick={handleDuplicate}
+                                        disabled={duplicating}
+                                    >
+                                        <span className="mr-2">📋</span> {duplicating ? "Copiando..." : "Copiar"}
+                                    </Button>
+                                    <Button
+                                        variant="secondary"
+                                        className="w-full justify-start bg-[#eaecf0] hover:bg-[#dfe1e6] text-[#172b4d] font-medium transition-colors h-8 hover:bg-red-50 hover:text-red-600"
+                                        onClick={handleArchive}
+                                        disabled={deleting}
+                                    >
+                                        <span className="mr-2">🗑️</span> {deleting ? "Arquivando..." : "Arquivar"}
+                                    </Button>
+                                </div>
+
+                                {/* Meta Info */}
+                                <div className="mt-8 text-xs text-slate-400">
+                                    <p>Criado em {format(new Date(insumo.created_at), "dd 'de' MMMM", { locale: ptBR })}</p>
+                                    <p>ID: {insumo.id.slice(0, 8)}</p>
+                                </div>
                         </aside>
                     </div>
                 </div>
