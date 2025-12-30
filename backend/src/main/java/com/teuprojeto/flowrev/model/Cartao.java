@@ -25,6 +25,9 @@ public class Cartao {
     @OneToMany(mappedBy = "cartao", cascade = CascadeType.ALL, orphanRemoval = true)
     private java.util.List<Anexo> anexos = new java.util.ArrayList<>();
 
+    @OneToMany(mappedBy = "cartao", cascade = CascadeType.ALL, orphanRemoval = true)
+    private java.util.List<Comentario> comentarios = new java.util.ArrayList<>();
+
     // Construtor vazio (obrigatório para JPA)
     public Cartao() {}
 
@@ -50,4 +53,7 @@ public class Cartao {
 
     public java.util.List<Anexo> getAnexos() { return anexos; }
     public void setAnexos(java.util.List<Anexo> anexos) { this.anexos = anexos; }
+
+    public java.util.List<Comentario> getComentarios() { return comentarios; }
+    public void setComentarios(java.util.List<Comentario> comentarios) { this.comentarios = comentarios; }
 }
