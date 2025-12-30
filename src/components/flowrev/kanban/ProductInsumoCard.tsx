@@ -59,58 +59,54 @@ export function ProductInsumoCard({ insumo, tipo, onClick }: ProductInsumoCardPr
 
     return (
         <div ref={setNodeRef} style={style} {...attributes} {...listeners} onClick={onClick}>
-            <Card className="cursor-grab active:cursor-grabbing bg-white border border-slate-200 border-l-4 border-l-blue-600 rounded-lg shadow-sm hover:shadow-lg hover:-translate-y-0.5 hover:border-slate-300 transition-all duration-200 mb-3 group">
-                <CardHeader className="p-3 pb-2">
-                    <div className="flex justify-between items-start gap-2">
-                        <div className="flex gap-2 items-start w-full">
-                            <div className="mt-0.5 text-slate-400 shrink-0">
-                                {getIcon()}
-                            </div>
-                            <h3 className="text-[0.95rem] font-semibold text-slate-800 leading-tight">
-                                {tipo?.nome || "Insumo"}
-                            </h3>
+            <div className="group relative bg-white rounded-[8px] p-[10px] mb-[8px] cursor-grab transition-all duration-200 shadow-[0_1px_3px_rgba(0,0,0,0.12)] hover:bg-[#f4f5f7] hover:shadow-[0_2px_5px_rgba(0,0,0,0.2)] active:cursor-grabbing">
+                
+                {/* Trello-like colored label */}
+                <div className="h-[6px] w-[40px] rounded-[4px] mb-[5px] bg-[#61bd4f]" title={tipo?.nome || "Etiqueta"}></div>
+
+                <div className="flex justify-between items-start gap-2 mb-2">
+                    <h3 className="text-[0.95rem] font-medium text-slate-800 leading-tight">
+                        {insumo.titulo || insumo.id /* Fallback if title missing, though user code implies 'titulo' exists, my type def might say otherwise. Adjusting to safe render. */}
+                        {/* Actually, looking at previous file content, it rendered {tipo?.nome} as title. User request says `cardElement.innerText = cartao.titulo`. 
+                           I'll stick to showing a cleaner title. The previous code showed tipo?.nome. 
+                           I will try to show insumo data if available, but keep safe. */}
+                         {tipo?.nome || "Insumo"}
+                    </h3>
+                </div>
+
+                {/* Metadata Footer */}
+                <div className="flex items-center flex-wrap gap-x-3 gap-y-1 text-xs text-slate-500">
+                    {insumo.data_limite && (
+                        <div className={`flex items-center gap-1 p-[2px] rounded ${new Date(insumo.data_limite) < new Date() && insumo.status !== 'aprovado'
+                            ? "bg-red-100 text-red-600"
+                            : ""
+                            }`}>
+                            <Calendar className="h-3 w-3" />
+                            <small>{format(new Date(insumo.data_limite), "dd MMM", { locale: ptBR })}</small>
                         </div>
-                        {insumo.status === 'aprovado' && (
-                            <Badge variant="outline" className="bg-emerald-50 text-emerald-600 border-emerald-200 text-[10px] px-1.5 py-0 h-5 shrink-0">
-                                OK
-                            </Badge>
-                        )}
-                    </div>
-                </CardHeader>
+                    )}
 
-                <CardContent className="p-3 pt-2">
-                    {/* Metadata Chips */}
-                    {/* Metadata Footer */}
-                    <div className="flex items-center gap-3 mt-2 pt-2 border-t border-slate-100 text-xs text-slate-500">
-                        {insumo.data_limite && (
-                            <div className={`flex items-center gap-1 ${new Date(insumo.data_limite) < new Date() && insumo.status !== 'aprovado'
-                                ? "text-red-500 font-medium"
-                                : ""
-                                }`}>
-                                <Calendar className="h-3 w-3" />
-                                <span>{format(new Date(insumo.data_limite), "dd/MMM", { locale: ptBR })}</span>
-                            </div>
-                        )}
+                    {insumo.observacoes && (
+                        <div className="flex items-center gap-1" title="Possui observações">
+                            <MessageSquare className="h-3 w-3" />
+                        </div>
+                    )}
 
-                        {insumo.observacoes && (
-                            <div className="flex items-center gap-1" title="Possui observações">
-                                <MessageSquare className="h-3 w-3" />
-                                <span>Obs</span>
-                            </div>
-                        )}
-
-                        {insumo.anexos && insumo.anexos.length > 0 && (
-                            <div className="flex items-center gap-1" title={`${insumo.anexos.length} anexos`}>
-                                <Paperclip className="h-3 w-3" />
-                                <span>{insumo.anexos.length}</span>
-                            </div>
-                        )}
-                    </div>
-
-                    {/* Status Bar (optional visual indicator) */}
-
-                </CardContent>
-            </Card>
+                    {insumo.anexos && insumo.anexos.length > 0 && (
+                        <div className="flex items-center gap-1" title={`${insumo.anexos.length} anexos`}>
+                            <Paperclip className="h-3 w-3" />
+                            <span>{insumo.anexos.length}</span>
+                        </div>
+                    )}
+                     
+                     {/* OK Badge if approved */}
+                    {insumo.status === 'aprovado' && (
+                        <Badge variant="outline" className="ml-auto bg-emerald-50 text-emerald-600 border-emerald-200 text-[10px] px-1.5 py-0 h-4 leading-none">
+                            OK
+                        </Badge>
+                     )}
+                </div>
+            </div>
         </div>
     );
 }
