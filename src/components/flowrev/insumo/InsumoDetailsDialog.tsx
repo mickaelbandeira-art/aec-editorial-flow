@@ -685,16 +685,12 @@ export function InsumoDetailsDialog({
 
                                 {/* Meta Info */}
                                 <div className="mt-8 text-xs text-slate-400">
-                                    <p>Criado em {format(new Date(insumo.created_at), "dd 'de' MMMM", { locale: ptBR })}</p>
                                     <p>ID: {insumo.id.slice(0, 8)}</p>
                                 </div>
                         </aside>
                     </div>
                 </div>
             </DialogContent>
-            {/* Hidden inputs for external script compatibility if needed */}
-            <input type="hidden" id="modal-card-id-hidden" value={insumo?.id || ''} />
-            <input type="hidden" id="modal-data-entrega-hidden" value={dataLimite ? format(dataLimite, 'yyyy-MM-dd') : ''} />
         </Dialog>
     );
 }
