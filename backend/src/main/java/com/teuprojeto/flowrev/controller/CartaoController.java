@@ -3,7 +3,10 @@ package com.teuprojeto.flowrev.controller;
 import com.teuprojeto.flowrev.model.Cartao;
 import com.teuprojeto.flowrev.repository.CartaoRepository;
 import com.teuprojeto.flowrev.model.Anexo;
+import com.teuprojeto.flowrev.model.Anexo;
+import com.teuprojeto.flowrev.model.Comentario;
 import com.teuprojeto.flowrev.repository.AnexoRepository;
+import com.teuprojeto.flowrev.repository.ComentarioRepository;
 import org.springframework.web.multipart.MultipartFile;
 import java.nio.file.*;
 import java.util.UUID;
@@ -24,6 +27,9 @@ public class CartaoController {
 
     @Autowired
     private AnexoRepository anexoRepository;
+
+    @Autowired
+    private ComentarioRepository comentarioRepository;
 
     // 1. Listar todos os cartões (Para carregar o quadro ao abrir a página)
     @GetMapping
@@ -120,5 +126,25 @@ public class CartaoController {
             e.printStackTrace();
             return ResponseEntity.internalServerError().build();
         }
+    }
+
+    // 7. COMENTÁRIOS (Chat)
+    // 1. SALVAR MENSAGEM
+    @PostMapping("/{id}/comentarios")
+    public ResponseEntity<Comentario> adicionarComentario(@PathVariable Long id, @RequestBody Map<String, String> payload) {
+        String texto = payload.get("texto");
+        String autor = payload.get("autor"); // Ou pega da sessão
+
+        return cartaoRepository.findById(id).map(cartao -> {
+            Comentario comentario = new Comentario(texto, autor, cartao);
+            return ResponseEntity.ok(comentarioRepository.save(comentario));
+        }).orElse(ResponseEntity.notFound().build());
+    }
+
+    // 2. LISTAR MENSAGENS DE UM CARTÃO (Para atualização automática)
+    @GetMapping("/{id}/comentarios")
+    public ResponseEntity<List<Comentario>> listarComentarios(@PathVariable Long id) {
+        List<Comentario> comentarios = comentarioRepository.findByCartaoId(id);
+        return ResponseEntity.ok(comentarios);
     }
 }

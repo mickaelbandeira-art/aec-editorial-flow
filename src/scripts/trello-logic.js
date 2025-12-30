@@ -81,9 +81,15 @@ const apiService = {
  * 1. Função Simulada para Abrir o Modal
  * Quando clicas no cartão, passamos o ID e preenchemos o hidden input.
  */
+let intervaloChat = null; // Timer do Polling
+
+/**
+ * 1. Função Otimizada para Abrir e Sincronizar
+ */
 function abrirModal(cardId) {
     // 1. Guarda o ID do cartão no input escondido do modal
     const hiddenInput = document.getElementById('modal-card-id-hidden');
+
     if (hiddenInput) hiddenInput.value = cardId;
 
     // 2. Abre o modal (Agora temos um modal real no HTML)
@@ -95,11 +101,36 @@ function abrirModal(cardId) {
         const lista = document.getElementById('lista-anexos');
         if (lista) lista.innerHTML = '';
 
-        // Dica: Aqui poderias chamar algo como carregarAnexos(cardId) do backend
+        // Limpa chat antigo
+        const areaChat = document.getElementById('area-comentarios');
+        if (areaChat) areaChat.innerHTML = '';
+
+        // 3. INICIA POLLING (Chat)
+        const idLimpo = cardId.replace('card-', '');
+        if (typeof carregarComentarios === 'function') {
+            carregarComentarios(idLimpo); // Primeira carga imediata
+
+            // A cada 3 segundos, busca novidades
+            if (intervaloChat) clearInterval(intervaloChat);
+            intervaloChat = setInterval(() => {
+                carregarComentarios(idLimpo);
+            }, 3000); // 3 segundos
+        }
     }
 
-    console.log("Editando o cartão: " + cardId);
+    console.log("Editando e Sincronizando: " + cardId);
 }
+
+// Nova função para fechar corretamente
+window.fecharModal = function () {
+    const modal = document.getElementById('modal-card');
+    if (modal) modal.style.display = 'none';
+
+    // PARA o Polling para economizar recurso
+    if (intervaloChat) clearInterval(intervaloChat);
+    console.log("Polling parado.");
+};
+window.abrirModal = abrirModal;
 
 /**
  * 2. Função auxiliar para formatar a data estilo Trello (ex: "29 Dez")
@@ -656,3 +687,108 @@ window.removerAnexo = async function (anexoId, btnRemove) {
     // await fetch(`.../anexos/${anexoId}`, { method: 'DELETE' });
     console.log("Anexo removido (Visualmente): " + anexoId);
 };
+
+/**
+ * 11. SISTEMA DE CHAT (Vanilla JS)
+ */
+async function enviarComentario() {
+    // 1. Identificar o cartão e o input
+    const hiddenInput = document.getElementById('modal-card-id-hidden');
+    const cardIdRaw = hiddenInput ? hiddenInput.value : '0';
+    const cardId = cardIdRaw.replace('card-', '');
+
+    // Paga o conteudo da div editável
+    const editorDiv = document.querySelector('.wysiwyg-editor');
+    const textoMensagem = editorDiv ? editorDiv.innerHTML : '';
+
+    if (!textoMensagem || !textoMensagem.trim()) return; // Não envia vazio
+
+    // 2. Cria visualmente IMEDIATAMENTE (UI Otimista)
+    adicionarBalaoMensagem(textoMensagem, "Eu", "Agora mesmo", true);
+
+    try {
+        // 3. Envia para o Backend
+        const baseUrl = (typeof apiService !== 'undefined' && apiService.baseUrl)
+            ? apiService.baseUrl
+            : "http://localhost:8080/api/cartoes";
+
+        const response = await fetch(`${baseUrl}/${cardId}/comentarios`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                texto: textoMensagem,
+                autor: "Mickael" // @todo: Pegar do login real
+            })
+        });
+
+        if (!response.ok) throw new Error('Erro ao salvar mensagem');
+
+        // 4. Sucesso: Limpa o editor
+        if (editorDiv) editorDiv.innerHTML = '';
+
+    } catch (erro) {
+        console.error(erro);
+        alert("Erro ao enviar mensagem. Verifique a conexão.");
+    }
+}
+
+// Função auxiliar para desenhar a mensagem na tela
+function adicionarBalaoMensagem(texto, autor, data, isMinha) {
+    const areaChat = document.getElementById('area-comentarios');
+    if (!areaChat) return;
+
+    const divMsg = document.createElement('div');
+    divMsg.className = isMinha ? 'msg-minha' : 'msg-outros';
+
+    // Data atual se for agora
+    const dateStr = data || new Date().toLocaleTimeString();
+
+    divMsg.innerHTML = `
+        <div class="msg-header">
+            <strong>${autor}</strong> <small>${dateStr}</small>
+        </div>
+        <div class="msg-corpo">${texto}</div>
+    `;
+
+    areaChat.appendChild(divMsg);
+    areaChat.scrollTop = areaChat.scrollHeight; // Rola para o fim
+}
+
+// Globaliza
+window.enviarComentario = enviarComentario;
+window.adicionarBalaoMensagem = adicionarBalaoMensagem;
+
+/**
+ * 12. SYNC: Polling de Comentários
+ */
+async function carregarComentarios(cardId) {
+    try {
+        const baseUrl = (typeof apiService !== 'undefined' && apiService.baseUrl)
+            ? apiService.baseUrl
+            : "http://localhost:8080/api/cartoes";
+
+        const response = await fetch(`${baseUrl}/${cardId}/comentarios`);
+        if (!response.ok) return; // Cartão pode não ter comentarios ainda
+
+        const comentarios = await response.json();
+
+        const areaChat = document.getElementById('area-comentarios');
+        if (!areaChat) return;
+
+        areaChat.innerHTML = ''; // Limpa para redesenhar (Simples/Bruto)
+
+        comentarios.forEach(c => {
+            const isMinha = (c.autor === "Mickael"); // @todo: lógica de usuário real
+            adicionarBalaoMensagem(c.texto, c.autor, formatarDataHora(c.dataHora), isMinha);
+        });
+
+    } catch (e) {
+        console.error("Poller: Erro ao sync chat", e);
+    }
+}
+
+function formatarDataHora(isoString) {
+    if (!isoString) return "";
+    const data = new Date(isoString);
+    return data.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+}

@@ -43,8 +43,24 @@
         </button>
       </div>
 
-      <button onclick="document.getElementById('modal-card').style.display='none'"
-        style="margin-top: 20px;">Fechar</button>
+      <!-- Chat Section (New) -->
+      <div class="chat-section" style="border-top: 1px solid #eee; padding-top: 15px;">
+        <h4>Comentários</h4>
+        <div id="area-comentarios"
+          style="height: 200px; overflow-y: auto; border: 1px solid #dfe1e6; background: #fafbfc; margin-bottom: 10px; padding: 10px; border-radius: 3px;">
+          <!-- Mensagens vao aqui -->
+        </div>
+
+        <!-- Simple Editor (Editable Div) -->
+        <div class="wysiwyg-editor" contenteditable="true"
+          style="min-height: 50px; border: 1px solid #dfe1e6; padding: 10px; border-radius: 3px; background: white; margin-bottom: 5px;"
+          placeholder="Escreva um comentário..."></div>
+
+        <button onclick="enviarComentario()"
+          style="background: #0079bf; color: white; border: none; padding: 6px 12px; border-radius: 3px; cursor: pointer;">Enviar</button>
+      </div>
+
+      <button onclick="fecharModal()" style="margin-top: 20px;">Fechar</button>
     </div>
   </div>
   <script type="module" src="/src/main.tsx"></script>

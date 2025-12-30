@@ -242,3 +242,32 @@
   border: none;
   background: none;
 }
+
+/* --- CHAT STYLES --- */
+.msg-minha {
+  background: #e6fcff;
+  border: 1px solid #b3f5ff;
+  border-radius: 8px 8px 0 8px;
+  padding: 8px;
+  margin: 5px 0 5px 20px;
+  text-align: right;
+}
+
+.msg-outros {
+  background: white;
+  border: 1px solid #dfe1e6;
+  border-radius: 8px 8px 8px 0;
+  padding: 8px;
+  margin: 5px 20px 5px 0;
+}
+
+.msg-header {
+  font-size: 11px;
+  color: #5e6c84;
+  margin-bottom: 4px;
+}
+
+.msg-corpo {
+  font-size: 14px;
+  color: #172b4d;
+}
