@@ -880,3 +880,50 @@ export function useRemoveMember() {
     }
   });
 }
+
+export function useDeleteInsumo() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (insumoId: string) => {
+      const { error } = await supabase
+        .from('flowrev_insumos')
+        .delete()
+        .eq('id', insumoId);
+
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['flowrev-insumos'] });
+    },
+  });
+}
+
+export function useDuplicateInsumo() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (originalInsumo: Insumo) => {
+      // 1. Prepare copy without ID/dates
+      const { id, created_at, updated_at, anexos, tags, responsaveis, ...rest } = originalInsumo;
+      const copy = {
+        ...rest,
+        titulo: `${rest.titulo || 'Sem título'} (Cópia)`,
+        created_at: new Date().toISOString()
+      };
+
+      // 2. Insert copy
+      const { data: newInsumo, error } = await supabase
+        .from('flowrev_insumos')
+        .insert(copy)
+        .select()
+        .single();
+
+      if (error) throw error;
+      return newInsumo;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['flowrev-insumos'] });
+    },
+  });
+}

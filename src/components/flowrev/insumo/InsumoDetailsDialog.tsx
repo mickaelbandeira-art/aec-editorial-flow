@@ -49,7 +49,10 @@ import {
     useAddTag,
     useRemoveTag,
     useAddMember,
-    useRemoveMember
+    useRemoveMember,
+    useUpdateInsumoStatus,
+    useDeleteInsumo,
+    useDuplicateInsumo
 } from "@/hooks/useFlowrev";
 import { toast } from "sonner";
 import { usePermissions } from "@/hooks/usePermission";
@@ -163,6 +166,7 @@ export function InsumoDetailsDialog({
     const [texto, setTexto] = useState('');
     const [obs, setObs] = useState('');
     const [dataLimite, setDataLimite] = useState<Date | undefined>(undefined);
+    const [showChecklist, setShowChecklist] = useState(false);
 
     // Sync state when insumo changes
     React.useEffect(() => {
@@ -185,6 +189,9 @@ export function InsumoDetailsDialog({
     const { mutate: removeTag } = useRemoveTag();
     const { mutate: addMember } = useAddMember();
     const { mutate: removeMember } = useRemoveMember();
+    const { mutate: updateStatus } = useUpdateInsumoStatus();
+    const { mutate: deleteInsumo, isPending: deleting } = useDeleteInsumo();
+    const { mutate: duplicateInsumo, isPending: duplicating } = useDuplicateInsumo();
 
     const { user } = usePermissions();
     const imageInputRef = useRef<HTMLInputElement>(null);
@@ -245,6 +252,33 @@ export function InsumoDetailsDialog({
         } else {
             addMember({ insumoId: insumo.id, userId });
         }
+    };
+
+    const handleMove = (newStatus: InsumoStatus) => {
+        updateStatus({ insumoId: insumo.id, status: newStatus }, {
+            onSuccess: () => {
+                toast.success(`Movido para ${STATUS_LABELS[newStatus]}`);
+                // Optimistic UI handled by hook, but we can also update local state if needed
+                setStatus(newStatus);
+            }
+        });
+    };
+
+    const handleArchive = () => {
+        if (confirm("Tem certeza que deseja arquivar (excluir) este cartão?")) {
+            deleteInsumo(insumo.id, {
+                onSuccess: () => {
+                    toast.success("Insumo arquivado.");
+                    onOpenChange(false);
+                }
+            });
+        }
+    };
+
+    const handleDuplicate = () => {
+        duplicateInsumo(insumo, {
+            onSuccess: () => toast.success("Cartão copiado com sucesso!")
+        });
     };
 
     const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>, type: 'imagem' | 'pdf') => {
@@ -382,6 +416,32 @@ export function InsumoDetailsDialog({
                                     </div>
                                 </div>
                             </div>
+
+                            {/* Checklist Section (Mockup) */}
+                            {showChecklist && (
+                                <div className="space-y-3">
+                                    <div className="flex items-center gap-3">
+                                        <div className="h-6 w-6 flex items-center justify-center text-slate-700">☑️</div>
+                                        <div className="flex items-center justify-between w-full">
+                                            <h3 className="text-lg font-semibold text-slate-800">Checklist</h3>
+                                            <Button variant="ghost" size="sm" onClick={() => setShowChecklist(false)} className="text-xs text-slate-400 hover:text-red-500">Excluir</Button>
+                                        </div>
+                                    </div>
+                                    <div className="pl-9">
+                                        <div className="space-y-2">
+                                            <div className="flex items-center gap-2 group">
+                                                <input type="checkbox" className="w-4 h-4 rounded border-slate-300 accent-blue-600" />
+                                                <span className="text-sm text-slate-700">Revisar ortografia</span>
+                                            </div>
+                                            <div className="flex items-center gap-2 group">
+                                                <input type="checkbox" className="w-4 h-4 rounded border-slate-300 accent-blue-600" />
+                                                <span className="text-sm text-slate-700">Verificar links</span>
+                                            </div>
+                                            <Button variant="secondary" size="sm" className="bg-slate-200 h-7 text-xs justify-start mt-2">Adicionar um item</Button>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
 
                             {/* ... Attachments & Activity (Same as before) ... */}
                             {/* Attachments Section */}
@@ -544,6 +604,7 @@ export function InsumoDetailsDialog({
                                 <Button
                                     variant="secondary"
                                     className="w-full justify-start bg-[#eaecf0] hover:bg-[#dfe1e6] text-[#172b4d] font-medium transition-colors h-8"
+                                    onClick={() => setShowChecklist(true)}
                                 >
                                     <span className="mr-2">☑️</span> Checklist
                                 </Button>
@@ -582,26 +643,51 @@ export function InsumoDetailsDialog({
                             </div>
 
                             {/* Suggestion: Actions */}
+                            {/* Actions - Fully Implemented */}
                             <div className="space-y-2">
                                 <span className="text-xs font-semibold text-slate-500 uppercase tracking-wide">Ações</span>
+
+                                <Popover>
+                                    <PopoverTrigger asChild>
+                                        <Button
+                                            variant="secondary"
+                                            className="w-full justify-start bg-[#eaecf0] hover:bg-[#dfe1e6] text-[#172b4d] font-medium transition-colors h-8"
+                                        >
+                                            <span className="mr-2">➡️</span> Mover
+                                        </Button>
+                                    </PopoverTrigger>
+                                    <PopoverContent className="w-48 p-0" align="start">
+                                        <div className="p-3 border-b border-slate-100"><h4 className="text-sm font-semibold text-center text-slate-700">Mover para...</h4></div>
+                                        <div className="p-1">
+                                            {Object.entries(STATUS_LABELS).map(([key, label]) => (
+                                                <Button
+                                                    key={key}
+                                                    variant="ghost"
+                                                    className={cn("w-full justify-start text-xs h-7", insumo.status === key && "bg-slate-100 text-blue-600")}
+                                                    onClick={() => handleMove(key as InsumoStatus)}
+                                                >
+                                                    {label}
+                                                </Button>
+                                            ))}
+                                        </div>
+                                    </PopoverContent>
+                                </Popover>
 
                                 <Button
                                     variant="secondary"
                                     className="w-full justify-start bg-[#eaecf0] hover:bg-[#dfe1e6] text-[#172b4d] font-medium transition-colors h-8"
+                                    onClick={handleDuplicate}
+                                    disabled={duplicating}
                                 >
-                                    <span className="mr-2">➡️</span> Mover
+                                    <span className="mr-2">📋</span> {duplicating ? "Copiando..." : "Copiar"}
                                 </Button>
                                 <Button
                                     variant="secondary"
-                                    className="w-full justify-start bg-[#eaecf0] hover:bg-[#dfe1e6] text-[#172b4d] font-medium transition-colors h-8"
+                                    className="w-full justify-start bg-[#eaecf0] hover:bg-[#dfe1e6] text-[#172b4d] font-medium transition-colors h-8 hover:bg-red-50 hover:text-red-600"
+                                    onClick={handleArchive}
+                                    disabled={deleting}
                                 >
-                                    <span className="mr-2">📋</span> Copiar
-                                </Button>
-                                <Button
-                                    variant="secondary"
-                                    className="w-full justify-start bg-[#eaecf0] hover:bg-[#dfe1e6] text-[#172b4d] font-medium transition-colors h-8"
-                                >
-                                    <span className="mr-2">🗑️</span> Arquivar
+                                    <span className="mr-2">🗑️</span> {deleting ? "Arquivando..." : "Arquivar"}
                                 </Button>
                             </div>
 
