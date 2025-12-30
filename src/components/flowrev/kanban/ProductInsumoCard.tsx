@@ -8,7 +8,7 @@ import {
     Video,
     MessageSquare,
     Paperclip,
-    Calendar
+    Clock
 } from "lucide-react";
 import { Insumo, TipoInsumo } from "@/types/flowrev";
 import { format } from "date-fns";
@@ -60,7 +60,7 @@ export function ProductInsumoCard({ insumo, tipo, onClick }: ProductInsumoCardPr
     return (
         <div ref={setNodeRef} style={style} {...attributes} {...listeners} onClick={onClick}>
             <div className="group relative bg-white rounded-[8px] p-[10px] mb-[8px] cursor-grab transition-all duration-200 shadow-[0_1px_3px_rgba(0,0,0,0.12)] hover:bg-[#f4f5f7] hover:shadow-[0_2px_5px_rgba(0,0,0,0.2)] active:cursor-grabbing">
-                
+
                 {/* Trello-like colored label */}
                 <div className="h-[6px] w-[40px] rounded-[4px] mb-[5px] bg-[#61bd4f]" title={tipo?.nome || "Etiqueta"}></div>
 
@@ -70,7 +70,7 @@ export function ProductInsumoCard({ insumo, tipo, onClick }: ProductInsumoCardPr
                         {/* Actually, looking at previous file content, it rendered {tipo?.nome} as title. User request says `cardElement.innerText = cartao.titulo`. 
                            I'll stick to showing a cleaner title. The previous code showed tipo?.nome. 
                            I will try to show insumo data if available, but keep safe. */}
-                         {tipo?.nome || "Insumo"}
+                        {tipo?.nome || "Insumo"}
                     </h3>
                 </div>
 
@@ -81,7 +81,7 @@ export function ProductInsumoCard({ insumo, tipo, onClick }: ProductInsumoCardPr
                             ? "bg-red-100 text-red-600"
                             : ""
                             }`}>
-                            <Calendar className="h-3 w-3" />
+                            <Clock className="h-3 w-3" />
                             <small>{format(new Date(insumo.data_limite), "dd MMM", { locale: ptBR })}</small>
                         </div>
                     )}
@@ -98,13 +98,13 @@ export function ProductInsumoCard({ insumo, tipo, onClick }: ProductInsumoCardPr
                             <span>{insumo.anexos.length}</span>
                         </div>
                     )}
-                     
-                     {/* OK Badge if approved */}
+
+                    {/* OK Badge if approved */}
                     {insumo.status === 'aprovado' && (
                         <Badge variant="outline" className="ml-auto bg-emerald-50 text-emerald-600 border-emerald-200 text-[10px] px-1.5 py-0 h-4 leading-none">
                             OK
                         </Badge>
-                     )}
+                    )}
                 </div>
             </div>
         </div>

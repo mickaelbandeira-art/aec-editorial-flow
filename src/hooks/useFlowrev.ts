@@ -138,7 +138,30 @@ export function useUpdateInsumo() {
       if (error) throw error;
       return data;
     },
-    onSuccess: () => {
+    onMutate: async ({ insumoId, updates }) => {
+      await queryClient.cancelQueries({ queryKey: ['flowrev-insumos'] });
+      const previousInsumos = queryClient.getQueriesData({ queryKey: ['flowrev-insumos'] });
+
+      queryClient.setQueriesData({ queryKey: ['flowrev-insumos'] }, (old: any) => {
+        if (!old) return old;
+        if (Array.isArray(old)) {
+          return old.map((insumo) =>
+            insumo.id === insumoId ? { ...insumo, ...updates } : insumo
+          );
+        }
+        return old;
+      });
+
+      return { previousInsumos };
+    },
+    onError: (err, newTodo, context) => {
+      if (context?.previousInsumos) {
+        context.previousInsumos.forEach(([queryKey, data]) => {
+          queryClient.setQueryData(queryKey, data);
+        });
+      }
+    },
+    onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ['flowrev-insumos'] });
     },
   });
