@@ -614,10 +614,12 @@ export function InsumoDetailsDialog({
                     </div>
                 </div>
             </DialogContent>
+            {/* Hidden inputs for external script compatibility if needed */}
+            <input type="hidden" id="modal-card-id-hidden" value={insumo?.id || ''} />
+            <input type="hidden" id="modal-data-entrega-hidden" value={dataLimite ? format(dataLimite, 'yyyy-MM-dd') : ''} />
         </Dialog>
     );
 }
 
 // Re-export specific icons if needed elsewhere in the file (not needed here but good practice)
-export { Trash2, Download, UploadCloud };
 

@@ -58,31 +58,27 @@ export function ProductInsumoCard({ insumo, tipo, onClick }: ProductInsumoCardPr
     };
 
     return (
-        <div ref={setNodeRef} style={style} {...attributes} {...listeners} onClick={onClick}>
-            <div className="group relative bg-white rounded-[8px] p-[10px] mb-[8px] cursor-grab transition-all duration-200 shadow-[0_1px_3px_rgba(0,0,0,0.12)] hover:bg-[#f4f5f7] hover:shadow-[0_2px_5px_rgba(0,0,0,0.2)] active:cursor-grabbing">
+        <div ref={setNodeRef} style={style} {...attributes} {...listeners} onClick={onClick} id={`card-${insumo.id}`}>
+            <div className="card group relative bg-white rounded-[8px] p-[10px] mb-[8px] cursor-grab transition-all duration-200 shadow-[0_1px_3px_rgba(0,0,0,0.12)] hover:bg-[#f4f5f7] hover:shadow-[0_2px_5px_rgba(0,0,0,0.2)] active:cursor-grabbing">
 
                 {/* Trello-like colored label */}
                 <div className="h-[6px] w-[40px] rounded-[4px] mb-[5px] bg-[#61bd4f]" title={tipo?.nome || "Etiqueta"}></div>
 
                 <div className="flex justify-between items-start gap-2 mb-2">
-                    <h3 className="text-[0.95rem] font-medium text-slate-800 leading-tight">
-                        {insumo.titulo || insumo.id /* Fallback if title missing, though user code implies 'titulo' exists, my type def might say otherwise. Adjusting to safe render. */}
-                        {/* Actually, looking at previous file content, it rendered {tipo?.nome} as title. User request says `cardElement.innerText = cartao.titulo`. 
-                           I'll stick to showing a cleaner title. The previous code showed tipo?.nome. 
-                           I will try to show insumo data if available, but keep safe. */}
-                        {tipo?.nome || "Insumo"}
+                    <h3 className="card-title text-[0.95rem] font-medium text-slate-800 leading-tight">
+                        {insumo.titulo || insumo.id}
                     </h3>
                 </div>
 
                 {/* Metadata Footer */}
-                <div className="flex items-center flex-wrap gap-x-3 gap-y-1 text-xs text-slate-500">
+                <div className="card-meta flex items-center flex-wrap gap-x-3 gap-y-1 text-xs text-slate-500">
                     {insumo.data_limite && (
-                        <div className={`flex items-center gap-1 p-[2px] rounded ${new Date(insumo.data_limite) < new Date() && insumo.status !== 'aprovado'
+                        <div className={`badge-date flex items-center gap-1 p-[2px] rounded ${new Date(insumo.data_limite) < new Date() && insumo.status !== 'aprovado'
                             ? "bg-red-100 text-red-600"
                             : ""
                             }`}>
                             <Clock className="h-3 w-3" />
-                            <small>{format(new Date(insumo.data_limite), "dd MMM", { locale: ptBR })}</small>
+                            <small className="date-text">{format(new Date(insumo.data_limite), "dd MMM", { locale: ptBR })}</small>
                         </div>
                     )}
 
