@@ -135,3 +135,24 @@ function verificarCorData(cardElement) {
         badgeDate.title = "Entrega hoje!";
     }
 }
+
+/**
+ * 4. (Exemplo) Função Drop para Drag-and-Drop
+ */
+function drop(ev) {
+    ev.preventDefault();
+    var data = ev.dataTransfer.getData("text");
+    var card = document.getElementById(data);
+
+    // ... código anterior de mover o cartão ...
+
+    // Simula a descoberta da coluna alvo (no código real isso varia)
+    var targetColumn = ev.target.closest('.column');
+
+    if (targetColumn && targetColumn.classList.contains('column')) {
+        targetColumn.appendChild(card);
+
+        // NOVIDADE: Chama a verificação de cor logo após soltar!
+        verificarCorData(card);
+    }
+}
