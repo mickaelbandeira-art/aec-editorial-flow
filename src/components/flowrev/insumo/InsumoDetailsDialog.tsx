@@ -199,8 +199,6 @@ export function InsumoDetailsDialog({
     // Upload state
     const [uploading, setUploading] = useState(false);
     const [imageCaption, setImageCaption] = useState("");
-    const [uploading, setUploading] = useState(false);
-    const [imageCaption, setImageCaption] = useState("");
     const [imageFile, setImageFile] = useState<File | null>(null);
     const [optimisticAnexos, setOptimisticAnexos] = useState<{ id: string, nome_arquivo: string, loading: boolean, tipo: 'imagem' | 'pdf' }[]>([]);
 
