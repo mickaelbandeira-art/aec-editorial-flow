@@ -154,3 +154,35 @@ function drop(ev) {
         verificarCorData(card);
     }
 }
+
+/**
+ * 5. Função de Pesquisa (Filtro)
+ */
+function pesquisarCartoes(textoDigitado) {
+    // 1. Converte o que foi digitado para minúsculas
+    const termo = textoDigitado.toLowerCase();
+    const cartoes = document.querySelectorAll('.card');
+
+    cartoes.forEach(cartao => {
+        // 2. Pega TODO o texto dentro do cartão (título, data, etiquetas)
+        const conteudoCartao = cartao.innerText.toLowerCase();
+
+        // 3. Verifica se o termo existe dentro do conteúdo
+        // Se o termo for vazio (""), mostra tudo
+        if (conteudoCartao.includes(termo)) {
+            cartao.style.display = 'block';
+        } else {
+            cartao.style.display = 'none';
+        }
+    });
+
+    // 4. Se tivermos filtros de botões ativos (ex: "Meus Cartões"), 
+    // idealmente deveríamos respeitá-los, mas para simplificar, 
+    // a pesquisa sobrepõe os filtros visuais.
+
+    // 5. IMPORTANTE: Recalcular os números no topo das colunas
+    // (Reutilizamos a função que criámos no passo anterior)
+    if (typeof atualizarContadoresColunas === "function") {
+        atualizarContadoresColunas();
+    }
+}
