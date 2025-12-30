@@ -175,12 +175,12 @@ export function ProductInsumosBoard({ insumos, edicaoId }: ProductInsumosBoardPr
     return (
         <div className="h-full flex flex-col">
             <div className="flex justify-between items-center px-4 pb-2">
-                <div className="relative w-64">
-                    <span className="absolute left-2 top-2 text-slate-400 text-xs">🔍</span>
+                <div className="search-wrapper">
+                    <span className="search-icon">🔍</span>
                     <input
                         type="text"
+                        id="input-pesquisa"
                         placeholder="Pesquisar cartões..."
-                        className="pl-7 pr-4 py-1.5 w-full border border-slate-200 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
                     />

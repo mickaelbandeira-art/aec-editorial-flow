@@ -135,3 +135,42 @@
   color: #172b4d;
   /* Texto escuro para contraste */
 }
+
+/* Search Bar Styles (Trello-like) */
+.search-wrapper {
+  position: relative;
+  /* margin-left: auto;  removed this because flex container handles alignment */
+  margin-right: 16px;
+}
+
+.search-icon {
+  position: absolute;
+  left: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 14px;
+  line-height: 1;
+  color: #5e6c84;
+  pointer-events: none;
+  z-index: 10;
+}
+
+.search-wrapper input {
+  padding: 6px 8px 6px 30px;
+  /* Space for icon */
+  border: 1px solid #dfe1e6;
+  border-radius: 3px;
+  background-color: #fafbfc;
+  font-size: 14px;
+  width: 200px;
+  transition: width 0.2s, background-color 0.2s, box-shadow 0.2s;
+  height: 32px;
+}
+
+.search-wrapper input:focus {
+  background-color: white;
+  border-color: #0079bf;
+  outline: none;
+  width: 280px;
+  box-shadow: 0 0 0 2px rgba(0, 121, 191, 0.2);
+}
