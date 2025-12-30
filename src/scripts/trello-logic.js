@@ -55,13 +55,11 @@ function salvarAlteracoesCard() {
             badgeDate.style.display = 'inline-flex'; // Mostra a etiqueta
             dateText.innerText = formatarDataCurta(novaData); // Muda o texto para "30 Dez"
 
-            // Lógica Extra: Pintar de vermelho se a data já passou (Atrasado)
-            const hoje = new Date().toISOString().split('T')[0];
-            if (novaData < hoje) {
-                badgeDate.classList.add('atrasado');
-            } else {
-                badgeDate.classList.remove('atrasado');
-            }
+            // NOVIDADE: Salva a data "crua" no HTML para facilitar as contas
+            cardElement.setAttribute('data-prazo', novaData);
+
+            // Chama a verificação
+            verificarCorData(cardElement);
 
         } else {
             // Se o utilizador limpou a data:
