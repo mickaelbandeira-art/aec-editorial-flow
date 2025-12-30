@@ -60,6 +60,20 @@ const apiService = {
             console.error("❌ Erro ao criar:", erro);
             return null;
         }
+    },
+
+    /**
+     * 4. Listar Todos (NOVO)
+     */
+    async listarCartoes() {
+        try {
+            const response = await fetch(this.baseUrl);
+            if (!response.ok) throw new Error('Erro ao buscar cartões');
+            return await response.json(); // Retorna o array de cartões do Java
+        } catch (erro) {
+            console.error("❌ Erro de conexão:", erro);
+            return []; // Retorna lista vazia para não quebrar o layout
+        }
     }
 };
 
@@ -264,6 +278,41 @@ function pesquisarCartoes(textoDigitado) {
 }
 
 /**
+ * Recebe os dados do cartão (do Java) e cria o elemento HTML visual
+ */
+function criarElementoVisualCartao(cartaoDados) {
+    const novoDiv = document.createElement('div');
+    novoDiv.className = 'card';
+    novoDiv.id = 'card-' + cartaoDados.id; // Ex: card-15
+    novoDiv.draggable = true;
+
+    // Configura os eventos
+    novoDiv.ondragstart = drag;
+    novoDiv.onclick = function () { abrirModal(this.id); };
+
+    // Guarda dados importantes no HTML para os filtros e cores funcionarem
+    novoDiv.setAttribute('data-responsavel', cartaoDados.responsavel || '');
+    if (cartaoDados.dataEntrega) {
+        novoDiv.setAttribute('data-prazo', cartaoDados.dataEntrega);
+    }
+
+    // HTML interno do cartão
+    novoDiv.innerHTML = `
+        <div class="card-title">${cartaoDados.titulo}</div>
+        <div class="card-meta">
+            <span class="badge-date" style="display: ${cartaoDados.dataEntrega ? 'inline-flex' : 'none'}">
+                🕒 <span class="date-text">${formatarDataCurta(cartaoDados.dataEntrega)}</span>
+            </span>
+        </div>
+    `;
+
+    // Aplica a cor correta da data imediatamente
+    verificarCorData(novoDiv);
+
+    return novoDiv;
+}
+
+/**
  * 6. Função para Adicionar Cartão com Integração Backend
  */
 async function adicionarCartao(btn) {
@@ -315,3 +364,63 @@ async function adicionarCartao(btn) {
         }
     }
 }
+
+/**
+ * 7. Carregamento Inicial (O Grande Final)
+ */
+async function carregarQuadroDoBanco() {
+    console.log("🔄 Carregando dados do sistema...");
+
+    // 1. Busca os dados no Java
+    if (typeof apiService === 'undefined') {
+        console.warn("apiService não encontrado. Ignorando carga do backend.");
+        return;
+    }
+
+    const listaCartoes = await apiService.listarCartoes();
+
+    // 2. Limpa as colunas atuais (para evitar duplicatas se recarregares)
+    // Supondo que tens uma lista de IDs das tuas colunas
+    const colunasIds = ["nao-iniciado", "em-preenchimento", "enviado", "em-analise", "ajuste-solicitado", "aprovado"];
+
+    colunasIds.forEach(colId => {
+        const colunaElement = document.getElementById(colId);
+        if (colunaElement) {
+            const container = colunaElement.querySelector('.cards-container');
+            if (container) container.innerHTML = '';
+        }
+    });
+
+    // 3. Distribui os cartões nas colunas certas
+    listaCartoes.forEach(cartao => {
+        // O Java manda: { titulo: "X", coluna: "nao-iniciado", ... }
+
+        // Verifica se a coluna existe no HTML
+        const colunaDestino = document.getElementById(cartao.coluna);
+
+        if (colunaDestino) {
+            const container = colunaDestino.querySelector('.cards-container') || colunaDestino;
+
+            // Usa a nossa "Fábrica" para criar o visual
+            const elementoCartao = criarElementoVisualCartao(cartao);
+
+            container.appendChild(elementoCartao);
+        } else {
+            console.warn(`⚠️ Cartão ID ${cartao.id} tem coluna desconhecida: "${cartao.coluna}"`);
+        }
+    });
+
+    // 4. Atualiza os contadores (Total de cartões por coluna)
+    if (typeof atualizarContadoresColunas === "function") {
+        atualizarContadoresColunas();
+    }
+
+    console.log(`✅ ${listaCartoes.length} cartões carregados.`);
+}
+
+
+// --- GATILHO ---
+// Isto faz a função rodar automaticamente quando a página termina de carregar
+window.addEventListener('DOMContentLoaded', () => {
+    carregarQuadroDoBanco();
+});
