@@ -368,7 +368,8 @@ async function carregarQuadroDoBanco() {
 
     // 2. Limpa as colunas atuais (para evitar duplicatas se recarregares)
     // Supondo que tens uma lista de IDs das tuas colunas
-    const colunasIds = ["nao-iniciado", "em-preenchimento", "enviado", "em-analise", "ajuste-solicitado", "aprovado"];
+    // ATENÇÃO: IDs ajustados para snake_case para bater com o React/Banco
+    const colunasIds = ["nao_iniciado", "em_preenchimento", "enviado", "em_analise", "ajuste_solicitado", "aprovado"];
 
     colunasIds.forEach(colId => {
         const colunaElement = document.getElementById(colId);
