@@ -485,8 +485,6 @@ export function InsumoDetailsDialog({
 
                         {/* RIGHT COLUMN (Sidebar) */}
                         <aside className="w-full md:w-[25%] flex flex-col gap-6 pt-2">
-
-                            {/* Suggestion: Add to card */}
                             <div className="space-y-2">
                                 <span className="text-xs font-semibold text-slate-500 uppercase tracking-wide">Adicionar ao cartão</span>
 
@@ -544,9 +542,6 @@ export function InsumoDetailsDialog({
                                                             {tag.nome}
                                                             {isSelected && <span className="ml-auto">✔</span>}
                                                         </div>
-                                                        <Button variant="ghost" size="icon" className="h-8 w-8 opacity-0 group-hover:opacity-100 text-slate-400 hover:text-slate-600">
-                                                            {/* Edit icon could go here */}
-                                                        </Button>
                                                     </div>
                                                 )
                                             })}
@@ -592,9 +587,7 @@ export function InsumoDetailsDialog({
                                         <span className="text-xs font-semibold text-slate-500 uppercase tracking-wide">Anexos</span>
                                     </div>
 
-                                    {/* Lista de Anexos (Real + Otimista) */}
                                     <div className="space-y-1 max-h-[200px] overflow-y-auto">
-                                        {/* 1. Anexos Reais */}
                                         {insumo.anexos?.map((anexo) => (
                                             <div key={anexo.id} className="group flex items-center gap-2 p-2 rounded hover:bg-slate-100 text-sm">
                                                 {anexo.tipo === 'imagem' ? <ImageIcon className="h-4 w-4 text-slate-500" /> : <FileText className="h-4 w-4 text-slate-500" />}
@@ -605,7 +598,6 @@ export function InsumoDetailsDialog({
                                             </div>
                                         ))}
 
-                                        {/* 2. Anexos Otimistas (Loading) */}
                                         {optimisticAnexos.map((anexo) => (
                                             <div key={anexo.id} className="flex items-center gap-2 p-2 rounded bg-blue-50 text-sm border border-blue-100">
                                                 <Loader2 className="h-3.5 w-3.5 animate-spin text-blue-600" />
@@ -630,12 +622,9 @@ export function InsumoDetailsDialog({
                                         ref={imageInputRef}
                                         className="hidden"
                                         onChange={handleInstantUpload}
-                                    /* Aceita qualquer arquivo por padrao, ou imagem/pdf */
                                     />
                                 </div>
 
-                                {/* Suggestion: Actions */}
-                                {/* Actions - Fully Implemented */}
                                 <div className="space-y-2">
                                     <span className="text-xs font-semibold text-slate-500 uppercase tracking-wide">Ações</span>
 
@@ -683,10 +672,10 @@ export function InsumoDetailsDialog({
                                     </Button>
                                 </div>
 
-                                {/* Meta Info */}
                                 <div className="mt-8 text-xs text-slate-400">
                                     <p>ID: {insumo.id.slice(0, 8)}</p>
                                 </div>
+                            </div>
                         </aside>
                     </div>
                 </div>
