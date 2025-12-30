@@ -258,13 +258,20 @@ export function InsumoDetailsDialog({
     };
 
     const handleMove = (newStatus: InsumoStatus) => {
-        updateStatus({ insumoId: insumo.id, status: newStatus }, {
-            onSuccess: () => {
-                toast.success(`Movido para ${STATUS_LABELS[newStatus]}`);
-                // Optimistic UI handled by hook, but we can also update local state if needed
-                setStatus(newStatus);
-            }
+        // Envia TUDO (Status novo + Texto atual + Observacoes)
+        onSave({
+            id: insumo.id,
+            status: newStatus,
+            conteudo_texto: texto,
+            observacoes: obs,
+            data_limite: dataLimite ? dataLimite.toISOString() : null,
         });
+
+        // Otimisticamente, atualiza o status local para feedback visual imediato
+        setStatus(newStatus);
+
+        // Mensagem de sucesso genérica (o onSave do pai fará o toast real)
+        toast.info(`Movendo para ${STATUS_LABELS[newStatus]}...`);
     };
 
     const handleArchive = () => {

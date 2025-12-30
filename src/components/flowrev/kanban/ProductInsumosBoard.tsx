@@ -147,8 +147,8 @@ export function ProductInsumosBoard({ insumos, edicaoId }: ProductInsumosBoardPr
         if (updatedData.conteudo_texto !== selectedInsumo.conteudo_texto || updatedData.observacoes !== selectedInsumo.observacoes) {
             updateContent({
                 insumoId: selectedInsumo.id,
-                conteudo_texto: updatedData.conteudo_texto || undefined,
-                observacoes: updatedData.observacoes || undefined
+                conteudo_texto: updatedData.conteudo_texto !== undefined ? updatedData.conteudo_texto : undefined,
+                observacoes: updatedData.observacoes !== undefined ? updatedData.observacoes : undefined
             }, {
                 onSuccess: () => {
                     toast.success("Conteúdo salvo com sucesso!");
