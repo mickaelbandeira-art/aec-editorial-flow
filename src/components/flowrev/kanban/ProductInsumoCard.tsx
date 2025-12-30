@@ -72,15 +72,31 @@ export function ProductInsumoCard({ insumo, tipo, onClick }: ProductInsumoCardPr
 
                 {/* Metadata Footer */}
                 <div className="card-meta">
-                    {insumo.data_limite && (
-                        <div className={`badge-date ${new Date(insumo.data_limite) < new Date() && insumo.status !== 'aprovado'
-                            ? "atrasado"
-                            : ""
-                            }`}>
-                            <Clock className="h-3 w-3" />
-                            <small className="date-text">{format(new Date(insumo.data_limite), "dd MMM", { locale: ptBR })}</small>
-                        </div>
-                    )}
+                    {insumo.data_limite && (() => {
+                        const hoje = new Date();
+                        const dataLimite = new Date(insumo.data_limite);
+                        // Reset hours for accurate date comparison
+                        hoje.setHours(0, 0, 0, 0);
+                        dataLimite.setHours(0, 0, 0, 0);
+
+                        let statusClass = "";
+
+                        if (insumo.status === 'aprovado') {
+                            statusClass = "status-concluido";
+                        } else if (dataLimite < hoje) {
+                            statusClass = "status-atrasado";
+                        } else if (dataLimite.getTime() === hoje.getTime()) {
+                            statusClass = "status-atencao";
+                        }
+                        // Tomorrow logic could be added here if desired (dataLimite <= tomorrow)
+
+                        return (
+                            <div className={`badge-date ${statusClass}`}>
+                                <Clock className="h-3 w-3" />
+                                <small className="date-text">{format(new Date(insumo.data_limite), "dd MMM", { locale: ptBR })}</small>
+                            </div>
+                        );
+                    })()}
 
                     {insumo.observacoes && (
                         <div className="flex items-center gap-1" title="Possui observações">
