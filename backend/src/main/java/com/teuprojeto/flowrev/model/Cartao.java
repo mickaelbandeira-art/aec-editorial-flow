@@ -22,6 +22,9 @@ public class Cartao {
 
     private String responsavel; // Ex: "mickael"
 
+    @OneToMany(mappedBy = "cartao", cascade = CascadeType.ALL, orphanRemoval = true)
+    private java.util.List<Anexo> anexos = new java.util.ArrayList<>();
+
     // Construtor vazio (obrigatório para JPA)
     public Cartao() {}
 
@@ -44,4 +47,7 @@ public class Cartao {
     public void setDataEntrega(LocalDate dataEntrega) { this.dataEntrega = dataEntrega; }
     public String getResponsavel() { return responsavel; }
     public void setResponsavel(String responsavel) { this.responsavel = responsavel; }
+
+    public java.util.List<Anexo> getAnexos() { return anexos; }
+    public void setAnexos(java.util.List<Anexo> anexos) { this.anexos = anexos; }
 }
