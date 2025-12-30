@@ -191,7 +191,10 @@ export function ProductInsumosBoard({ insumos, edicaoId }: ProductInsumosBoardPr
                         variant="ghost"
                         size="sm"
                         className={`h-7 px-3 text-xs gap-2 ${viewMode === 'board' ? 'bg-white shadow-sm font-semibold text-blue-600' : 'text-slate-500'}`}
-                        onClick={() => setViewMode('board')}
+                        onClick={() => {
+                            setViewMode('board');
+                            if (window.mostrarView) window.mostrarView('quadro');
+                        }}
                     >
                         <KanbanIcon className="h-3.5 w-3.5" />
                         Quadro
@@ -200,7 +203,10 @@ export function ProductInsumosBoard({ insumos, edicaoId }: ProductInsumosBoardPr
                         variant="ghost"
                         size="sm"
                         className={`h-7 px-3 text-xs gap-2 ${viewMode === 'calendar' ? 'bg-white shadow-sm font-semibold text-blue-600' : 'text-slate-500'}`}
-                        onClick={() => setViewMode('calendar')}
+                        onClick={() => {
+                            setViewMode('calendar');
+                            if (window.mostrarView) window.mostrarView('calendario');
+                        }}
                     >
                         <CalendarIcon className="h-3.5 w-3.5" />
                         Calendário
@@ -208,7 +214,8 @@ export function ProductInsumosBoard({ insumos, edicaoId }: ProductInsumosBoardPr
                 </div>
             </div>
 
-            {viewMode === 'board' ? (
+            {/* Hybrid Integration: Board is always rendered here, but hidden via JS when Calendar is active */}
+            <div id="board-view" className="flex-1 flex flex-col min-h-0 overflow-hidden" style={{ display: viewMode === 'board' ? 'flex' : 'none' }}>
                 <DndContext
                     sensors={sensors}
                     onDragStart={onDragStart}
@@ -232,15 +239,7 @@ export function ProductInsumosBoard({ insumos, edicaoId }: ProductInsumosBoardPr
                         document.body
                     )}
                 </DndContext>
-            ) : (
-                <div className="flex-1 p-4 min-h-0 overflow-hidden">
-                    <ProductInsumosCalendar
-                        insumos={filteredInsumos}
-                        onUpdateDate={handleUpdateDate}
-                        onInsumoClick={handleCardClick}
-                    />
-                </div>
-            )}
+            </div>
 
             <InsumoDetailsDialog
                 isOpen={isDialogOpen}
@@ -250,4 +249,11 @@ export function ProductInsumosBoard({ insumos, edicaoId }: ProductInsumosBoardPr
             />
         </div>
     );
+}
+
+// Global declaration for the external script
+declare global {
+    interface Window {
+        mostrarView: (tipo: string) => void;
+    }
 }

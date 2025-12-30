@@ -505,3 +505,35 @@ function iniciarCalendario() {
 
     calendar.render();
 }
+
+/**
+ * 8. ALTERNAR VISÃO (Quadro vs Calendário)
+ */
+window.mostrarView = function (tipo) {
+    // Busca o Quadro (gerado pelo React) e o Calendário (gerado por nós)
+    const board = document.getElementById('board-view');
+    const calContainer = document.getElementById('calendar-container');
+
+    if (tipo === 'calendario') {
+        if (calContainer) calContainer.style.display = 'block';
+
+        // Dica Importante: O FullCalendar às vezes precisa recalcular tamanho quando sai de display:none
+        if (calendar) {
+            calendar.updateSize();
+            calendar.refetchEvents(); // Recarrega dados para garantir frescura
+        } else {
+            iniciarCalendario(); // Inicia na primeira vez que clicas
+        }
+    } else {
+        // Voltar para a Esteira
+        if (calContainer) calContainer.style.display = 'none';
+
+        // Opcional: Recarregar o quadro caso tenhas mudado datas no calendário
+        // Como o React controla o estado do quadro, ele pode precisar de refresh
+        // Mas o reload de página é agressivo. 
+        // Idealmente, o React faria 'refetch' via React Query.
+        // Aqui, carregarQuadroDoBanco() mexe no DOM.
+        // Se usarmos carregarQuadroDoBanco(), vamos sobrescrever o React DOM.
+        // Melhor deixar o React cuidar do quadro, e o script cuidar do calendário.
+    }
+};
