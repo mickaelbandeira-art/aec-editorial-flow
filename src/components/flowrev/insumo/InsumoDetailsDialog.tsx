@@ -163,7 +163,6 @@ export function InsumoDetailsDialog({
     onSave,
 }: InsumoDetailsDialogProps) {
     const [status, setStatus] = useState<InsumoStatus>('nao_iniciado');
-    const [status, setStatus] = useState<InsumoStatus>('nao_iniciado');
     // 1. Cria uma "memória" para o texto da descrição
     const [descricaoTexto, setDescricaoTexto] = useState('');
     const [salvando, setSalvando] = useState(false);
