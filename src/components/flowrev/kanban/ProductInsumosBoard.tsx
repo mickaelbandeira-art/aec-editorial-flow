@@ -126,7 +126,7 @@ export function ProductInsumosBoard({ insumos, edicaoId }: ProductInsumosBoardPr
         setIsDialogOpen(true);
     };
 
-    const handleSaveInsumo = (updatedData: Partial<Insumo>) => {
+    const handleSaveInsumo = async (updatedData: Partial<Insumo>) => {
         if (!selectedInsumo) return;
 
         // Update status if changed
@@ -145,7 +145,7 @@ export function ProductInsumosBoard({ insumos, edicaoId }: ProductInsumosBoardPr
         // Update content if changed
         // We compare against the current fresh data
         if (updatedData.conteudo_texto !== selectedInsumo.conteudo_texto || updatedData.observacoes !== selectedInsumo.observacoes) {
-            updateContent({
+            await updateContent({ // AWAIT for async logic in child
                 insumoId: selectedInsumo.id,
                 conteudo_texto: updatedData.conteudo_texto !== undefined ? updatedData.conteudo_texto : undefined,
                 observacoes: updatedData.observacoes !== undefined ? updatedData.observacoes : undefined
@@ -157,6 +157,8 @@ export function ProductInsumosBoard({ insumos, edicaoId }: ProductInsumosBoardPr
                     toast.error("Erro ao salvar conteúdo.");
                 }
             });
+            // DO NOT close dialog here, allow user to keep editing
+            return;
         }
 
         setIsDialogOpen(false);

@@ -61,7 +61,7 @@ interface InsumoDetailsDialogProps {
     isOpen: boolean;
     onOpenChange: (open: boolean) => void;
     insumo: Insumo | null;
-    onSave: (insumo: Partial<Insumo>) => void;
+    onSave: (insumo: Partial<Insumo>) => Promise<void> | void;
 }
 
 const TiptapEditor = ({ content, onChange, editable = true }: { content: string, onChange?: (html: string) => void, editable?: boolean }) => {
@@ -163,7 +163,10 @@ export function InsumoDetailsDialog({
     onSave,
 }: InsumoDetailsDialogProps) {
     const [status, setStatus] = useState<InsumoStatus>('nao_iniciado');
-    const [texto, setTexto] = useState('');
+    const [status, setStatus] = useState<InsumoStatus>('nao_iniciado');
+    // 1. Cria uma "memória" para o texto da descrição
+    const [descricaoTexto, setDescricaoTexto] = useState('');
+    const [salvando, setSalvando] = useState(false);
     const [obs, setObs] = useState('');
     const [dataLimite, setDataLimite] = useState<Date | undefined>(undefined);
     const [showChecklist, setShowChecklist] = useState(false);
@@ -172,7 +175,7 @@ export function InsumoDetailsDialog({
     React.useEffect(() => {
         if (insumo) {
             setStatus(insumo.status || 'nao_iniciado');
-            setTexto(insumo.conteudo_texto || '');
+            setDescricaoTexto(insumo.conteudo_texto || '');
             setObs(insumo.observacoes || '');
             setDataLimite(insumo.data_limite ? new Date(insumo.data_limite) : undefined);
         }
@@ -227,14 +230,23 @@ export function InsumoDetailsDialog({
 
     if (!insumo) return null;
 
-    const handleSave = () => {
-        onSave({
-            id: insumo.id,
-            status,
-            conteudo_texto: texto,
-            observacoes: obs,
-            data_limite: dataLimite ? dataLimite.toISOString() : null,
-        });
+    const handleSalvarDescricao = async () => {
+        try {
+            setSalvando(true);
+            await onSave({
+                id: insumo.id,
+                status,
+                conteudo_texto: descricaoTexto,
+                observacoes: obs,
+                data_limite: dataLimite ? dataLimite.toISOString() : null,
+            });
+            // Toast handled by parent or here if needed, but parent handles logic
+        } catch (error) {
+            console.error("Erro ao salvar:", error);
+            toast.error("Erro ao salvar. Verifique sua conexão.");
+        } finally {
+            setSalvando(false);
+        }
     };
 
     const handleTagToggle = (tagId: string) => {
@@ -260,7 +272,7 @@ export function InsumoDetailsDialog({
         onSave({
             id: insumo.id,
             status: newStatus,
-            conteudo_texto: texto,
+            conteudo_texto: descricaoTexto,
             observacoes: obs,
             data_limite: dataLimite ? dataLimite.toISOString() : null,
         });
@@ -413,17 +425,18 @@ export function InsumoDetailsDialog({
                                 </div>
                                 <div className="pl-9">
                                     <TiptapEditor
-                                        content={texto}
-                                        onChange={setTexto}
+                                        content={descricaoTexto}
+                                        onChange={setDescricaoTexto}
                                         editable={true}
                                     />
                                     <div className="flex gap-2 mt-2">
                                         <Button
                                             size="sm"
                                             className="bg-blue-600 hover:bg-blue-700 text-white"
-                                            onClick={handleSave}
+                                            onClick={handleSalvarDescricao}
+                                            disabled={salvando}
                                         >
-                                            Salvar
+                                            {salvando ? "Salvando..." : "Salvar"}
                                         </Button>
                                     </div>
                                 </div>
@@ -474,7 +487,7 @@ export function InsumoDetailsDialog({
                                             <div className="bg-white border border-slate-200 rounded-md p-2 shadow-sm hover:shadow-md transition-shadow focus-within:ring-2 focus-within:ring-blue-600 focus-within:border-transparent">
                                                 <Textarea placeholder="Escreva um comentário..." className="min-h-[60px] border-none shadow-none resize-none p-0 text-sm focus-visible:ring-0" value={obs} onChange={(e) => setObs(e.target.value)} />
                                                 <div className="flex justify-end mt-2">
-                                                    <Button size="sm" variant="outline" onClick={handleSave} className="h-7 text-xs">Salvar</Button>
+                                                    <Button size="sm" variant="outline" onClick={handleSalvarDescricao} className="h-7 text-xs">Salvar</Button>
                                                 </div>
                                             </div>
                                         </div>
@@ -577,7 +590,7 @@ export function InsumoDetailsDialog({
                                             onSelect={setDataLimite}
                                         />
                                         <div className="p-2 border-t border-slate-100 bg-slate-50 flex justify-end">
-                                            <Button size="sm" onClick={handleSave} className="h-7 text-xs">Confirmar</Button>
+                                            <Button size="sm" onClick={handleSalvarDescricao} className="h-7 text-xs">Confirmar</Button>
                                         </div>
                                     </PopoverContent>
                                 </Popover>
