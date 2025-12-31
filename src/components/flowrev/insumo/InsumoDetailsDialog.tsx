@@ -176,7 +176,7 @@ export function InsumoDetailsDialog({
             setObs(insumo.observacoes || '');
             setDataLimite(insumo.data_limite ? new Date(insumo.data_limite) : undefined);
         }
-    }, [insumo]);
+    }, [insumo?.id, isOpen]);
 
     // Data Fetching for Trello Features
     const { data: allTags } = useTags();
