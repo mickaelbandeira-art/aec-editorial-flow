@@ -283,7 +283,7 @@ export function AnalystDashboard() {
                                     </div>
                                 </TableCell>
                                 <TableCell className="text-right">
-                                    <div className="flex justify-end gap-2 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
+                                    <div className="flex justify-end gap-2">
                                         <Button
                                             size="sm"
                                             variant="ghost"
