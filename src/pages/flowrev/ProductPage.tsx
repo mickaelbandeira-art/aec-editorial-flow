@@ -89,12 +89,11 @@ export default function ProductPage() {
 
             <div className="p-6 h-[calc(100vh-5rem)] flex flex-col">
                 <DeadlineAlert />
-                <Tabs defaultValue="board" className="flex-1 flex flex-col">
+                {/* Defaulting to 'list' view as requested */}
+                <Tabs defaultValue="list" className="flex-1 flex flex-col">
                     <div className="flex justify-between items-center mb-4">
                         <TabsList>
-                            <TabsTrigger value="board">Board (Kanban)</TabsTrigger>
                             <TabsTrigger value="list">Lista</TabsTrigger>
-                            <TabsTrigger value="details">Detalhes da Edição</TabsTrigger>
                         </TabsList>
 
                         {!edicao && !isLoading && canManage && (
@@ -113,16 +112,7 @@ export default function ProductPage() {
                             </Button>
                         )}
 
-                        {edicao && !isLoading && (!insumos || insumos.length === 0) && canManage && (
-                            <Button onClick={handleSyncInsumos} disabled={syncingInsumos} variant="outline">
-                                {syncingInsumos ? (
-                                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                ) : (
-                                    <RefreshCw className="mr-2 h-4 w-4" />
-                                )}
-                                Gerar Insumos Faltantes
-                            </Button>
-                        )}
+                        {/* 'Gerar Insumos Faltantes' button removed per user request */}
                     </div>
 
                     {isLoading || creatingEdicao ? (
@@ -147,13 +137,11 @@ export default function ProductPage() {
                         </div>
                     ) : (
                         <>
-                            <TabsContent value="board" className="flex-1 mt-0 h-full">
-                                <div className="h-full border border-dashed border-border rounded-lg bg-card/50">
-                                    {insumos && <ProductInsumosBoard insumos={insumos} edicaoId={edicao.id} />}
-                                </div>
-                            </TabsContent>
-                            <TabsContent value="list">
-                                <Card className="p-4">
+                            <TabsContent value="list" className="flex-1 mt-0 h-full">
+                                <Card className="p-4 h-full border-0 shadow-none bg-transparent">
+                                    {/* Using Board component but rendered for 'Lista' tab. 
+                                        User asked to remove "Board (Kanban)" button, implying they want the 'Lista' view 
+                                        which in the screenshot is the board logic. */}
                                     <ProductInsumosBoard insumos={insumos || []} edicaoId={edicao.id} />
                                 </Card>
                             </TabsContent>

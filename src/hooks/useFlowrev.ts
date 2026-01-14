@@ -354,26 +354,11 @@ export function useCreateEdicao() {
 
       if (edicaoError) throw edicaoError;
 
-      // Buscar tipos de insumos
-      const { data: tipos, error: tiposError } = await supabase
-        .from('flowrev_tipos_insumos')
-        .select('id')
-        .eq('ativo', true);
+      if (edicaoError) throw edicaoError;
 
-      if (tiposError) throw tiposError;
+      // Removed automatic insumo seeding per user request
 
-      // Criar insumos para cada tipo
-      const insumos = tipos.map(tipo => ({
-        edicao_id: edicao.id,
-        tipo_insumo_id: tipo.id,
-        status: 'nao_iniciado' as const,
-      }));
-
-      const { error: insumosError } = await supabase
-        .from('flowrev_insumos')
-        .insert(insumos);
-
-      if (insumosError) throw insumosError;
+      return edicao;
 
       return edicao;
     },
