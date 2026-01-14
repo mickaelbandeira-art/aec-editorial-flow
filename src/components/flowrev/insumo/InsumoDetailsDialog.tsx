@@ -52,7 +52,8 @@ import {
     useRemoveMember,
     useUpdateInsumoStatus,
     useDeleteInsumo,
-    useDuplicateInsumo
+    useDuplicateInsumo,
+    useCreateTag
 } from "@/hooks/useFlowrev";
 import { toast } from "sonner";
 import { usePermissions } from "@/hooks/usePermission";
@@ -194,6 +195,7 @@ export function InsumoDetailsDialog({
     const { mutate: updateStatus } = useUpdateInsumoStatus();
     const { mutate: deleteInsumo, isPending: deleting } = useDeleteInsumo();
     const { mutate: duplicateInsumo, isPending: duplicating } = useDuplicateInsumo();
+    const { mutate: createTag, isPending: creatingTag } = useCreateTag();
 
     const { user, canPerformAction } = usePermissions();
     const imageInputRef = useRef<HTMLInputElement>(null);
@@ -203,6 +205,11 @@ export function InsumoDetailsDialog({
     const [imageCaption, setImageCaption] = useState("");
     const [imageFile, setImageFile] = useState<File | null>(null);
     const [optimisticAnexos, setOptimisticAnexos] = useState<{ id: string, nome_arquivo: string, loading: boolean, tipo: 'imagem' | 'pdf' }[]>([]);
+
+    // Tag Creation State
+    const [isCreatingTag, setIsCreatingTag] = useState(false);
+    const [newTagName, setNewTagName] = useState('');
+    const [newTagColor, setNewTagColor] = useState('#3b82f6');
 
     // Permission Logic
     const getAvailableStatuses = () => {
@@ -287,10 +294,10 @@ export function InsumoDetailsDialog({
     };
 
     const handleArchive = () => {
-        if (confirm("Tem certeza que deseja arquivar (excluir) este cartão?")) {
+        if (confirm("Tem certeza que deseja apagar (excluir) este cartão?")) {
             deleteInsumo(insumo.id, {
                 onSuccess: () => {
-                    toast.success("Insumo arquivado.");
+                    toast.success("Insumo apagado.");
                     onOpenChange(false);
                 }
             });
@@ -562,7 +569,52 @@ export function InsumoDetailsDialog({
                                                     </div>
                                                 )
                                             })}
-                                            <Button variant="secondary" className="w-full h-8 text-xs bg-slate-100 text-slate-600 hover:bg-slate-200 mt-2">Criar nova etiqueta</Button>
+                                            {isCreatingTag ? (
+                                                <div className="p-2 bg-slate-50 border border-slate-200 rounded space-y-2">
+                                                    <Input
+                                                        placeholder="Nome da etiqueta"
+                                                        value={newTagName}
+                                                        onChange={(e) => setNewTagName(e.target.value)}
+                                                        className="h-7 text-xs"
+                                                    />
+                                                    <div className="flex gap-2 items-center">
+                                                        <input
+                                                            type="color"
+                                                            value={newTagColor}
+                                                            onChange={(e) => setNewTagColor(e.target.value)}
+                                                            className="h-6 w-6 rounded cursor-pointer border-0 p-0"
+                                                        />
+                                                        <span className="text-xs text-slate-500">Cor</span>
+                                                    </div>
+                                                    <div className="flex justify-end gap-2">
+                                                        <Button variant="ghost" size="sm" className="h-6 text-xs" onClick={() => setIsCreatingTag(false)}>Cancelar</Button>
+                                                        <Button
+                                                            size="sm"
+                                                            className="h-6 text-xs bg-blue-600 text-white"
+                                                            disabled={!newTagName.trim() || creatingTag}
+                                                            onClick={() => {
+                                                                createTag({ nome: newTagName, cor: newTagColor }, {
+                                                                    onSuccess: () => {
+                                                                        toast.success("Etiqueta criada!");
+                                                                        setIsCreatingTag(false);
+                                                                        setNewTagName("");
+                                                                    }
+                                                                });
+                                                            }}
+                                                        >
+                                                            {creatingTag ? "..." : "Criar"}
+                                                        </Button>
+                                                    </div>
+                                                </div>
+                                            ) : (
+                                                <Button
+                                                    variant="secondary"
+                                                    className="w-full h-8 text-xs bg-slate-100 text-slate-600 hover:bg-slate-200 mt-2"
+                                                    onClick={() => setIsCreatingTag(true)}
+                                                >
+                                                    Criar nova etiqueta
+                                                </Button>
+                                            )}
                                         </div>
                                     </PopoverContent>
                                 </Popover>
@@ -681,25 +733,19 @@ export function InsumoDetailsDialog({
                                     >
                                         <span className="mr-2">📋</span> {duplicating ? "Copiando..." : "Copiar"}
                                     </Button>
-                                    <Button
-                                        variant="secondary"
-                                        className="w-full justify-start bg-[#eaecf0] hover:bg-[#dfe1e6] text-[#172b4d] font-medium transition-colors h-8 hover:bg-red-50 hover:text-red-600"
-                                        onClick={handleArchive}
-                                        disabled={deleting}
-                                    >
-                                        <span className="mr-2">🗑️</span> {deleting ? "Arquivando..." : "Arquivar"}
-                                    </Button>
-                                </div>
-
-                                <div className="mt-8 text-xs text-slate-400">
-                                    <p>ID: {insumo.id.slice(0, 8)}</p>
-                                </div>
+                                    <span className="mr-2">🗑️</span> {deleting ? "Apagando..." : "Apagar"}
+                                </Button>
                             </div>
-                        </aside>
+
+                            <div className="mt-8 text-xs text-slate-400">
+                                <p>ID: {insumo.id.slice(0, 8)}</p>
+                            </div>
                     </div>
-                </div>
-            </DialogContent>
-        </Dialog>
+                </aside>
+            </div>
+        </div>
+            </DialogContent >
+        </Dialog >
     );
 }
 

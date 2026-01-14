@@ -122,6 +122,7 @@ export function useInsumos(edicaoId?: string) {
       })) as Insumo[];
     },
     enabled: !!edicaoId,
+    refetchInterval: 3000,
   });
 }
 
@@ -666,7 +667,8 @@ export function useAllInsumos() {
 
       if (insumosError) throw insumosError;
       return { insumos: insumos as Insumo[], edicoes };
-    }
+    },
+    refetchInterval: 3000,
   });
 }
 export function useManagerStats() {
@@ -812,6 +814,24 @@ export function useTags() {
         .order('nome');
       if (error) throw error;
       return data;
+    }
+  });
+}
+
+export function useCreateTag() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ nome, cor }: { nome: string, cor: string }) => {
+      const { data, error } = await supabase
+        .from('flowrev_tags')
+        .insert({ nome, cor })
+        .select()
+        .single();
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['flowrev-tags'] });
     }
   });
 }
