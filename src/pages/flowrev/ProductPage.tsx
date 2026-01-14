@@ -125,11 +125,12 @@ export default function ProductPage() {
                         )}
                     </div>
 
-                    {isLoading ? (
-                        <div className="flex items-center justify-center h-full">
+                    {isLoading || creatingEdicao ? (
+                        <div className="flex flex-col items-center justify-center h-full gap-4">
                             <Loader2 className="w-8 h-8 animate-spin text-primary" />
+                            {creatingEdicao && <p className="text-muted-foreground">Criando edição e gerando insumos...</p>}
                         </div>
-                    ) : !edicao && !creatingEdicao ? (
+                    ) : !edicao ? (
                         <div className="flex-1 flex flex-col items-center justify-center border-2 border-dashed rounded-lg bg-muted/50">
                             <h3 className="text-xl font-semibold mb-2">Nenhuma edição encontrada para este mês</h3>
                             <p className="text-muted-foreground mb-4">

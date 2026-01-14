@@ -66,7 +66,7 @@ export function ProductInsumoCard({ insumo, tipo, onClick }: ProductInsumoCardPr
 
                 <div className="flex justify-between items-start gap-2 mb-2">
                     <h3 className="card-title text-[0.95rem] font-medium text-slate-800 leading-tight">
-                        {insumo.titulo || insumo.id}
+                        {insumo.titulo || tipo?.nome || "Sem Título"}
                     </h3>
                 </div>
 

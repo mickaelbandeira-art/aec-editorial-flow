@@ -52,6 +52,7 @@ export function ProductInsumosBoard({ insumos, edicaoId }: ProductInsumosBoardPr
         if (!term) return true;
         return (
             i.titulo?.toLowerCase().includes(term) ||
+            i.tipo_insumo?.nome?.toLowerCase().includes(term) || // Allow finding by Type (e.g. "Editorial")
             i.conteudo_texto?.toLowerCase().includes(term) ||
             i.id.toLowerCase().includes(term) ||
             i.tags?.some(tag => tag.nome.toLowerCase().includes(term)) ||
