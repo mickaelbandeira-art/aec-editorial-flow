@@ -53,20 +53,28 @@ export function ProductKanbanColumn({ column, items, onItemClick, edicaoId }: Pr
     };
 
     const handleAddCard = () => {
-        if (!newCardTitle.trim()) return;
+        // Use selected type or fallback to the first available if not selected
+        const typeToUseId = selectedTypeId || tiposInsumo?.[0]?.id;
+        const typeToUseObj = tiposInsumo?.find(t => t.id === typeToUseId);
+
+        // If user didn't type a title, use the Type Name as the title
+        const finalTitle = newCardTitle.trim() || typeToUseObj?.nome;
+
+        if (!finalTitle) {
+            // Should theoretically not happen if types are loaded, but safety first
+            return;
+        }
+
         if (!edicaoId) {
             toast.error("Edição não identificada.");
             return;
         }
 
-        // Use selected type or fallback to the first available if not selected
-        const typeToUse = selectedTypeId || tiposInsumo?.[0]?.id;
-
         createInsumo({
-            titulo: newCardTitle,
+            titulo: finalTitle,
             edicaoId: edicaoId,
             status: column.id,
-            tipoInsumoId: typeToUse
+            tipoInsumoId: typeToUseId
         }, {
             onSuccess: () => {
                 toast.success("Cartão criado!");
