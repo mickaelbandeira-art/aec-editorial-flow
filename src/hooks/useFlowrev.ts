@@ -182,23 +182,43 @@ export function useCreateInsumo() {
     mutationFn: async ({
       titulo,
       edicaoId,
-      status
+      status,
+      tipoInsumoId
     }: {
       titulo: string;
       edicaoId: string;
       status: InsumoStatus;
+      tipoInsumoId?: string;
     }) => {
-      // 1. Need a valid tipo_insumo_id. We'll pick the first active one or a default.
-      const { data: tipos, error: tiposError } = await supabase
+      // 1. Fetch the type info (either specific one or default)
+      let typeQuery = supabase
         .from('flowrev_tipos_insumos')
-        .select('id')
-        .eq('ativo', true)
-        .order('ordem')
-        .limit(1)
-        .single();
+        .select('id, nome')
+        .eq('ativo', true);
+
+      if (tipoInsumoId) {
+        typeQuery = typeQuery.eq('id', tipoInsumoId);
+      } else {
+        typeQuery = typeQuery.order('ordem').limit(1);
+      }
+
+      const { data: tipos, error: tiposError } = await typeQuery.maybeSingle();
 
       if (tiposError) throw tiposError;
-      if (!tipos) throw new Error("Nenhum tipo de insumo ativo encontrado.");
+      if (!tipos) throw new Error("Tipo de insumo não encontrado.");
+
+      // Calculate deadline based on type
+      let dataLimite = new Date();
+      const mesAtual = dataLimite.getMonth();
+      const anoAtual = dataLimite.getFullYear();
+
+      if (tipos.nome.toLowerCase().includes('big numbers')) {
+        // Big Numbers: Deadline is Day 01 of NEXT month
+        dataLimite = new Date(anoAtual, mesAtual + 1, 1);
+      } else {
+        // General: Deadline is Day 25 of CURRENT month
+        dataLimite = new Date(anoAtual, mesAtual, 25);
+      }
 
       const { data, error } = await supabase
         .from('flowrev_insumos')
@@ -206,7 +226,8 @@ export function useCreateInsumo() {
           edicao_id: edicaoId,
           tipo_insumo_id: tipos.id,
           status: status,
-          titulo: titulo, // New column
+          titulo: titulo,
+          data_limite: dataLimite.toISOString(),
           created_at: new Date().toISOString()
         })
         .select()

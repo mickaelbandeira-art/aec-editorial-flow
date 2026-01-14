@@ -6,12 +6,19 @@ import { CardHeader, CardTitle } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Insumo, InsumoStatus } from "@/types/flowrev";
 import { Plus, X } from "lucide-react";
-import { useCreateInsumo } from "@/hooks/useFlowrev";
+import { useCreateInsumo, useTiposInsumos } from "@/hooks/useFlowrev";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select";
 
 interface Column {
-    id: InsumoStatus; // Ensure this is imported or available
+    id: InsumoStatus;
     title: string;
 }
 
@@ -25,10 +32,12 @@ interface ProductKanbanColumnProps {
 export function ProductKanbanColumn({ column, items, onItemClick, edicaoId }: ProductKanbanColumnProps) {
     const itemsIds = useMemo(() => items.map((item) => item.id), [items]);
     const { mutate: createInsumo, isPending: isCreating } = useCreateInsumo();
+    const { data: tiposInsumo } = useTiposInsumos();
 
     // Quick Add State
     const [isAdding, setIsAdding] = useState(false);
     const [newCardTitle, setNewCardTitle] = useState("");
+    const [selectedTypeId, setSelectedTypeId] = useState<string>("");
 
     const { setNodeRef, transform, transition, isDragging } = useSortable({
         id: column.id,
@@ -50,17 +59,19 @@ export function ProductKanbanColumn({ column, items, onItemClick, edicaoId }: Pr
             return;
         }
 
+        // Use selected type or fallback to the first available if not selected
+        const typeToUse = selectedTypeId || tiposInsumo?.[0]?.id;
+
         createInsumo({
             titulo: newCardTitle,
             edicaoId: edicaoId,
-            status: column.id
+            status: column.id,
+            tipoInsumoId: typeToUse
         }, {
             onSuccess: () => {
                 toast.success("Cartão criado!");
                 setNewCardTitle("");
-                // Keep input open for rapid entry, or close? Trello usually keeps it open.
-                // User script: `textarea.focus(); // Mantém o foco para adicionar outro rapidamente`
-                // So we keep it open.
+                // setSelectedTypeId(""); // Optional reset
             },
             onError: () => {
                 toast.error("Erro ao criar cartão.");
@@ -90,7 +101,7 @@ export function ProductKanbanColumn({ column, items, onItemClick, edicaoId }: Pr
             ref={setNodeRef}
             style={style}
             id={column.id}
-            className={`column min-w-[280px] w-[300px] h-full rounded-xl flex flex-col border border-slate-200 bg-slate-50 p-2`} // Reduced padding to match Trello compactness
+            className={`column min-w-[280px] w-[300px] h-full rounded-xl flex flex-col border border-slate-200 bg-slate-50 p-2`}
         >
             <CardHeader className="p-3 pb-2 bg-transparent border-none">
                 <div className="flex items-center justify-between">
@@ -118,7 +129,6 @@ export function ProductKanbanColumn({ column, items, onItemClick, edicaoId }: Pr
                 </div>
             </ScrollArea>
 
-            {/* Quick Add Footer - Available for all columns */}
             {edicaoId && (
                 <div className="px-2 pb-2 pt-1">
                     {!isAdding ? (
@@ -131,14 +141,30 @@ export function ProductKanbanColumn({ column, items, onItemClick, edicaoId }: Pr
                         </button>
                     ) : (
                         <div className="bg-white rounded-lg p-2 shadow-sm border border-slate-200 animate-in fade-in zoom-in-95 duration-100">
-                            <textarea
-                                autoFocus
-                                className="w-full text-sm resize-none border-none focus:ring-0 p-0 placeholder:text-slate-400 min-h-[60px]"
-                                placeholder="Insira um título para este cartão..."
-                                value={newCardTitle}
-                                onChange={e => setNewCardTitle(e.target.value)}
-                                onKeyDown={handleKeyDown}
-                            />
+                            <div className="mb-2">
+                                <Select value={selectedTypeId} onValueChange={setSelectedTypeId}>
+                                    <SelectTrigger className="h-7 text-xs w-full mb-2">
+                                        <SelectValue placeholder="Selecione o tipo..." />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        {tiposInsumo?.map((tipo) => (
+                                            <SelectItem key={tipo.id} value={tipo.id}>
+                                                {tipo.nome}
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                            <div className="flex flex-col gap-2">
+                                <textarea
+                                    autoFocus
+                                    className="w-full text-sm resize-none border-none focus:ring-0 p-0 placeholder:text-slate-400 min-h-[60px]"
+                                    placeholder="Insira um título para este cartão..."
+                                    value={newCardTitle}
+                                    onChange={e => setNewCardTitle(e.target.value)}
+                                    onKeyDown={handleKeyDown}
+                                />
+                            </div>
                             <div className="flex items-center gap-2 mt-2">
                                 <Button
                                     size="sm"
