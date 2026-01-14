@@ -112,6 +112,7 @@ export function SeedInsumosBtn() {
                 { email: "a.izaura.bezerra@aec.com.br", nome: "Izaura Bezerra", role: "coordenador", matricula: "90005" }
             ];
 
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             const { error: userError } = await (supabase as any)
                 .from('flowrev_users')
                 .upsert(USERS_TO_SEED.map(u => ({
@@ -126,9 +127,10 @@ export function SeedInsumosBtn() {
             if (userError) throw new Error(`Erro ao criar usuários: ${userError.message}`);
             toast.success("5 Usuários de Fábrica criados/atualizados!");
 
-        } catch (error: any) {
+        } catch (error) {
             console.error("Erro no seed:", error);
-            toast.error(error.message || "Erro desconhecido ao seedar dados");
+            const msg = error instanceof Error ? error.message : "Erro desconhecido ao seedar dados";
+            toast.error(msg);
         } finally {
             setLoading(false);
         }

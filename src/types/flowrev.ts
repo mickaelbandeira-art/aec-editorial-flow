@@ -96,11 +96,10 @@ export interface FaseInfo {
 }
 
 export const FASES_PRODUCAO: FaseInfo[] = [
-  { fase: 'kickoff', label: 'Kickoff', dataLimite: 'Até dia 15', diaLimite: 15, icon: '🚀' },
-  { fase: 'envio_textuais', label: 'Envio de Insumos Textuais', dataLimite: 'Até dia 25', diaLimite: 25, icon: '📝' },
-  { fase: 'envio_dados_finais', label: 'Envio de Dados Finais', dataLimite: 'Até último dia', diaLimite: 31, icon: '📊' },
-  { fase: 'construcao', label: 'Construção da Revista', dataLimite: '01 a 07', diaLimite: 7, icon: '🏗️' },
-  { fase: 'finalizacao', label: 'Finalização', dataLimite: 'Até dia 08', diaLimite: 8, icon: '✨' },
+  { fase: 'kickoff', label: 'Kickoff (Alinhamento)', dataLimite: 'Dia 15', diaLimite: 15, icon: '🚀' },
+  { fase: 'envio_textuais', label: 'Insumos Textuais', dataLimite: '15 a 25', diaLimite: 25, icon: '📝' },
+  { fase: 'envio_dados_finais', label: 'Big Numbers', dataLimite: '25 a 01', diaLimite: 1, icon: '📊' },
+  { fase: 'construcao', label: 'Produção', dataLimite: '01 a 09', diaLimite: 9, icon: '🏭' },
   { fase: 'validacao', label: 'Validação', dataLimite: 'Até dia 09', diaLimite: 9, icon: '✅' },
   { fase: 'concluido', label: 'Concluído', dataLimite: '-', diaLimite: 0, icon: '🎉' },
 ];

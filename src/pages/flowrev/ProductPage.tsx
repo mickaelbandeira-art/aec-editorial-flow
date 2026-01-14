@@ -8,15 +8,25 @@ import { ProductInsumosBoard } from "@/components/flowrev/kanban/ProductInsumosB
 import { Button } from "@/components/ui/button";
 import { Plus, RefreshCw, Loader2, Lock } from "lucide-react";
 import { toast } from "sonner";
+import { DeadlineAlert } from "@/components/flowrev/DeadlineAlert";
 
 export default function ProductPage() {
     const { slug } = useParams();
     const { data: produtos } = useProdutos();
-    const { canAccessProduct, user } = usePermissions();
+    const { canAccessProduct, canPerformAction, user } = usePermissions();
 
     const produto = produtos?.find(p => p.slug === slug);
 
+    // Fetch current edition for this product
+    const { data: edicao, isLoading: loadingEdicao } = useEdicaoAtual(produto?.id || "");
+    const { data: insumos, isLoading: loadingInsumos } = useInsumos(edicao?.id);
+
+    // Mutations
+    const { mutate: createEdicao, isPending: creatingEdicao } = useCreateEdicao();
+    const { mutate: syncInsumos, isPending: syncingInsumos } = useSyncInsumos();
+
     const hasAccess = produto && canAccessProduct(produto.slug);
+    const canManage = canPerformAction('manage_flow');
 
     if (produto && !hasAccess) {
         return (
@@ -30,14 +40,6 @@ export default function ProductPage() {
             </div>
         );
     }
-
-    // Fetch current edition for this product
-    const { data: edicao, isLoading: loadingEdicao } = useEdicaoAtual(produto?.id || "");
-    const { data: insumos, isLoading: loadingInsumos } = useInsumos(edicao?.id);
-
-    // Mutations
-    const { mutate: createEdicao, isPending: creatingEdicao } = useCreateEdicao();
-    const { mutate: syncInsumos, isPending: syncingInsumos } = useSyncInsumos();
 
     if (!produto) {
         return <div className="p-8">Produto não encontrado</div>;
@@ -86,6 +88,7 @@ export default function ProductPage() {
             />
 
             <div className="p-6 h-[calc(100vh-5rem)] flex flex-col">
+                <DeadlineAlert />
                 <Tabs defaultValue="board" className="flex-1 flex flex-col">
                     <div className="flex justify-between items-center mb-4">
                         <TabsList>
@@ -94,7 +97,7 @@ export default function ProductPage() {
                             <TabsTrigger value="details">Detalhes da Edição</TabsTrigger>
                         </TabsList>
 
-                        {!edicao && !isLoading && (
+                        {!edicao && !isLoading && canManage && (
                             <Button onClick={handleCreateEdicao} disabled={creatingEdicao}>
                                 {creatingEdicao ? (
                                     <>
@@ -110,7 +113,7 @@ export default function ProductPage() {
                             </Button>
                         )}
 
-                        {edicao && !isLoading && (!insumos || insumos.length === 0) && (
+                        {edicao && !isLoading && (!insumos || insumos.length === 0) && canManage && (
                             <Button onClick={handleSyncInsumos} disabled={syncingInsumos} variant="outline">
                                 {syncingInsumos ? (
                                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -129,11 +132,17 @@ export default function ProductPage() {
                     ) : !edicao && !creatingEdicao ? (
                         <div className="flex-1 flex flex-col items-center justify-center border-2 border-dashed rounded-lg bg-muted/50">
                             <h3 className="text-xl font-semibold mb-2">Nenhuma edição encontrada para este mês</h3>
-                            <p className="text-muted-foreground mb-4">Inicie uma nova edição para começar a gerenciar os insumos.</p>
-                            <Button onClick={handleCreateEdicao}>
-                                <Plus className="mr-2 h-4 w-4" />
-                                Iniciar Edição Agora
-                            </Button>
+                            <p className="text-muted-foreground mb-4">
+                                {canManage
+                                    ? "Inicie uma nova edição para começar a gerenciar os insumos."
+                                    : "Aguarde o Supervisor iniciar a edição deste mês."}
+                            </p>
+                            {canManage && (
+                                <Button onClick={handleCreateEdicao}>
+                                    <Plus className="mr-2 h-4 w-4" />
+                                    Iniciar Edição Agora
+                                </Button>
+                            )}
                         </div>
                     ) : (
                         <>

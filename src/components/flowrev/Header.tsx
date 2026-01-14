@@ -8,6 +8,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { useDeadlineNotifications } from '@/hooks/useDeadlineNotifications';
 
 interface HeaderProps {
   title?: string;
@@ -15,6 +16,7 @@ interface HeaderProps {
 }
 
 export function FlowrevHeader({ title = 'Dashboard', subtitle }: HeaderProps) {
+  const deadlineAlert = useDeadlineNotifications();
   const currentDate = new Date().toLocaleDateString('pt-BR', {
     weekday: 'long',
     year: 'numeric',
@@ -57,13 +59,16 @@ export function FlowrevHeader({ title = 'Dashboard', subtitle }: HeaderProps) {
             <div className="p-4">
               <h3 className="font-semibold mb-2">Notificações</h3>
               <div className="space-y-3">
-                <div className="flex gap-3 p-2 rounded-lg hover:bg-muted cursor-pointer">
-                  <div className="h-2 w-2 mt-2 rounded-full bg-warning" />
-                  <div>
-                    <p className="text-sm font-medium">Prazo próximo</p>
-                    <p className="text-xs text-muted-foreground">Editorial Claro vence em 2 dias</p>
+                {deadlineAlert && (
+                  <div className="flex gap-3 p-2 rounded-lg hover:bg-muted cursor-pointer bg-red-50/50 border border-red-100">
+                    <div className={`h-2 w-2 mt-2 rounded-full ${deadlineAlert.isUrgent ? 'bg-destructive' : 'bg-warning'}`} />
+                    <div>
+                      <p className="text-sm font-medium">{deadlineAlert.title}</p>
+                      <p className="text-xs text-muted-foreground">{deadlineAlert.message}</p>
+                    </div>
                   </div>
-                </div>
+                )}
+                {/* Static Placeholder for Demo */}
                 <div className="flex gap-3 p-2 rounded-lg hover:bg-muted cursor-pointer">
                   <div className="h-2 w-2 mt-2 rounded-full bg-info" />
                   <div>

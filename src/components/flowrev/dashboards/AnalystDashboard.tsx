@@ -40,6 +40,7 @@ import { toast } from "sonner";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
 import { SeedInsumosBtn } from "../SeedInsumosBtn";
+import { ProductionTimeline } from "@/components/flowrev/ProductionTimeline";
 
 export function AnalystDashboard() {
     const { data, isLoading } = useAllInsumos();
@@ -141,24 +142,26 @@ export function AnalystDashboard() {
                     <h2 className="text-3xl font-bold tracking-tight">Painel Operacional</h2>
                     <p className="text-muted-foreground">Gestão de filas e aprovação de conteúdo</p>
                 </div>
-
-                <div className="flex gap-3 items-center">
-                    <SeedInsumosBtn />
-                    <Badge variant="outline" className="px-3 py-1 h-8 flex gap-2">
-                        <FileText className="h-4 w-4 text-blue-500" />
-                        Pendentes: <span className="font-bold">{stats.pending}</span>
-                    </Badge>
-                    <Badge variant="outline" className="px-3 py-1 h-8 flex gap-2 border-amber-200 bg-amber-50">
-                        <AlertCircle className="h-4 w-4 text-amber-500" />
-                        Ajustes: <span className="font-bold text-amber-700">{stats.adjustments}</span>
-                    </Badge>
-                    <Badge variant="outline" className="px-3 py-1 h-8 flex gap-2 border-red-200 bg-red-50">
-                        <AlertCircle className="h-4 w-4 text-red-500" />
-                        Atrasados: <span className="font-bold text-red-700">{stats.delayed}</span>
-                    </Badge>
-                </div>
             </div>
 
+            <div className="flex gap-3 items-center">
+                <SeedInsumosBtn />
+                <Badge variant="outline" className="px-3 py-1 h-8 flex gap-2">
+                    <FileText className="h-4 w-4 text-blue-500" />
+                    Pendentes: <span className="font-bold">{stats.pending}</span>
+                </Badge>
+                <Badge variant="outline" className="px-3 py-1 h-8 flex gap-2 border-amber-200 bg-amber-50">
+                    <AlertCircle className="h-4 w-4 text-amber-500" />
+                    Ajustes: <span className="font-bold text-amber-700">{stats.adjustments}</span>
+                </Badge>
+                <Badge variant="outline" className="px-3 py-1 h-8 flex gap-2 border-red-200 bg-red-50">
+                    <AlertCircle className="h-4 w-4 text-red-500" />
+                    Atrasados: <span className="font-bold text-red-700">{stats.delayed}</span>
+                </Badge>
+            </div>
+
+            {/* Production Timeline (Conveyor Belt) */}
+            <ProductionTimeline />
 
             {/* Filters */}
             <Card>
@@ -180,7 +183,7 @@ export function AnalystDashboard() {
                             <SelectContent>
                                 <SelectItem value="all">Todos os Produtos</SelectItem>
                                 <SelectItem value="all">Todos os Produtos</SelectItem>
-                                {activeProducts.map((p: any) => (
+                                {activeProducts.map((p) => (
                                     <SelectItem key={p} value={p}>{p}</SelectItem>
                                 ))}
                             </SelectContent>
@@ -262,7 +265,7 @@ export function AnalystDashboard() {
                                 </TableCell>
                                 <TableCell>
                                     <div className="flex gap-1">
-                                        {insumo.anexos?.map((anexo: any) => (
+                                        {insumo.anexos?.map((anexo) => (
                                             <a
                                                 key={anexo.id}
                                                 href={anexo.url}
@@ -357,6 +360,6 @@ export function AnalystDashboard() {
                     </DialogFooter>
                 </DialogContent>
             </Dialog>
-        </div>
+        </div >
     );
 }

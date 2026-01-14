@@ -107,10 +107,18 @@ export function useInsumos(edicaoId?: string) {
       if (error) throw error;
 
       // Transform nested structure to flat arrays
-      return (data as any[]).map(item => ({
+      // Define structure of raw response based on query
+      type InsumoRaw = Insumo & {
+        tags: { tag: Tag }[];
+        responsaveis: { usuario: { id: string; nome: string; email: string } }[]; // Simplified User
+      };
+
+      const rawData = data as unknown as InsumoRaw[];
+
+      return rawData.map(item => ({
         ...item,
-        tags: item.tags?.map((t: any) => t.tag) || [],
-        responsaveis: item.responsaveis?.map((r: any) => r.usuario) || []
+        tags: item.tags?.map((t) => t.tag) || [],
+        responsaveis: item.responsaveis?.map((r) => r.usuario) || []
       })) as Insumo[];
     },
     enabled: !!edicaoId,
@@ -142,7 +150,7 @@ export function useUpdateInsumo() {
       await queryClient.cancelQueries({ queryKey: ['flowrev-insumos'] });
       const previousInsumos = queryClient.getQueriesData({ queryKey: ['flowrev-insumos'] });
 
-      queryClient.setQueriesData({ queryKey: ['flowrev-insumos'] }, (old: any) => {
+      queryClient.setQueriesData({ queryKey: ['flowrev-insumos'] }, (old: Insumo[] | undefined) => {
         if (!old) return old;
         if (Array.isArray(old)) {
           return old.map((insumo) =>
@@ -256,7 +264,7 @@ export function useUpdateInsumoStatus() {
       const previousAllInsumos = queryClient.getQueryData(['flowrev-all-insumos']);
 
       // Update Otimista para 'flowrev-all-insumos'
-      queryClient.setQueryData(['flowrev-all-insumos'], (old: any) => {
+      queryClient.setQueryData(['flowrev-all-insumos'], (old: { insumos: Insumo[] } | undefined) => {
         if (!old || !old.insumos) return old;
         return {
           ...old,

@@ -16,6 +16,20 @@ export default function LoginPage() {
     const [loading, setLoading] = useState(false);
     const { login } = useAuthStore();
 
+    // Interface local para tipar o retorno do banco de usuários
+    interface DbUser {
+        id: string;
+        email: string;
+        nome?: string;
+        full_name?: string;
+        name?: string;
+        matricula?: string;
+        registration?: string;
+        role?: string;
+        cargo?: string;
+        produtos_acesso?: string[] | null;
+    }
+
     const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault();
         setLoading(true);
@@ -28,7 +42,7 @@ export default function LoginPage() {
                     email: "mickael.bandeira@aec.com.br",
                     nome: "Mickael Bandeira",
                     matricula: "461576",
-                    role: "analista" as any,
+                    role: "analista" as const,
                     produtos_acesso: ["claro"]
                 };
                 login(userProfile);
@@ -40,7 +54,8 @@ export default function LoginPage() {
 
             // Verifica se o usuário existe no banco 'flowrev_users' (conforme solicitado pelo usuário, apesar de não estar nos types)
             console.log("Tentando buscar em flowrev_users para o email:", email.trim());
-            const { data, error } = await (supabase as any)
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            const { data: rawData, error } = await (supabase as any)
                 .from('flowrev_users')
                 .select('*')
                 .eq('email', email.trim())
@@ -58,12 +73,14 @@ export default function LoginPage() {
                 return;
             }
 
-            if (!data) {
+            if (!rawData) {
                 console.warn("Usuário não encontrado em flowrev_users com este e-mail.");
                 toast.error("Usuário não encontrado na base de dados (e-mail incorreto?).");
                 setLoading(false);
                 return;
             }
+
+            const data = rawData as DbUser;
 
             console.log("Usuário encontrado:", data);
 
@@ -79,12 +96,15 @@ export default function LoginPage() {
 
             // Mapeia para o formato esperado pelo AuthStore
             // Tenta obter produtos_acesso direto da tabela, ou array vazio
+            // Importante: Garantir que o role seja um dos valores permitidos ou fallback para analista
+            const role = (data.role || data.cargo || "analista") as "analista" | "supervisor" | "analista_pleno" | "coordenador" | "gerente";
+
             const userProfile = {
                 id: data.id,
                 email: data.email,
                 nome: data.nome || data.full_name || data.name || "Usuário",
                 matricula: String(dbMatricula),
-                role: (data.role || data.cargo || "analista") as any,
+                role: role,
                 produtos_acesso: Array.isArray(data.produtos_acesso) ? data.produtos_acesso : []
             };
 

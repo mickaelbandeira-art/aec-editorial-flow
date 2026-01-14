@@ -9,6 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { format } from "date-fns";
+import { ProductionTimeline } from "@/components/flowrev/ProductionTimeline";
 
 export function ManagerDashboard() {
     const { data: stats, isLoading } = useManagerStats();
@@ -32,6 +33,9 @@ export function ManagerDashboard() {
                 <h2 className="text-3xl font-bold tracking-tight">Visão Geral Estratégica</h2>
                 <p className="text-muted-foreground">Acompanhamento executivo das revistas do treinamento.</p>
             </div>
+
+            {/* Global Timeline */}
+            <ProductionTimeline />
 
             {/* KPIs */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">

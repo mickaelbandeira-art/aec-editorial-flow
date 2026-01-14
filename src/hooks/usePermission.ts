@@ -56,18 +56,21 @@ export function usePermissions() {
         return user.produtos_acesso?.includes(productSlug) || false;
     };
 
-    const canPerformAction = (action: 'approve' | 'edit' | 'upload' | 'admin_view') => {
+    const canPerformAction = (action: 'approve' | 'edit' | 'upload' | 'admin_view' | 'manage_flow') => {
         if (!user) return false;
 
         switch (action) {
             case 'approve': // Only Analista, Coordenador, Gerente
                 return ['analista', 'coordenador', 'gerente'].includes(user.role);
 
-            case 'edit': // Supervisor, Analista Pleno
-                return ['supervisor', 'analista_pleno'].includes(user.role);
+            case 'edit': // Supervisor, Analista Pleno, Coordenador
+                return ['supervisor', 'analista_pleno', 'coordenador', 'gerente'].includes(user.role);
 
             case 'upload':
-                return ['supervisor', 'analista_pleno'].includes(user.role);
+                return ['supervisor', 'analista_pleno', 'coordenador', 'gerente'].includes(user.role);
+
+            case 'manage_flow': // Create Edition, Sync
+                return ['supervisor', 'analista_pleno', 'coordenador', 'gerente'].includes(user.role);
 
             case 'admin_view': // Dashboards, etc.
                 return ['coordenador', 'gerente'].includes(user.role);

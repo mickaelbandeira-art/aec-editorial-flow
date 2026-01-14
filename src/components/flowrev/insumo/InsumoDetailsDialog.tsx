@@ -195,7 +195,7 @@ export function InsumoDetailsDialog({
     const { mutate: deleteInsumo, isPending: deleting } = useDeleteInsumo();
     const { mutate: duplicateInsumo, isPending: duplicating } = useDuplicateInsumo();
 
-    const { user } = usePermissions();
+    const { user, canPerformAction } = usePermissions();
     const imageInputRef = useRef<HTMLInputElement>(null);
 
     // Upload state
@@ -247,6 +247,9 @@ export function InsumoDetailsDialog({
             setSalvando(false);
         }
     };
+
+    const canEdit = canPerformAction('edit');
+    const canUpload = canPerformAction('upload');
 
     const handleTagToggle = (tagId: string) => {
         const hasTag = insumo.tags?.some(t => t.id === tagId);
@@ -429,14 +432,16 @@ export function InsumoDetailsDialog({
                                         editable={true}
                                     />
                                     <div className="flex gap-2 mt-2">
-                                        <Button
-                                            size="sm"
-                                            className="bg-blue-600 hover:bg-blue-700 text-white"
-                                            onClick={handleSalvarDescricao}
-                                            disabled={salvando}
-                                        >
-                                            {salvando ? "Salvando..." : "Salvar"}
-                                        </Button>
+                                        {canEdit && (
+                                            <Button
+                                                size="sm"
+                                                className="bg-blue-600 hover:bg-blue-700 text-white"
+                                                onClick={handleSalvarDescricao}
+                                                disabled={salvando}
+                                            >
+                                                {salvando ? "Salvando..." : "Salvar"}
+                                            </Button>
+                                        )}
                                     </div>
                                 </div>
                             </div>
@@ -622,13 +627,15 @@ export function InsumoDetailsDialog({
                                         )}
                                     </div>
 
-                                    <Button
-                                        variant="secondary"
-                                        className="w-full justify-start bg-[#eaecf0] hover:bg-[#dfe1e6] text-[#172b4d] font-medium transition-colors h-8"
-                                        onClick={() => imageInputRef.current?.click()}
-                                    >
-                                        <span className="mr-2">📎</span> Adicionar Anexo
-                                    </Button>
+                                    {canUpload && (
+                                        <Button
+                                            variant="secondary"
+                                            className="w-full justify-start bg-[#eaecf0] hover:bg-[#dfe1e6] text-[#172b4d] font-medium transition-colors h-8"
+                                            onClick={() => imageInputRef.current?.click()}
+                                        >
+                                            <span className="mr-2">📎</span> Adicionar Anexo
+                                        </Button>
+                                    )}
                                     <input
                                         type="file"
                                         ref={imageInputRef}
