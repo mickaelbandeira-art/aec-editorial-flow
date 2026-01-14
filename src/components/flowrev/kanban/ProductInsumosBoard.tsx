@@ -217,7 +217,7 @@ export function ProductInsumosBoard({ insumos, edicaoId }: ProductInsumosBoardPr
                 </div>
             </div>
 
-            {/* Hybrid Integration: Board is always rendered here, but hidden via JS when Calendar is active */}
+            {/* Hybrid Integration: Board is always rendered here, hidden via JS when Calendar is active */}
             <div id="board-view" className="flex-1 flex flex-col min-h-0 overflow-hidden" style={{ display: viewMode === 'board' ? 'flex' : 'none' }}>
                 <DndContext
                     sensors={sensors}
@@ -242,6 +242,15 @@ export function ProductInsumosBoard({ insumos, edicaoId }: ProductInsumosBoardPr
                         document.body
                     )}
                 </DndContext>
+            </div>
+
+            {/* Calendar View */}
+            <div id="calendar-view" className="flex-1 min-h-0 overflow-hidden" style={{ display: viewMode === 'calendar' ? 'block' : 'none' }}>
+                <ProductInsumosCalendar
+                    insumos={filteredInsumos}
+                    onUpdateDate={handleUpdateDate}
+                    onInsumoClick={handleCardClick}
+                />
             </div>
 
             <InsumoDetailsDialog
