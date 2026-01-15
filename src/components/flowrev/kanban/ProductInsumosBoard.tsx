@@ -306,6 +306,7 @@ export function ProductInsumosBoard({ insumos, edicaoId }: ProductInsumosBoardPr
 }
 
 // Global declaration for the external script
+// Force redeploy
 declare global {
     interface Window {
         mostrarView: (tipo: string) => void;
