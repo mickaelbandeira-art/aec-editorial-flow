@@ -577,28 +577,45 @@ export function InsumoDetailsDialog({
                                                         onChange={(e) => setNewTagName(e.target.value)}
                                                         className="h-7 text-xs"
                                                     />
-                                                    <div className="flex gap-2 items-center">
-                                                        <input
-                                                            type="color"
-                                                            value={newTagColor}
-                                                            onChange={(e) => setNewTagColor(e.target.value)}
-                                                            className="h-6 w-6 rounded cursor-pointer border-0 p-0"
-                                                        />
-                                                        <span className="text-xs text-slate-500">Cor</span>
+                                                    <div className="flex gap-2 items-center flex-wrap mt-2">
+                                                        <span className="text-xs text-slate-500 w-full">Cor</span>
+                                                        {['#ef4444', '#f97316', '#eab308', '#22c55e', '#3b82f6', '#8b5cf6', '#ec4899', '#64748b'].map((color) => (
+                                                            <button
+                                                                key={color}
+                                                                className={cn(
+                                                                    "w-6 h-6 rounded-full border border-slate-200 transition-transform active:scale-95",
+                                                                    newTagColor === color && "ring-2 ring-slate-800 ring-offset-2 scale-110"
+                                                                )}
+                                                                style={{ backgroundColor: color }}
+                                                                onClick={() => setNewTagColor(color)}
+                                                            />
+                                                        ))}
+                                                        <div className="flex items-center gap-1 w-full mt-1">
+                                                            <div className="w-6 h-6 rounded-full border border-slate-200" style={{ backgroundColor: newTagColor }} />
+                                                            <Input
+                                                                value={newTagColor}
+                                                                onChange={(e) => setNewTagColor(e.target.value)}
+                                                                placeholder="#000000"
+                                                                className="h-7 text-xs flex-1"
+                                                            />
+                                                        </div>
                                                     </div>
-                                                    <div className="flex justify-end gap-2">
-                                                        <Button variant="ghost" size="sm" className="h-6 text-xs" onClick={() => setIsCreatingTag(false)}>Cancelar</Button>
+                                                    <div className="flex justify-end gap-2 mt-2">
+                                                        <Button variant="ghost" size="sm" className="h-7 text-xs" onClick={() => setIsCreatingTag(false)}>Cancelar</Button>
                                                         <Button
                                                             size="sm"
-                                                            className="h-6 text-xs bg-blue-600 text-white"
+                                                            className="h-7 text-xs bg-blue-600 text-white"
                                                             disabled={!newTagName.trim() || creatingTag}
-                                                            onClick={() => {
+                                                            onClick={(e) => {
+                                                                e.stopPropagation();
                                                                 createTag({ nome: newTagName, cor: newTagColor }, {
                                                                     onSuccess: () => {
                                                                         toast.success("Etiqueta criada!");
                                                                         setIsCreatingTag(false);
                                                                         setNewTagName("");
-                                                                    }
+                                                                        setNewTagColor('#3b82f6');
+                                                                    },
+                                                                    onError: () => toast.error("Erro ao criar etiqueta.")
                                                                 });
                                                             }}
                                                         >
@@ -741,15 +758,15 @@ export function InsumoDetailsDialog({
                                     >
                                         <span className="mr-2">🗑️</span> {deleting ? "Apagando..." : "Apagar"}
                                     </Button>
-                            </div>
+                                </div>
 
-                            <div className="mt-8 text-xs text-slate-400">
-                                <p>ID: {insumo.id.slice(0, 8)}</p>
+                                <div className="mt-8 text-xs text-slate-400">
+                                    <p>ID: {insumo.id.slice(0, 8)}</p>
+                                </div>
                             </div>
+                        </aside>
                     </div>
-                </aside>
-            </div>
-        </div>
+                </div>
             </DialogContent >
         </Dialog >
     );
