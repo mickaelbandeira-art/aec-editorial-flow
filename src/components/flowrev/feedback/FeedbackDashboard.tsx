@@ -43,7 +43,12 @@ export function FeedbackDashboard() {
                     Insights estratégicos baseados na voz do cliente e parceiros.
                 </p>
                 <div className="flex gap-2 mt-2">
-                    <a href="/flowrev/pesquisa" className="inline-flex items-center justify-center rounded-lg text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground shadow hover:bg-primary/90 h-9 px-4 py-2">
+                    <a
+                        href="/flowrev/pesquisa"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center justify-center rounded-lg text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground shadow hover:bg-primary/90 h-9 px-4 py-2"
+                    >
                         Coletar Novo Feedback (Link Público)
                     </a>
                 </div>

@@ -27,7 +27,7 @@ export function FeedbackSubmission() {
         { value: "manager", label: "Gestor" },
         { value: "coordinator", label: "Coordenador" },
         { value: "supervisor", label: "Supervisor" },
-        { value: "client", label: "Cliente Final" },
+        { value: "client", label: "Cliente" },
     ];
 
     const handleSubmit = (e: React.FormEvent) => {
@@ -101,7 +101,7 @@ export function FeedbackSubmission() {
                             </div>
 
                             <div className="space-y-2">
-                                <Label htmlFor="role">Seu Cargo / Papel</Label>
+                                <Label htmlFor="role">Seu Cargo</Label>
                                 <Select
                                     onValueChange={val => setFormData({ ...formData, role: val })}
                                     value={formData.role}
@@ -121,7 +121,7 @@ export function FeedbackSubmission() {
                         {/* Perguntas */}
                         <div className="space-y-4 pt-4 border-t border-slate-100">
                             <div className="space-y-3">
-                                <Label className="text-base">Como você avalia a qualidade geral das entregas?</Label>
+                                <Label className="text-base">Como você avalia a qualidade geral da revista?</Label>
                                 <div className="flex justify-center gap-2">
                                     {[1, 2, 3, 4, 5].map((star) => (
                                         <button

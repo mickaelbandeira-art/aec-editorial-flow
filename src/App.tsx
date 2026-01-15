@@ -28,6 +28,7 @@ const App = () => (
           <Routes>
             <Route path="/" element={<Navigate to="/flowrev" replace />} />
             <Route path="/login" element={<LoginPage />} />
+            <Route path="/flowrev/pesquisa" element={<FeedbackSubmission />} />
 
             {/* Protected FlowRev Routes */}
             <Route element={<ProtectedRoute />}>
@@ -36,7 +37,6 @@ const App = () => (
                 <Route path="production" element={<ProductionLine />} />
                 <Route path="calendar" element={<CalendarPage />} />
                 <Route path="feedback" element={<FeedbackDashboard />} />
-                <Route path="pesquisa" element={<FeedbackSubmission />} />
                 <Route path="produto/:slug" element={<ProductPage />} />
               </Route>
             </Route>
