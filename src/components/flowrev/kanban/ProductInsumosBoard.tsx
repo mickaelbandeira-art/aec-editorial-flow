@@ -224,15 +224,16 @@ export function ProductInsumosBoard({ insumos, edicaoId }: ProductInsumosBoardPr
                     onDragStart={onDragStart}
                     onDragEnd={onDragEnd}
                 >
-                    <div className="flex-1 flex gap-4 overflow-x-auto p-4 custom-scrollbar min-h-0">
+                    <div className="flex-1 flex gap-4 overflow-x-auto p-2 md:p-4 custom-scrollbar min-h-0 snap-x snap-mandatory">
                         {COLUMNS.map(col => (
-                            <ProductKanbanColumn
-                                key={col.id}
-                                column={col}
-                                items={filteredInsumos.filter(i => i.status === col.id)}
-                                onItemClick={handleCardClick}
-                                edicaoId={edicaoId}
-                            />
+                            <div key={col.id} className="snap-start shrink-0 h-full">
+                                <ProductKanbanColumn
+                                    column={col}
+                                    items={filteredInsumos.filter(i => i.status === col.id)}
+                                    onItemClick={handleCardClick}
+                                    edicaoId={edicaoId}
+                                />
+                            </div>
                         ))}
                     </div>
                     {createPortal(
