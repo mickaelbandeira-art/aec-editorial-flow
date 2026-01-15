@@ -259,5 +259,6 @@ export function FlowrevSidebar({ isOpen, onClose }: FlowrevSidebarProps) {
           </div>
         </div>
       </aside>
-      );
+    </>
+  );
 }
