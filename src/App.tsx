@@ -11,6 +11,7 @@ import CalendarPage from "@/pages/flowrev/CalendarPage";
 import NotFound from "./pages/NotFound";
 import LoginPage from "@/pages/flowrev/LoginPage";
 import { ProtectedRoute } from "@/components/flowrev/auth/ProtectedRoute";
+import { FeedbackDashboard } from "@/components/flowrev/feedback/FeedbackDashboard";
 
 const queryClient = new QueryClient();
 
@@ -33,6 +34,7 @@ const App = () => (
                 <Route index element={<FlowrevDashboard />} />
                 <Route path="production" element={<ProductionLine />} />
                 <Route path="calendar" element={<CalendarPage />} />
+                <Route path="feedback" element={<FeedbackDashboard />} />
                 <Route path="produto/:slug" element={<ProductPage />} />
               </Route>
             </Route>

@@ -170,3 +170,15 @@ export interface Insumo {
   responsaveis?: { id: string, nome: string }[];
   checklist?: ChecklistItem[];
 }
+
+export interface Feedback {
+  id: string;
+  role: string | null;
+  type: 'nps' | 'csat' | 'ces' | 'like_dislike' | '5_star';
+  score: number | null;
+  comment: string | null;
+  tags: string[] | null;
+  sentiment: 'positive' | 'neutral' | 'negative' | null;
+  category: string | null;
+  created_at: string;
+}

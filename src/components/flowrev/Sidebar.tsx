@@ -8,7 +8,8 @@ import {
   Calendar,
   ChevronLeft,
   ChevronRight,
-  LogOut
+  LogOut,
+  MessageSquare
 } from 'lucide-react';
 import { useProdutos } from '@/hooks/useFlowrev';
 import { usePermissions, useAuthStore } from '@/hooks/usePermission';
@@ -37,6 +38,7 @@ const mainNavItems = [
   { icon: LayoutDashboard, label: 'Dashboard', href: '/flowrev' },
   { icon: Newspaper, label: 'Esteira de Produção', href: '/flowrev/production' },
   { icon: Calendar, label: 'Calendário', href: '/flowrev/calendar' },
+  { icon: MessageSquare, label: 'Central de Feedback', href: '/flowrev/feedback' },
 ];
 
 interface FlowrevSidebarProps {
@@ -76,7 +78,7 @@ export function FlowrevSidebar({ isOpen, onClose, collapsed, setCollapsed }: Flo
         slug: 'fabrica',
         ordem: 99,
         ativo: true,
-        tipo: 'interno',
+        // tipo: 'interno', // Removed to fix TS error
         cor_tema: '#1a1a1a',
         logo_url: null,
       }

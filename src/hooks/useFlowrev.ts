@@ -798,7 +798,22 @@ export function useManagerStats() {
           { name: `${mesAtual}/${anoAtual}`, progresso: totalInsumos > 0 ? Math.round((concluidos / totalInsumos) * 100) : 0 }
         ]
       };
-    }
+    },
+  });
+}
+
+export function useFeedback() {
+  return useQuery({
+    queryKey: ['flowrev-feedback'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('flowrev_feedback')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      return data as import('@/types/flowrev').Feedback[];
+    },
   });
 }
 
