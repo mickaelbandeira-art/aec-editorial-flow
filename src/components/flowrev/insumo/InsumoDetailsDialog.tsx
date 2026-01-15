@@ -581,13 +581,18 @@ export function InsumoDetailsDialog({
                                                         <span className="text-xs text-slate-500 w-full">Cor</span>
                                                         {['#ef4444', '#f97316', '#eab308', '#22c55e', '#3b82f6', '#8b5cf6', '#ec4899', '#64748b'].map((color) => (
                                                             <button
+                                                                type="button"
                                                                 key={color}
                                                                 className={cn(
                                                                     "w-6 h-6 rounded-full border border-slate-200 transition-transform active:scale-95",
                                                                     newTagColor === color && "ring-2 ring-slate-800 ring-offset-2 scale-110"
                                                                 )}
                                                                 style={{ backgroundColor: color }}
-                                                                onClick={() => setNewTagColor(color)}
+                                                                onClick={(e) => {
+                                                                    e.preventDefault();
+                                                                    e.stopPropagation();
+                                                                    setNewTagColor(color);
+                                                                }}
                                                             />
                                                         ))}
                                                         <div className="flex items-center gap-1 w-full mt-1">
@@ -604,10 +609,18 @@ export function InsumoDetailsDialog({
                                                         <Button variant="ghost" size="sm" className="h-7 text-xs" onClick={() => setIsCreatingTag(false)}>Cancelar</Button>
                                                         <Button
                                                             size="sm"
-                                                            className="h-7 text-xs bg-blue-600 text-white"
-                                                            disabled={!newTagName.trim() || creatingTag}
+                                                            type="button"
+                                                            className={cn("h-7 text-xs text-white", !newTagName.trim() ? "bg-slate-400" : "bg-blue-600")}
+                                                            disabled={creatingTag}
                                                             onClick={(e) => {
+                                                                e.preventDefault();
                                                                 e.stopPropagation();
+
+                                                                if (!newTagName.trim()) {
+                                                                    toast.error("Digite o nome da etiqueta.");
+                                                                    return;
+                                                                }
+
                                                                 createTag({ nome: newTagName, cor: newTagColor }, {
                                                                     onSuccess: () => {
                                                                         toast.success("Etiqueta criada!");
