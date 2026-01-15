@@ -820,12 +820,11 @@ export function useFeedback() {
 export function useSubmitFeedback() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async (feedback: Partial<import('@/types/flowrev').Feedback>) => {
+    mutationFn: async (feedback: Partial<import('@/types/flowrev').Feedback> | Partial<import('@/types/flowrev').Feedback>[]) => {
       const { data, error } = await supabase
         .from('flowrev_feedback')
         .insert(feedback)
-        .select()
-        .single();
+        .select();
 
       if (error) throw error;
       return data;
