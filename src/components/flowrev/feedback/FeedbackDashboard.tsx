@@ -42,6 +42,11 @@ export function FeedbackDashboard() {
                 <p className="text-slate-500">
                     Insights estratégicos baseados na voz do cliente e parceiros.
                 </p>
+                <div className="flex gap-2 mt-2">
+                    <a href="/flowrev/pesquisa" className="inline-flex items-center justify-center rounded-lg text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground shadow hover:bg-primary/90 h-9 px-4 py-2">
+                        Coletar Novo Feedback (Link Público)
+                    </a>
+                </div>
             </div>
 
             {/* Top Cards (Metrics) */}
@@ -143,7 +148,7 @@ export function FeedbackDashboard() {
                                 <div key={f.id} className="bg-white p-4 rounded-xl shadow-sm border border-slate-100 flex gap-4 hover:border-blue-200 transition-colors">
                                     {/* Sentiment Indicator */}
                                     <div className={`shrink-0 w-1 rounded-full ${f.sentiment === 'positive' ? 'bg-emerald-500' :
-                                            f.sentiment === 'negative' ? 'bg-red-500' : 'bg-slate-300'
+                                        f.sentiment === 'negative' ? 'bg-red-500' : 'bg-slate-300'
                                         }`} />
 
                                     <div className="flex-1 space-y-1">

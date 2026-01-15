@@ -12,6 +12,7 @@ import NotFound from "./pages/NotFound";
 import LoginPage from "@/pages/flowrev/LoginPage";
 import { ProtectedRoute } from "@/components/flowrev/auth/ProtectedRoute";
 import { FeedbackDashboard } from "@/components/flowrev/feedback/FeedbackDashboard";
+import { FeedbackSubmission } from "@/components/flowrev/feedback/FeedbackSubmission";
 
 const queryClient = new QueryClient();
 
@@ -35,6 +36,7 @@ const App = () => (
                 <Route path="production" element={<ProductionLine />} />
                 <Route path="calendar" element={<CalendarPage />} />
                 <Route path="feedback" element={<FeedbackDashboard />} />
+                <Route path="pesquisa" element={<FeedbackSubmission />} />
                 <Route path="produto/:slug" element={<ProductPage />} />
               </Route>
             </Route>

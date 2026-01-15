@@ -174,6 +174,7 @@ export interface Insumo {
 export interface Feedback {
   id: string;
   role: string | null;
+  respondent_name?: string | null;
   type: 'nps' | 'csat' | 'ces' | 'like_dislike' | '5_star';
   score: number | null;
   comment: string | null;

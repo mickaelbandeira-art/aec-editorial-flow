@@ -817,6 +817,25 @@ export function useFeedback() {
   });
 }
 
+export function useSubmitFeedback() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (feedback: Partial<import('@/types/flowrev').Feedback>) => {
+      const { data, error } = await supabase
+        .from('flowrev_feedback')
+        .insert(feedback)
+        .select()
+        .single();
+
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['flowrev-feedback'] });
+    },
+  });
+}
+
 // --- Tags & Members Hooks ---
 
 export function useTags() {
