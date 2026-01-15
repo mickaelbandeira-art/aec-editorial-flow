@@ -632,11 +632,15 @@ export function InsumoDetailsDialog({
                                                                 const finalName = newTagName.trim() || "Nova Etiqueta"; // Fallback safe
 
                                                                 createTag({ nome: finalName, cor: newTagColor }, {
-                                                                    onSuccess: () => {
+                                                                    onSuccess: (newTag) => {
                                                                         toast.success("Etiqueta criada!");
                                                                         setIsCreatingTag(false);
                                                                         setNewTagName("");
                                                                         setNewTagColor('#3b82f6');
+                                                                        // Auto-select the newly created tag
+                                                                        if (newTag?.id) {
+                                                                            addTag({ insumoId: insumo.id, tagId: newTag.id });
+                                                                        }
                                                                     },
                                                                     onError: (error) => {
                                                                         console.error(error);
