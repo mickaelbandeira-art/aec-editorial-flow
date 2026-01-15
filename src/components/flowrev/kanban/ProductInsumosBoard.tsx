@@ -145,6 +145,16 @@ export function ProductInsumosBoard({ insumos, edicaoId }: ProductInsumosBoardPr
             });
         }
 
+        // Update checklist if changed
+        if (updatedData.checklist) {
+            updateInsumo({
+                insumoId: selectedInsumo.id,
+                updates: { checklist: updatedData.checklist }
+            });
+            // We return early to avoid closing dialog if it was just a checklist update (though onSave doesn't assume close, but we want to be safe)
+            return;
+        }
+
         // Update content if changed
         // We compare against the current fresh data
         if (updatedData.conteudo_texto !== selectedInsumo.conteudo_texto || updatedData.observacoes !== selectedInsumo.observacoes) {

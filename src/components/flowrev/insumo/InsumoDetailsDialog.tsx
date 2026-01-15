@@ -358,7 +358,7 @@ export function InsumoDetailsDialog({
 
     return (
         <Dialog open={isOpen} onOpenChange={onOpenChange}>
-            <DialogContent className="max-w-[1000px] w-[90%] h-[90vh] flex flex-col p-0 gap-0 overflow-hidden bg-[#f4f5f7] sm:rounded-lg shadow-2xl border-0">
+            <DialogContent className="max-w-[1000px] w-[90%] h-[90vh] flex flex-col p-0 gap-0 overflow-hidden bg-[#f4f5f7] sm:rounded-lg shadow-2xl border-0 [&>button]:hidden">
                 {/* 1. Header (Banner-like) */}
                 <header className="px-6 py-4 bg-[#f4f5f7] shrink-0">
                     <div className="flex items-start gap-4">
@@ -453,27 +453,108 @@ export function InsumoDetailsDialog({
                                 </div>
                             </div>
 
-                            {/* Checklist Section (Mockup) */}
-                            {showChecklist && (
+                            {/* Checklist Section */}
+                            {(showChecklist || (insumo.checklist && insumo.checklist.length > 0)) && (
                                 <div className="space-y-3">
                                     <div className="flex items-center gap-3">
                                         <div className="h-6 w-6 flex items-center justify-center text-slate-700">☑️</div>
                                         <div className="flex items-center justify-between w-full">
                                             <h3 className="text-lg font-semibold text-slate-800">Checklist</h3>
-                                            <Button variant="ghost" size="sm" onClick={() => setShowChecklist(false)} className="text-xs text-slate-400 hover:text-red-500">Excluir</Button>
+                                            <Button
+                                                variant="ghost"
+                                                size="sm"
+                                                onClick={() => {
+                                                    if (confirm('Apagar checklist inteiro?')) {
+                                                        onSave({ ...insumo, checklist: [] });
+                                                        setShowChecklist(false);
+                                                    }
+                                                }}
+                                                className="text-xs text-slate-400 hover:text-red-500"
+                                            >
+                                                Excluir
+                                            </Button>
                                         </div>
                                     </div>
                                     <div className="pl-9">
                                         <div className="space-y-2">
-                                            <div className="flex items-center gap-2 group">
-                                                <input type="checkbox" className="w-4 h-4 rounded border-slate-300 accent-blue-600" />
-                                                <span className="text-sm text-slate-700">Revisar ortografia</span>
-                                            </div>
-                                            <div className="flex items-center gap-2 group">
-                                                <input type="checkbox" className="w-4 h-4 rounded border-slate-300 accent-blue-600" />
-                                                <span className="text-sm text-slate-700">Verificar links</span>
-                                            </div>
-                                            <Button variant="secondary" size="sm" className="bg-slate-200 h-7 text-xs justify-start mt-2">Adicionar um item</Button>
+                                            {/* Progress Bar */}
+                                            {insumo.checklist && insumo.checklist.length > 0 && (
+                                                <div className="flex items-center gap-2 mb-4">
+                                                    <span className="text-xs text-slate-500 font-medium">
+                                                        {Math.round((insumo.checklist.filter(i => i.checked).length / insumo.checklist.length) * 100)}%
+                                                    </span>
+                                                    <div className="flex-1 h-1.5 bg-slate-200 rounded-full overflow-hidden">
+                                                        <div
+                                                            className="h-full bg-blue-600 transition-all duration-500"
+                                                            style={{ width: `${(insumo.checklist.filter(i => i.checked).length / insumo.checklist.length) * 100}%` }}
+                                                        />
+                                                    </div>
+                                                </div>
+                                            )}
+
+                                            {/* Items */}
+                                            {insumo.checklist?.map((item, index) => (
+                                                <div key={item.id || index} className="flex items-center gap-2 group">
+                                                    <input
+                                                        type="checkbox"
+                                                        className="w-4 h-4 rounded border-slate-300 accent-blue-600 cursor-pointer"
+                                                        checked={item.checked}
+                                                        onChange={() => {
+                                                            const newChecklist = [...(insumo.checklist || [])];
+                                                            newChecklist[index] = { ...item, checked: !item.checked };
+                                                            onSave({ ...insumo, checklist: newChecklist });
+                                                        }}
+                                                    />
+                                                    <Input
+                                                        value={item.text}
+                                                        onChange={(e) => {
+                                                            const newChecklist = [...(insumo.checklist || [])];
+                                                            newChecklist[index] = { ...item, text: e.target.value };
+                                                            // For text updates, we might want to debounce or save on blur, 
+                                                            // but for now saving on every change for simplicity, 
+                                                            // OR better: save on blur to avoid excessive reqs.
+                                                            // Actually, let's use onBlur for the save, and local state for input?
+                                                            // To keep it simple and responsive, I'll update local Reference or just let onSave handle it (might be laggy).
+                                                            // Let's rely on onSave being fast enough or maybe just update on Blur.
+                                                            // Implementing SAVE ON BLUR for text.
+
+                                                            // Wait, onSave in props is void.
+                                                            // I can't use local state easily without refactoring the whole list.
+                                                            // I will enable 'onSave' usage here.
+                                                            // Actually, I recommend just updating `onSave` only when Blur or Enter.
+                                                        }}
+                                                        onBlur={(e) => {
+                                                            const newChecklist = [...(insumo.checklist || [])];
+                                                            newChecklist[index] = { ...item, text: e.target.value };
+                                                            onSave({ ...insumo, checklist: newChecklist });
+                                                        }}
+                                                        className="h-8 border-transparent hover:border-slate-200 focus:border-blue-500 bg-transparent px-2 text-sm shadow-none"
+                                                    />
+                                                    <Button
+                                                        variant="ghost"
+                                                        size="icon"
+                                                        className="h-6 w-6 opacity-0 group-hover:opacity-100 text-slate-400 hover:text-red-500"
+                                                        onClick={() => {
+                                                            const newChecklist = insumo.checklist?.filter((_, i) => i !== index);
+                                                            onSave({ ...insumo, checklist: newChecklist });
+                                                        }}
+                                                    >
+                                                        <X className="h-3 w-3" />
+                                                    </Button>
+                                                </div>
+                                            ))}
+
+                                            <Button
+                                                variant="secondary"
+                                                size="sm"
+                                                className="bg-slate-200 h-7 text-xs justify-start mt-2"
+                                                onClick={() => {
+                                                    const newChecklist = [...(insumo.checklist || []), { id: crypto.randomUUID(), text: "Novo item", checked: false }];
+                                                    onSave({ ...insumo, checklist: newChecklist });
+                                                }}
+                                            >
+                                                Adicionar um item
+                                            </Button>
                                         </div>
                                     </div>
                                 </div>

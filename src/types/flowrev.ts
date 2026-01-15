@@ -142,6 +142,12 @@ export interface InsumoResponsavel {
   };
 }
 
+export interface ChecklistItem {
+  id: string;
+  text: string;
+  checked: boolean;
+}
+
 export interface Insumo {
   id: string;
   edicao_id: string;
@@ -160,6 +166,7 @@ export interface Insumo {
   tipo_insumo?: TipoInsumo;
   titulo?: string;
   anexos?: Anexo[];
-  tags?: Tag[]; // Flat array is easier for UI, but DB returns nested. Ideally we transform it.
-  responsaveis?: { id: string, nome: string }[]; // Simplified
+  tags?: Tag[];
+  responsaveis?: { id: string, nome: string }[];
+  checklist?: ChecklistItem[];
 }
