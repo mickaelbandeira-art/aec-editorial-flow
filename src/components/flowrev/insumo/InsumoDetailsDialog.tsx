@@ -579,10 +579,20 @@ export function InsumoDetailsDialog({
                                                     />
                                                     <div className="flex gap-2 items-center flex-wrap mt-2">
                                                         <span className="text-xs text-slate-500 w-full">Cor</span>
-                                                        {['#ef4444', '#f97316', '#eab308', '#22c55e', '#3b82f6', '#8b5cf6', '#ec4899', '#64748b'].map((color) => (
+                                                        {[
+                                                            { color: '#ef4444', name: 'Vermelho' },
+                                                            { color: '#f97316', name: 'Laranja' },
+                                                            { color: '#eab308', name: 'Amarelo' },
+                                                            { color: '#22c55e', name: 'Verde' },
+                                                            { color: '#3b82f6', name: 'Azul' },
+                                                            { color: '#8b5cf6', name: 'Roxo' },
+                                                            { color: '#ec4899', name: 'Rosa' },
+                                                            { color: '#64748b', name: 'Cinza' }
+                                                        ].map(({ color, name }) => (
                                                             <button
                                                                 type="button"
                                                                 key={color}
+                                                                title={name}
                                                                 className={cn(
                                                                     "w-6 h-6 rounded-full border border-slate-200 transition-transform active:scale-95",
                                                                     newTagColor === color && "ring-2 ring-slate-800 ring-offset-2 scale-110"
@@ -592,6 +602,9 @@ export function InsumoDetailsDialog({
                                                                     e.preventDefault();
                                                                     e.stopPropagation();
                                                                     setNewTagColor(color);
+                                                                    if (!newTagName || newTagName === name || ['Vermelho', 'Laranja', 'Amarelo', 'Verde', 'Azul', 'Roxo', 'Rosa', 'Cinza'].includes(newTagName)) {
+                                                                        setNewTagName(name);
+                                                                    }
                                                                 }}
                                                             />
                                                         ))}
@@ -616,19 +629,19 @@ export function InsumoDetailsDialog({
                                                                 e.preventDefault();
                                                                 e.stopPropagation();
 
-                                                                if (!newTagName.trim()) {
-                                                                    toast.error("Digite o nome da etiqueta.");
-                                                                    return;
-                                                                }
+                                                                const finalName = newTagName.trim() || "Nova Etiqueta"; // Fallback safe
 
-                                                                createTag({ nome: newTagName, cor: newTagColor }, {
+                                                                createTag({ nome: finalName, cor: newTagColor }, {
                                                                     onSuccess: () => {
                                                                         toast.success("Etiqueta criada!");
                                                                         setIsCreatingTag(false);
                                                                         setNewTagName("");
                                                                         setNewTagColor('#3b82f6');
                                                                     },
-                                                                    onError: () => toast.error("Erro ao criar etiqueta.")
+                                                                    onError: (error) => {
+                                                                        console.error(error);
+                                                                        toast.error(`Erro: ${error.message || "Falha ao criar"}`);
+                                                                    }
                                                                 });
                                                             }}
                                                         >
