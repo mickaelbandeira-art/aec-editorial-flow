@@ -42,10 +42,11 @@ const mainNavItems = [
 interface FlowrevSidebarProps {
   isOpen: boolean;
   onClose: () => void;
+  collapsed: boolean;
+  setCollapsed: (collapsed: boolean) => void;
 }
 
-export function FlowrevSidebar({ isOpen, onClose }: FlowrevSidebarProps) {
-  const [collapsed, setCollapsed] = useState(false);
+export function FlowrevSidebar({ isOpen, onClose, collapsed, setCollapsed }: FlowrevSidebarProps) {
   const location = useLocation();
   const { data: produtos } = useProdutos();
   const { canAccessProduct, user } = usePermissions();
@@ -94,7 +95,7 @@ export function FlowrevSidebar({ isOpen, onClose }: FlowrevSidebarProps) {
 
       <aside
         className={cn(
-          "fixed left-0 top-0 z-40 h-screen bg-sidebar text-sidebar-foreground transition-all duration-300 shadow-xl border-r border-sidebar-border/50",
+          "fixed left-0 top-0 z-40 h-screen bg-sidebar text-sidebar-foreground transition-all duration-300 shadow-xl",
           // Mobile: hidden by default (translate-x-full reversed), shown if isOpen
           isOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0",
           // Width handling

@@ -3,9 +3,11 @@ import { Outlet } from 'react-router-dom';
 import { FlowrevSidebar } from '@/components/flowrev/Sidebar';
 import { Menu } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { cn } from '@/lib/utils';
 
 export function FlowrevLayout() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
 
   return (
     <div className="min-h-screen bg-background flex flex-col md:block">
@@ -17,9 +19,17 @@ export function FlowrevLayout() {
         <span className="font-semibold">Flow Editorial</span>
       </div>
 
-      <FlowrevSidebar isOpen={isMobileMenuOpen} onClose={() => setIsMobileMenuOpen(false)} />
+      <FlowrevSidebar
+        isOpen={isMobileMenuOpen}
+        onClose={() => setIsMobileMenuOpen(false)}
+        collapsed={isSidebarCollapsed}
+        setCollapsed={setIsSidebarCollapsed}
+      />
 
-      <main className="flex-1 md:pl-64 transition-all duration-300 overflow-x-hidden w-full">
+      <main className={cn(
+        "flex-1 transition-all duration-300 overflow-x-hidden w-full",
+        isSidebarCollapsed ? "md:pl-20" : "md:pl-72"
+      )}>
         <Outlet />
       </main>
     </div>
