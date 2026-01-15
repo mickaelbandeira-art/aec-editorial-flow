@@ -733,8 +733,14 @@ export function InsumoDetailsDialog({
                                     >
                                         <span className="mr-2">📋</span> {duplicating ? "Copiando..." : "Copiar"}
                                     </Button>
-                                    <span className="mr-2">🗑️</span> {deleting ? "Apagando..." : "Apagar"}
-                                </Button>
+                                    <Button
+                                        variant="secondary"
+                                        className="w-full justify-start bg-[#eaecf0] hover:bg-[#dfe1e6] text-[#172b4d] font-medium transition-colors h-8"
+                                        onClick={handleArchive}
+                                        disabled={deleting}
+                                    >
+                                        <span className="mr-2">🗑️</span> {deleting ? "Apagando..." : "Apagar"}
+                                    </Button>
                             </div>
 
                             <div className="mt-8 text-xs text-slate-400">
