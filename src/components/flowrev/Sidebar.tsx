@@ -87,34 +87,38 @@ export function FlowrevSidebar({ isOpen, onClose }: FlowrevSidebarProps) {
       {/* Mobile Overlay */}
       {isOpen && (
         <div
-          className="fixed inset-0 z-30 bg-black/50 md:hidden"
+          className="fixed inset-0 z-30 bg-black/40 backdrop-blur-sm md:hidden transition-all duration-300"
           onClick={onClose}
         />
       )}
 
       <aside
         className={cn(
-          "fixed left-0 top-0 z-40 h-screen bg-sidebar transition-transform duration-300 md:translate-x-0",
+          "fixed left-0 top-0 z-40 h-screen bg-sidebar text-sidebar-foreground transition-all duration-300 shadow-xl border-r border-sidebar-border/50",
           // Mobile: hidden by default (translate-x-full reversed), shown if isOpen
           isOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0",
           // Width handling
-          collapsed ? "w-20" : "w-64"
+          collapsed ? "w-20" : "w-72",
+          "md:shadow-none"
         )}
       >
         <div className="flex h-full flex-col">
           {/* Header */}
-          <div className="flex h-16 items-center justify-between border-b border-sidebar-border px-4">
+          <div className={cn(
+            "flex items-center justify-between px-6 transition-all",
+            collapsed ? "h-20 justify-center" : "h-24"
+          )}>
             {!collapsed && (
-              <div className="flex items-center gap-2">
-                <div className="h-8 w-8 rounded-lg bg-primary flex items-center justify-center">
-                  <Newspaper className="h-5 w-5 text-primary-foreground" />
+              <div className="flex items-center gap-3">
+                <div className="h-10 w-10 rounded-xl bg-primary shadow-lg shadow-primary/20 flex items-center justify-center shrink-0">
+                  <Newspaper className="h-6 w-6 text-primary-foreground" />
                 </div>
-                <div>
-                  <h1 className="text-sm font-bold text-sidebar-foreground">Revistas do Treinamento</h1>
-                  <p className="text-xs text-sidebar-foreground/60">IA Editorial</p>
+                <div className="flex flex-col">
+                  <h1 className="text-base font-bold leading-tight tracking-tight">Revistas do<br />Treinamento</h1>
                 </div>
               </div>
             )}
+
             <Button
               variant="ghost"
               size="icon"
@@ -125,19 +129,24 @@ export function FlowrevSidebar({ isOpen, onClose }: FlowrevSidebarProps) {
                   setCollapsed(!collapsed);
                 }
               }}
-              className="text-sidebar-foreground hover:bg-sidebar-accent"
+              className={cn(
+                "hidden md:flex text-sidebar-foreground/50 hover:text-sidebar-foreground hover:bg-transparent",
+                collapsed && "flex"
+              )}
             >
-              <div className="md:hidden">
-                <ChevronLeft className="h-4 w-4" />
-              </div>
-              <div className="hidden md:block">
-                {collapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
-              </div>
+              {collapsed ? <ChevronRight className="h-5 w-5" /> : <ChevronLeft className="h-5 w-5" />}
             </Button>
+
+            {/* Mobile Close Button */}
+            <div className="md:hidden absolute right-4 top-6">
+              <Button variant="ghost" size="icon" onClick={onClose}>
+                <ChevronLeft className="h-6 w-6" />
+              </Button>
+            </div>
           </div>
 
           {/* Navigation */}
-          <nav className="flex-1 overflow-y-auto p-4">
+          <nav className="flex-1 overflow-y-auto px-4 py-6">
             {/* Main Nav */}
             <div className="space-y-1">
               {mainNavItems.map((item) => {
@@ -147,14 +156,14 @@ export function FlowrevSidebar({ isOpen, onClose }: FlowrevSidebarProps) {
                     key={item.href}
                     to={item.href}
                     className={cn(
-                      "flex items-center gap-3 rounded-lg px-3 py-2.5 transition-colors",
+                      "flex items-center gap-3 rounded-xl px-4 py-3 transition-all duration-200 group relative",
                       isActive
-                        ? "bg-sidebar-primary text-sidebar-primary-foreground"
+                        ? "bg-primary text-primary-foreground shadow-md shadow-primary/20 font-medium"
                         : "text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-foreground"
                     )}
                   >
-                    <item.icon className="h-5 w-5 shrink-0" />
-                    {!collapsed && <span className="text-sm font-medium">{item.label}</span>}
+                    <item.icon className={cn("h-5 w-5 shrink-0 transition-colors", isActive ? "text-primary-foreground" : "text-sidebar-foreground/50 group-hover:text-sidebar-foreground")} />
+                    {!collapsed && <span className="text-sm">{item.label}</span>}
                   </Link>
                 );
               })}
@@ -162,8 +171,8 @@ export function FlowrevSidebar({ isOpen, onClose }: FlowrevSidebarProps) {
 
             {/* Products */}
             {!collapsed && filteredProdutos && filteredProdutos.length > 0 && (
-              <div className="mt-8">
-                <h3 className="mb-3 px-3 text-xs font-semibold uppercase text-sidebar-foreground/50">
+              <div className="mt-10 animate-in fade-in slide-in-from-left-2 duration-300">
+                <h3 className="mb-4 px-4 text-[10px] font-bold uppercase tracking-widest text-sidebar-foreground/40">
                   Produtos Autorizados
                 </h3>
                 <div className="space-y-1">
@@ -174,16 +183,16 @@ export function FlowrevSidebar({ isOpen, onClose }: FlowrevSidebarProps) {
                         key={produto.id}
                         to={`/flowrev/produto/${produto.slug}`}
                         className={cn(
-                          "flex items-center gap-3 rounded-lg px-3 py-2 transition-colors",
+                          "flex items-center gap-3 rounded-xl px-4 py-2.5 transition-all",
                           isActive
-                            ? "bg-sidebar-accent text-sidebar-foreground"
-                            : "text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-foreground"
+                            ? "bg-sidebar-accent text-sidebar-foreground font-medium"
+                            : "text-sidebar-foreground/70 hover:bg-sidebar-accent/50 hover:text-sidebar-foreground"
                         )}
                       >
                         <img
                           src={logoMap[produto.slug]}
                           alt={produto.nome}
-                          className="h-6 w-6 rounded object-contain bg-white p-0.5"
+                          className="h-5 w-5 rounded object-contain grayscale opacity-70 group-hover:grayscale-0 group-hover:opacity-100 transition-all"
                         />
                         <span className="text-sm">{produto.nome}</span>
                       </Link>
@@ -194,17 +203,18 @@ export function FlowrevSidebar({ isOpen, onClose }: FlowrevSidebarProps) {
             )}
 
             {collapsed && filteredProdutos && (
-              <div className="mt-8 space-y-2">
+              <div className="mt-8 space-y-3 flex flex-col items-center">
+                <div className="h-px w-8 bg-sidebar-border/50 mb-3" />
                 {filteredProdutos.map((produto) => (
                   <Link
                     key={produto.id}
                     to={`/flowrev/produto/${produto.slug}`}
-                    className="flex justify-center"
+                    className="flex justify-center group relative"
                   >
                     <img
                       src={logoMap[produto.slug]}
                       alt={produto.nome}
-                      className="h-8 w-8 rounded object-contain bg-white p-1 hover:ring-2 ring-primary transition-all"
+                      className="h-9 w-9 rounded-lg object-contain bg-white p-1.5 shadow-sm ring-1 ring-slate-100 group-hover:ring-primary group-hover:scale-105 transition-all"
                     />
                   </Link>
                 ))}
@@ -212,50 +222,47 @@ export function FlowrevSidebar({ isOpen, onClose }: FlowrevSidebarProps) {
             )}
           </nav>
 
-          {/* Footer */}
-          <div className="border-t border-sidebar-border p-4">
-            {!collapsed ? (
-              <div className="flex items-center gap-3">
-                <Avatar className="h-9 w-9">
-                  <AvatarFallback className="bg-primary text-primary-foreground text-sm font-bold">
-                    {user?.nome?.substring(0, 2).toUpperCase() || 'U'}
-                  </AvatarFallback>
-                </Avatar>
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-sidebar-foreground truncate">
-                    {user?.nome || 'Usuário'}
-                  </p>
-                  <p className="text-xs text-sidebar-foreground/60 truncate capitalize">
-                    {user?.role?.replace('_', ' ') || 'Cargo'}
-                  </p>
-                </div>
+          {/* User Card Footer */}
+          <div className="p-4">
+            <div className={cn(
+              "rounded-2xl bg-sidebar-accent/40 border border-sidebar-border/50 flex items-center transition-all",
+              collapsed ? "p-2 justify-center aspect-square" : "p-3 gap-3"
+            )}>
+              {!collapsed ? (
+                <>
+                  <Avatar className="h-10 w-10 border-2 border-white shadow-sm">
+                    <AvatarFallback className="bg-gradient-to-br from-primary to-blue-600 text-white font-bold">
+                      {user?.nome?.substring(0, 2).toUpperCase() || 'U'}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div className="flex-1 min-w-0 overflow-hidden">
+                    <p className="text-sm font-semibold text-sidebar-foreground truncate">
+                      {user?.nome?.split(' ')[0]}
+                    </p>
+                    <p className="text-[10px] uppercase tracking-wider text-sidebar-foreground/50 font-bold truncate">
+                      {user?.role?.replace('_', ' ') || 'Convidado'}
+                    </p>
+                  </div>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-8 w-8 text-sidebar-foreground/40 hover:text-destructive hover:bg-destructive/10 rounded-lg shrink-0"
+                    onClick={handleLogout}
+                  >
+                    <LogOut className="h-4 w-4" />
+                  </Button>
+                </>
+              ) : (
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="text-sidebar-foreground/70 hover:text-destructive hover:bg-destructive/10"
-                  onClick={handleLogout}
-                  title="Sair"
-                >
-                  <LogOut className="h-4 w-4" />
-                </Button>
-              </div>
-            ) : (
-              <div className="flex flex-col items-center gap-2">
-                <Avatar className="h-9 w-9">
-                  <AvatarFallback className="bg-primary text-primary-foreground text-sm font-bold">
-                    {user?.nome?.substring(0, 2).toUpperCase() || 'U'}
-                  </AvatarFallback>
-                </Avatar>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="text-sidebar-foreground/70 hover:text-destructive hover:bg-destructive/10 h-8 w-8"
+                  className="h-full w-full text-sidebar-foreground/50 hover:text-destructive hover:bg-destructive/10 rounded-xl"
                   onClick={handleLogout}
                 >
-                  <LogOut className="h-4 w-4" />
+                  <LogOut className="h-5 w-5" />
                 </Button>
-              </div>
-            )}
+              )}
+            </div>
           </div>
         </div>
       </aside>
