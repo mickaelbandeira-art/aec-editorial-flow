@@ -51,6 +51,7 @@ export function AnalystDashboard() {
     const [searchTerm, setSearchTerm] = useState("");
     const [statusFilter, setStatusFilter] = useState<string>("all");
     const [productFilter, setProductFilter] = useState<string>("all");
+    const [activeFilter, setActiveFilter] = useState<'all' | 'pending' | 'adjustments' | 'delayed' | 'approved'>('all');
 
     const [selectedInsumoId, setSelectedInsumoId] = useState<string | null>(null);
     const [isDetailsOpen, setIsDetailsOpen] = useState(false);
@@ -75,7 +76,21 @@ export function AnalystDashboard() {
         const matchesStatus = statusFilter === "all" || item.status === statusFilter;
         const matchesProduct = productFilter === "all" || item.edicao?.produto?.nome === productFilter;
 
-        return matchesSearch && matchesStatus && matchesProduct;
+        // Metric Badge Filtering
+        let matchesMetric = true;
+        const today = new Date().toISOString().split('T')[0];
+
+        if (activeFilter === 'pending') {
+            matchesMetric = item.status !== 'aprovado' && item.status !== 'nao_iniciado';
+        } else if (activeFilter === 'adjustments') {
+            matchesMetric = item.status === 'ajuste_solicitado';
+        } else if (activeFilter === 'delayed') {
+            matchesMetric = item.status !== 'aprovado' && !!item.data_limite && item.data_limite < today;
+        } else if (activeFilter === 'approved') {
+            matchesMetric = item.status === 'aprovado';
+        }
+
+        return matchesSearch && matchesStatus && matchesProduct && matchesMetric;
     });
 
     // Stats
@@ -144,19 +159,50 @@ export function AnalystDashboard() {
                 </div>
             </div>
 
-            <div className="flex gap-3 items-center">
-                <SeedInsumosBtn />
-                <Badge variant="outline" className="px-3 py-1 h-8 flex gap-2">
-                    <FileText className="h-4 w-4 text-blue-500" />
+            <div className="flex flex-wrap gap-3 items-center">
+                <Badge
+                    variant={activeFilter === 'pending' ? 'default' : 'outline'}
+                    className={`px-3 py-1 h-8 flex gap-2 cursor-pointer transition-all ${activeFilter === 'all' && 'hover:bg-accent'}`}
+                    onClick={() => setActiveFilter(activeFilter === 'pending' ? 'all' : 'pending')}
+                >
+                    <FileText className="h-4 w-4" />
                     Pendentes: <span className="font-bold">{stats.pending}</span>
                 </Badge>
-                <Badge variant="outline" className="px-3 py-1 h-8 flex gap-2 border-amber-200 bg-amber-50">
-                    <AlertCircle className="h-4 w-4 text-amber-500" />
-                    Ajustes: <span className="font-bold text-amber-700">{stats.adjustments}</span>
+
+                <Badge
+                    variant={activeFilter === 'adjustments' ? 'default' : 'outline'}
+                    className={`px-3 py-1 h-8 flex gap-2 cursor-pointer transition-all border-amber-200 ${activeFilter === 'adjustments'
+                            ? 'bg-amber-500 hover:bg-amber-600 border-amber-500'
+                            : 'bg-amber-50 text-amber-900'
+                        }`}
+                    onClick={() => setActiveFilter(activeFilter === 'adjustments' ? 'all' : 'adjustments')}
+                >
+                    <AlertCircle className="h-4 w-4" />
+                    Ajustes: <span className="font-bold">{stats.adjustments}</span>
                 </Badge>
-                <Badge variant="outline" className="px-3 py-1 h-8 flex gap-2 border-red-200 bg-red-50">
-                    <AlertCircle className="h-4 w-4 text-red-500" />
-                    Atrasados: <span className="font-bold text-red-700">{stats.delayed}</span>
+
+                <Badge
+                    variant={activeFilter === 'delayed' ? 'default' : 'outline'}
+                    className={`px-3 py-1 h-8 flex gap-2 cursor-pointer transition-all border-red-200 ${activeFilter === 'delayed'
+                            ? 'bg-destructive hover:bg-destructive/90 border-destructive'
+                            : 'bg-red-50 text-red-900'
+                        }`}
+                    onClick={() => setActiveFilter(activeFilter === 'delayed' ? 'all' : 'delayed')}
+                >
+                    <AlertCircle className="h-4 w-4" />
+                    Atrasados: <span className="font-bold">{stats.delayed}</span>
+                </Badge>
+
+                <Badge
+                    variant={activeFilter === 'approved' ? 'default' : 'outline'}
+                    className={`px-3 py-1 h-8 flex gap-2 cursor-pointer transition-all border-emerald-200 ${activeFilter === 'approved'
+                            ? 'bg-emerald-600 hover:bg-emerald-700 border-emerald-600'
+                            : 'bg-emerald-50 text-emerald-900'
+                        }`}
+                    onClick={() => setActiveFilter(activeFilter === 'approved' ? 'all' : 'approved')}
+                >
+                    <CheckCircle2 className="h-4 w-4" />
+                    Aprovados: <span className="font-bold">{stats.approved}</span>
                 </Badge>
             </div>
 
