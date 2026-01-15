@@ -19,6 +19,7 @@ import { InsumoDetailsDialog } from "../insumo/InsumoDetailsDialog";
 import { usePermissions } from "@/hooks/usePermission";
 import { Calendar as CalendarIcon, Kanban as KanbanIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
 interface ProductInsumosBoardProps {
     insumos: Insumo[];
@@ -43,6 +44,7 @@ export function ProductInsumosBoard({ insumos, edicaoId }: ProductInsumosBoardPr
     const [selectedInsumoId, setSelectedInsumoId] = useState<string | null>(null);
     const [isDialogOpen, setIsDialogOpen] = useState(false);
     const [viewMode, setViewMode] = useState<'board' | 'calendar'>('board');
+    const [activeMobileColumn, setActiveMobileColumn] = useState<InsumoStatus>('nao_iniciado');
 
 
     const [searchTerm, setSearchTerm] = useState('');
@@ -224,9 +226,47 @@ export function ProductInsumosBoard({ insumos, edicaoId }: ProductInsumosBoardPr
                     onDragStart={onDragStart}
                     onDragEnd={onDragEnd}
                 >
-                    <div className="flex-1 flex gap-4 overflow-x-auto p-2 md:p-4 custom-scrollbar min-h-0 snap-x snap-mandatory">
+                    {/* Mobile Tabs / Pills */}
+                    <div className="md:hidden overflow-x-auto pb-2 px-4 flex gap-2 shrink-0 custom-scrollbar">
                         {COLUMNS.map(col => (
-                            <div key={col.id} className="snap-start shrink-0 h-full">
+                            <button
+                                key={col.id}
+                                onClick={() => setActiveMobileColumn(col.id)}
+                                className={cn(
+                                    "whitespace-nowrap px-4 py-1.5 rounded-full text-sm font-medium transition-colors border",
+                                    activeMobileColumn === col.id
+                                        ? "bg-blue-600 text-white border-blue-600"
+                                        : "bg-white text-slate-600 border-slate-200 hover:bg-slate-50"
+                                )}
+                            >
+                                {col.title}
+                                <span className={cn(
+                                    "ml-2 text-xs opacity-80",
+                                    activeMobileColumn === col.id ? "text-blue-100" : "text-slate-400"
+                                )}>
+                                    {filteredInsumos.filter(i => i.status === col.id).length}
+                                </span>
+                            </button>
+                        ))}
+                    </div>
+
+                    {/* Mobile Board View (Single Column) */}
+                    <div className="md:hidden flex-1 overflow-hidden px-2 pb-2">
+                        {COLUMNS.filter(c => c.id === activeMobileColumn).map(col => (
+                            <ProductKanbanColumn
+                                key={col.id}
+                                column={col}
+                                items={filteredInsumos.filter(i => i.status === col.id)}
+                                onItemClick={handleCardClick}
+                                edicaoId={edicaoId}
+                            />
+                        ))}
+                    </div>
+
+                    {/* Desktop Board View (Horizontal Scroll) */}
+                    <div className="hidden md:flex flex-1 gap-4 overflow-x-auto p-4 custom-scrollbar min-h-0">
+                        {COLUMNS.map(col => (
+                            <div key={col.id} className="shrink-0 h-full">
                                 <ProductKanbanColumn
                                     column={col}
                                     items={filteredInsumos.filter(i => i.status === col.id)}
@@ -236,6 +276,7 @@ export function ProductInsumosBoard({ insumos, edicaoId }: ProductInsumosBoardPr
                             </div>
                         ))}
                     </div>
+
                     {createPortal(
                         <DragOverlay>
                             {activeItem && <ProductInsumoCard insumo={activeItem} tipo={activeItem.tipo_insumo} />}
