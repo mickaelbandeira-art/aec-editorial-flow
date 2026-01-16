@@ -29,6 +29,7 @@ export default function ProductPage() {
 
     const hasAccess = produto && canAccessProduct(produto.slug);
     const canManage = canPerformAction('manage_flow');
+    const [searchTerm, setSearchTerm] = useState("");
 
     if (produto && !hasAccess) {
         return (
@@ -49,7 +50,7 @@ export default function ProductPage() {
 
     const isLoading = loadingEdicao || loadingInsumos;
 
-    const [searchTerm, setSearchTerm] = useState("");
+
 
     const handleCreateEdicao = () => {
         const now = new Date();
