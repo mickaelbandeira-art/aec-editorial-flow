@@ -172,8 +172,8 @@ export function AnalystDashboard() {
                 <Badge
                     variant={activeFilter === 'adjustments' ? 'default' : 'outline'}
                     className={`px-3 py-1 h-8 flex gap-2 cursor-pointer transition-all border-amber-200 ${activeFilter === 'adjustments'
-                            ? 'bg-amber-500 hover:bg-amber-600 border-amber-500'
-                            : 'bg-amber-50 text-amber-900'
+                        ? 'bg-amber-500 hover:bg-amber-600 border-amber-500'
+                        : 'bg-amber-50 text-amber-900'
                         }`}
                     onClick={() => setActiveFilter(activeFilter === 'adjustments' ? 'all' : 'adjustments')}
                 >
@@ -184,8 +184,8 @@ export function AnalystDashboard() {
                 <Badge
                     variant={activeFilter === 'delayed' ? 'default' : 'outline'}
                     className={`px-3 py-1 h-8 flex gap-2 cursor-pointer transition-all border-red-200 ${activeFilter === 'delayed'
-                            ? 'bg-destructive hover:bg-destructive/90 border-destructive'
-                            : 'bg-red-50 text-red-900'
+                        ? 'bg-destructive hover:bg-destructive/90 border-destructive'
+                        : 'bg-red-50 text-red-900'
                         }`}
                     onClick={() => setActiveFilter(activeFilter === 'delayed' ? 'all' : 'delayed')}
                 >
@@ -196,8 +196,8 @@ export function AnalystDashboard() {
                 <Badge
                     variant={activeFilter === 'approved' ? 'default' : 'outline'}
                     className={`px-3 py-1 h-8 flex gap-2 cursor-pointer transition-all border-emerald-200 ${activeFilter === 'approved'
-                            ? 'bg-emerald-600 hover:bg-emerald-700 border-emerald-600'
-                            : 'bg-emerald-50 text-emerald-900'
+                        ? 'bg-emerald-600 hover:bg-emerald-700 border-emerald-600'
+                        : 'bg-emerald-50 text-emerald-900'
                         }`}
                     onClick={() => setActiveFilter(activeFilter === 'approved' ? 'all' : 'approved')}
                 >
@@ -276,7 +276,7 @@ export function AnalystDashboard() {
                             <TableRow key={insumo.id} className="group hover:bg-muted/50 transition-colors">
                                 <TableCell>
                                     <div className="flex flex-col">
-                                        <span className="font-semibold text-foreground/90">{insumo.tipo_insumo?.nome}</span>
+                                        <span className="font-semibold text-foreground/90">{insumo.titulo || insumo.tipo_insumo?.nome}</span>
                                         {insumo.observacoes && (
                                             <span className="text-xs text-muted-foreground truncate max-w-[250px] flex items-center gap-1 mt-1">
                                                 <MessageSquare className="h-3 w-3" /> {insumo.observacoes}

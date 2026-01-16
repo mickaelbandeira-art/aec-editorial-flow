@@ -787,7 +787,7 @@ export function useManagerStats() {
         dadosFaseChart,
         atrasadosList: atrasados.map(i => ({
           id: i.id,
-          nome: i.tipo_insumo?.nome || 'Insumo',
+          nome: i.titulo || i.tipo_insumo?.nome || 'Insumo',
           produto: i.edicao?.produto?.nome || '?',
           responsavel: 'Equipe', // Placeholder until user assignment implemented
           data_limite: i.data_limite,
