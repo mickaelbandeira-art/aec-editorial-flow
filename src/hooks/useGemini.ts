@@ -50,8 +50,9 @@ export function useGemini() {
             );
 
             if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.error?.message || "Falha na comunicação com a IA");
+                const errorData = await response.json().catch(() => ({}));
+                const errorMessage = errorData.error?.message || `Erro ${response.status}: ${response.statusText}`;
+                throw new Error(errorMessage);
             }
 
             const data = await response.json();
@@ -71,9 +72,11 @@ export function useGemini() {
             toast.success("Texto revisado com sucesso!");
             return correctedText;
 
-        } catch (error) {
+        } catch (error: any) {
             console.error("Gemini Error:", error);
-            toast.error("Ocorreu um erro ao revisar o texto. Tente novamente.");
+            // Show the actual error message to the user for better debugging
+            const msg = error instanceof Error ? error.message : "Erro desconhecido";
+            toast.error(`Falha na IA: ${msg}`);
             return null;
         } finally {
             setIsLoading(false);
