@@ -103,6 +103,38 @@ export function SeedInsumosBtn() {
                 toast.info("Tipos de insumo já existem.");
             }
 
+            // --- SEED TAGS ---
+            const TAGS_TO_SEED = [
+                { nome: 'Vermelho', cor: '#ef4444' },
+                { nome: 'Laranja', cor: '#f97316' },
+                { nome: 'Amarelo', cor: '#eab308' },
+                { nome: 'Verde', cor: '#22c55e' },
+                { nome: 'Azul', cor: '#3b82f6' },
+                { nome: 'Roxo', cor: '#a855f7' },
+                { nome: 'Rosa', cor: '#ec4899' },
+                { nome: 'Cinza', cor: '#64748b' }
+            ];
+
+            const { data: existingTags, error: tagFetchError } = await (supabase as any)
+                .from('flowrev_tags')
+                .select('nome');
+
+            if (tagFetchError) throw new Error(`Erro ao buscar etiquetas: ${tagFetchError.message}`);
+
+            const existingTagNames = new Set(existingTags?.map((t: any) => t.nome));
+            const newTags = TAGS_TO_SEED.filter(t => !existingTagNames.has(t.nome));
+
+            if (newTags.length > 0) {
+                const { error: tagInsertError } = await (supabase as any)
+                    .from('flowrev_tags')
+                    .insert(newTags);
+
+                if (tagInsertError) throw new Error(`Erro ao criar etiquetas: ${tagInsertError.message}`);
+                toast.success(`${newTags.length} etiquetas criadas!`);
+            } else {
+                toast.info("Etiquetas já existem.");
+            }
+
             // --- SEED USERS ---
             const USERS_TO_SEED = [
                 { email: "gracyelle.azarias@aec.com.br", nome: "Gracyelle Azarias", role: "analista", matricula: "90001" },
