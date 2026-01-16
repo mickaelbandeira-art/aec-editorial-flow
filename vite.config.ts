@@ -12,13 +12,8 @@ export default defineConfig(({ mode }) => {
       port: 8080,
     },
     define: {
+      "process.env.NODE_ENV": JSON.stringify(mode),
       "process.env.API_KEY": JSON.stringify(env.GEMINI_API_KEY || env.VITE_GEMINI_API_KEY),
-      process: {
-        env: {
-          API_KEY: env.GEMINI_API_KEY || env.VITE_GEMINI_API_KEY,
-          NODE_ENV: mode,
-        },
-      },
     },
     plugins: [react(), mode === "development" && componentTagger()].filter(Boolean),
     resolve: {
