@@ -311,36 +311,44 @@ export function InsumoDetailsDialog({
     };
 
     const handleInstantUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-        if (e.target.files && e.target.files[0]) {
-            const file = e.target.files[0];
-            const tempId = 'temp-' + Date.now();
-            const isImage = file.type.startsWith('image/');
-            const tipo = isImage ? 'imagem' : 'pdf';
+        if (e.target.files && e.target.files.length > 0) {
+            const files = Array.from(e.target.files);
 
-            // 1. UI Otimista (Instantâneo)
-            setOptimisticAnexos(prev => [...prev, { id: tempId, nome_arquivo: file.name, loading: true, tipo }]);
+            if (files.length > 10) {
+                toast.error("Você só pode enviar até 10 arquivos por vez.");
+                return;
+            }
 
-            // 2. Upload Assíncrono
-            uploadFile({
-                insumoId: insumo.id,
-                file,
-                tipo,
-                legenda: file.name // Usa nome do arquivo como legenda padrão para ser instantâneo
-            }, {
-                onSuccess: () => {
-                    toast.success("Arquivo enviado!");
-                    // Remove item temporário (o real virá pelo refresh do React Query)
-                    setOptimisticAnexos(prev => prev.filter(a => a.id !== tempId));
-                    setUploading(false);
-                },
-                onError: (error) => {
-                    console.error("Upload error:", error);
-                    toast.error("Erro ao enviar arquivo.");
-                    // Remove item temporário em falha também
-                    setOptimisticAnexos(prev => prev.filter(a => a.id !== tempId));
-                    setUploading(false);
-                }
+            files.forEach(file => {
+                const tempId = 'temp-' + Date.now() + Math.random();
+                const isImage = file.type.startsWith('image/');
+                const tipo = isImage ? 'imagem' : 'pdf';
+
+                // 1. UI Otimista (Instantâneo)
+                setOptimisticAnexos(prev => [...prev, { id: tempId, nome_arquivo: file.name, loading: true, tipo }]);
+
+                // 2. Upload Assíncrono
+                uploadFile({
+                    insumoId: insumo.id,
+                    file,
+                    tipo,
+                    legenda: file.name // Usa nome do arquivo como legenda padrão para ser instantâneo
+                }, {
+                    onSuccess: () => {
+                        toast.success(`Arquivo ${file.name} enviado!`);
+                        // Remove item temporário (o real virá pelo refresh do React Query)
+                        setOptimisticAnexos(prev => prev.filter(a => a.id !== tempId));
+                    },
+                    onError: (error) => {
+                        console.error("Upload error:", error);
+                        toast.error(`Erro ao enviar ${file.name}.`);
+                        // Remove item temporário em falha também
+                        setOptimisticAnexos(prev => prev.filter(a => a.id !== tempId));
+                    }
+                });
             });
+            // Finaliza loading state se fosse unico (opcional, mantido state antigo por compatibilidade se algo usar 'uploading')
+            setUploading(false);
 
             // Limpa input para permitir selecionar o mesmo arquivo novamente
             e.target.value = '';
@@ -818,6 +826,7 @@ export function InsumoDetailsDialog({
                                     )}
                                     <input
                                         type="file"
+                                        multiple
                                         ref={imageInputRef}
                                         className="hidden"
                                         onChange={handleInstantUpload}
