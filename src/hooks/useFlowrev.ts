@@ -730,10 +730,13 @@ export function useManagerStats() {
           return {
             id: prod.slug,
             nome: prod.nome,
+            slug: prod.slug, // Added for linking
             total: 0,
             concluidos: 0,
             percentual: 0,
-            status: 'sem_edicao'
+            status: 'sem_edicao',
+            atrasados: 0,
+            fases: { producao: 0, revisao: 0, ajustes: 0, aprovado: 0 }
           };
         }
 
@@ -741,13 +744,26 @@ export function useManagerStats() {
         const total = insumosEdicao.length;
         const done = insumosEdicao.filter(i => i.status === 'aprovado').length;
 
+        // Detailed metrics
+        const atrasadosCount = insumosEdicao.filter(i => i.status !== 'aprovado' && i.data_limite && i.data_limite < today).length;
+
+        const fases = {
+          producao: insumosEdicao.filter(i => ['nao_iniciado', 'em_preenchimento'].includes(i.status)).length,
+          revisao: insumosEdicao.filter(i => ['enviado', 'em_analise'].includes(i.status)).length,
+          ajustes: insumosEdicao.filter(i => i.status === 'ajuste_solicitado').length,
+          aprovado: done
+        };
+
         return {
           id: prod.slug,
           nome: prod.nome,
+          slug: prod.slug,
           total,
           concluidos: done,
           percentual: total > 0 ? Math.round((done / total) * 100) : 0,
-          status: total > 0 && (done / total) === 1 ? 'concluido' : 'em_andamento'
+          status: total > 0 && (done / total) === 1 ? 'concluido' : 'em_andamento',
+          atrasados: atrasadosCount,
+          fases
         };
       });
 

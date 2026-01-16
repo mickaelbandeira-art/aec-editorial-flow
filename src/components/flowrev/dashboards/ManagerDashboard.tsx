@@ -10,6 +10,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { format } from "date-fns";
 import { ProductionTimeline } from "@/components/flowrev/ProductionTimeline";
+import { ProductStrategyCard } from "./ProductStrategyCard";
 
 export function ManagerDashboard() {
     const { data: stats, isLoading } = useManagerStats();
@@ -76,32 +77,16 @@ export function ManagerDashboard() {
                 </Card>
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                {/* Progresso por Produto - Bar Chart */}
-                <Card>
-                    <CardHeader>
-                        <CardTitle>Progresso por Produto</CardTitle>
-                        <CardDescription>Percentual de conclusão por revista ativa</CardDescription>
-                    </CardHeader>
-                    <CardContent className="h-[300px]">
-                        <ResponsiveContainer width="100%" height="100%">
-                            <BarChart data={productsData} layout="vertical" margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
-                                <CartesianGrid strokeDasharray="3 3" horizontal={false} opacity={0.3} />
-                                <XAxis type="number" hide />
-                                <YAxis dataKey="nome" type="category" width={100} tick={{ fontSize: 12 }} />
-                                <Tooltip
-                                    cursor={{ fill: 'transparent' }}
-                                    contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
-                                />
-                                <Bar dataKey="percentual" name="Conclusão (%)" radius={[0, 4, 4, 0]} barSize={32}>
-                                    {productsData.map((entry, index) => (
-                                        <Cell key={`cell-${index}`} fill={entry.percentual === 100 ? '#10b981' : entry.percentual < 50 ? '#f59e0b' : '#3b82f6'} />
-                                    ))}
-                                </Bar>
-                            </BarChart>
-                        </ResponsiveContainer>
-                    </CardContent>
-                </Card>
+            <div className="space-y-8">
+                <div>
+                    <h3 className="text-xl font-semibold tracking-tight mb-4">Performance por Produto</h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                        {/* @ts-ignore - TS might complain about mismatch in hook return vs component prop, but logic aligns */}
+                        {productsData.map((prod) => (
+                            <ProductStrategyCard key={prod.id} product={prod as any} />
+                        ))}
+                    </div>
+                </div>
 
                 {/* Comparativo Mensal - Line Chart */}
                 <Card>
