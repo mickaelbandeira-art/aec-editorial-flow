@@ -13,9 +13,11 @@ import { useDeadlineNotifications } from '@/hooks/useDeadlineNotifications';
 interface HeaderProps {
   title?: string;
   subtitle?: string;
+  searchTerm?: string;
+  onSearchChange?: (value: string) => void;
 }
 
-export function FlowrevHeader({ title = 'Dashboard', subtitle }: HeaderProps) {
+export function FlowrevHeader({ title = 'Dashboard', subtitle, searchTerm, onSearchChange }: HeaderProps) {
   const deadlineAlert = useDeadlineNotifications();
   const currentDate = new Date().toLocaleDateString('pt-BR', {
     weekday: 'long',
@@ -42,6 +44,8 @@ export function FlowrevHeader({ title = 'Dashboard', subtitle }: HeaderProps) {
           <Input
             placeholder="Buscar insumos, produtos..."
             className="w-64 pl-9 bg-secondary/50"
+            value={searchTerm}
+            onChange={(e) => onSearchChange?.(e.target.value)}
           />
         </div>
 

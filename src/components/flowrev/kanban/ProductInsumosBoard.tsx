@@ -24,6 +24,7 @@ import { cn } from "@/lib/utils";
 interface ProductInsumosBoardProps {
     insumos: Insumo[];
     edicaoId?: string;
+    searchTerm?: string;
 }
 
 const COLUMNS: { id: InsumoStatus, title: string }[] = [
@@ -35,7 +36,7 @@ const COLUMNS: { id: InsumoStatus, title: string }[] = [
     { id: 'aprovado', title: 'Aprovado' },
 ];
 
-export function ProductInsumosBoard({ insumos, edicaoId }: ProductInsumosBoardProps) {
+export function ProductInsumosBoard({ insumos, edicaoId, searchTerm = '' }: ProductInsumosBoardProps) {
     const { mutate: updateStatus } = useUpdateInsumoStatus();
     const { mutate: updateContent } = useUpdateInsumoContent();
     const { mutate: updateInsumo } = useUpdateInsumo();
@@ -45,9 +46,6 @@ export function ProductInsumosBoard({ insumos, edicaoId }: ProductInsumosBoardPr
     const [isDialogOpen, setIsDialogOpen] = useState(false);
     const [viewMode, setViewMode] = useState<'board' | 'calendar'>('board');
     const [activeMobileColumn, setActiveMobileColumn] = useState<InsumoStatus>('nao_iniciado');
-
-
-    const [searchTerm, setSearchTerm] = useState('');
 
     const filteredInsumos = insumos.filter(i => {
         const term = searchTerm.toLowerCase();

@@ -47,6 +47,8 @@ export default function ProductPage() {
 
     const isLoading = loadingEdicao || loadingInsumos;
 
+    const [searchTerm, setSearchTerm] = useState("");
+
     const handleCreateEdicao = () => {
         const now = new Date();
         createEdicao({
@@ -85,6 +87,8 @@ export default function ProductPage() {
             <FlowrevHeader
                 title={produto.nome}
                 subtitle={edicao ? `Edição de ${edicao.mes}/${edicao.ano}` : "Nenhuma edição ativa"}
+                searchTerm={searchTerm}
+                onSearchChange={setSearchTerm}
             />
 
             <div className="p-6 h-[calc(100vh-5rem)] flex flex-col">
@@ -142,7 +146,7 @@ export default function ProductPage() {
                                     {/* Using Board component but rendered for 'Lista' tab. 
                                         User asked to remove "Board (Kanban)" button, implying they want the 'Lista' view 
                                         which in the screenshot is the board logic. */}
-                                    <ProductInsumosBoard insumos={insumos || []} edicaoId={edicao.id} />
+                                    <ProductInsumosBoard insumos={insumos || []} edicaoId={edicao.id} searchTerm={searchTerm} />
                                 </Card>
                             </TabsContent>
                         </>
