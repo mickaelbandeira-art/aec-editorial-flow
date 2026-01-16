@@ -1,11 +1,9 @@
-
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import {
     Dialog,
     DialogContent,
     DialogTitle,
-    DialogDescription,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -24,16 +22,11 @@ import {
     Heading2,
     Image as ImageIcon,
     FileText,
-    Download,
     Trash2,
     X,
-    Clock,
     Loader2,
-    UploadCloud,
-    Calendar as CalendarIcon
 } from "lucide-react";
 import { format } from "date-fns";
-import { ptBR } from "date-fns/locale";
 import { Calendar } from "@/components/ui/calendar";
 import {
     Popover,
@@ -65,6 +58,7 @@ interface InsumoDetailsDialogProps {
     onSave: (insumo: Partial<Insumo>) => Promise<void> | void;
 }
 
+// --- EDITOR PROFISSIONAL CORRIGIDO ---
 const TiptapEditor = ({ content, onChange, editable = true }: { content: string, onChange?: (html: string) => void, editable?: boolean }) => {
     const editor = useEditor({
         extensions: [
@@ -74,6 +68,7 @@ const TiptapEditor = ({ content, onChange, editable = true }: { content: string,
         content: content || '<p>Comece a escrever...</p>',
         editable: editable,
         onUpdate: ({ editor }) => {
+            // Só notifica o pai se houver mudança real feita pelo usuário
             onChange?.(editor.getHTML());
         },
         editorProps: {
@@ -83,9 +78,19 @@ const TiptapEditor = ({ content, onChange, editable = true }: { content: string,
         },
     });
 
-    React.useEffect(() => {
-        if (editor && content !== editor.getHTML()) {
-            editor.commands.setContent(content || '');
+    // CORREÇÃO: Sincronização de Estado Robusta
+    // Isso garante que se o texto chegar atrasado do backend, o editor atualiza.
+    useEffect(() => {
+        if (editor && content) {
+            const currentContent = editor.getHTML();
+            // Evita loops e atualizações desnecessárias
+            // Verifica se o conteúdo é diferente antes de forçar a atualização
+            if (content !== currentContent) {
+                // Se o conteúdo for drasticamente diferente (ex: carregou do banco), atualiza.
+                // Nota: Em colaboração real-time avançada (Socket.io), precisaria de lógica de cursor, 
+                // mas para este caso, isso resolve o "abrir duas vezes".
+                editor.commands.setContent(content);
+            }
         }
     }, [content, editor]);
 
@@ -164,22 +169,31 @@ export function InsumoDetailsDialog({
     onSave,
 }: InsumoDetailsDialogProps) {
     const [status, setStatus] = useState<InsumoStatus>('nao_iniciado');
-    // 1. Cria uma "memória" para o texto da descrição
     const [descricaoTexto, setDescricaoTexto] = useState('');
     const [salvando, setSalvando] = useState(false);
     const [obs, setObs] = useState('');
     const [dataLimite, setDataLimite] = useState<Date | undefined>(undefined);
     const [showChecklist, setShowChecklist] = useState(false);
 
-    // Sync state when insumo changes
+    // --- CORREÇÃO DE SYNC DE ESTADO ---
+    // Este useEffect agora "observa" o conteúdo do texto.
+    // Se o insumo for atualizado em background (ex: supervisor enviou), 
+    // o React Query atualiza o prop 'insumo', e este efeito atualiza o estado local.
     React.useEffect(() => {
         if (insumo) {
             setStatus(insumo.status || 'nao_iniciado');
-            setDescricaoTexto(insumo.conteudo_texto || '');
+            setDescricaoTexto(insumo.conteudo_texto || ''); // Atualiza o texto se mudar externamente
             setObs(insumo.observacoes || '');
             setDataLimite(insumo.data_limite ? new Date(insumo.data_limite) : undefined);
         }
-    }, [insumo?.id, isOpen]);
+    }, [
+        insumo?.id,
+        isOpen,
+        insumo?.conteudo_texto, // FUNDAMENTAL: Observa mudanças no texto
+        insumo?.observacoes,
+        insumo?.status,
+        insumo?.data_limite
+    ]);
 
     // Data Fetching for Trello Features
     const { data: allTags } = useTags();
@@ -192,6 +206,7 @@ export function InsumoDetailsDialog({
     const { mutate: removeTag } = useRemoveTag();
     const { mutate: addMember } = useAddMember();
     const { mutate: removeMember } = useRemoveMember();
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { mutate: updateStatus } = useUpdateInsumoStatus();
     const { mutate: deleteInsumo, isPending: deleting } = useDeleteInsumo();
     const { mutate: duplicateInsumo, isPending: duplicating } = useDuplicateInsumo();
@@ -201,8 +216,11 @@ export function InsumoDetailsDialog({
     const imageInputRef = useRef<HTMLInputElement>(null);
 
     // Upload state
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const [uploading, setUploading] = useState(false);
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const [imageCaption, setImageCaption] = useState("");
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const [imageFile, setImageFile] = useState<File | null>(null);
     const [optimisticAnexos, setOptimisticAnexos] = useState<{ id: string, nome_arquivo: string, loading: boolean, tipo: 'imagem' | 'pdf' }[]>([]);
 
@@ -210,29 +228,6 @@ export function InsumoDetailsDialog({
     const [isCreatingTag, setIsCreatingTag] = useState(false);
     const [newTagName, setNewTagName] = useState('');
     const [newTagColor, setNewTagColor] = useState('#3b82f6');
-
-    // Permission Logic
-    const getAvailableStatuses = () => {
-        const allStatuses: { value: InsumoStatus, label: string }[] = [
-            { value: 'nao_iniciado', label: 'Não Iniciado' },
-            { value: 'em_preenchimento', label: 'Em Preenchimento' },
-            { value: 'enviado', label: 'Enviado' },
-            { value: 'em_analise', label: 'Em Análise' },
-            { value: 'ajuste_solicitado', label: 'Ajuste Solicitado' },
-            { value: 'aprovado', label: 'Aprovado' },
-        ];
-
-        if (!user) return allStatuses;
-        if (user.role === 'supervisor' || user.role === 'analista_pleno') {
-            return allStatuses.filter(s => ['nao_iniciado', 'em_preenchimento', 'enviado'].includes(s.value));
-        }
-        if (user.role === 'analista') {
-            return allStatuses.filter(s => ['enviado', 'em_analise', 'ajuste_solicitado', 'aprovado'].includes(s.value));
-        }
-        return allStatuses;
-    };
-
-    const availableStatuses = getAvailableStatuses();
 
     if (!insumo) return null;
 
@@ -246,7 +241,7 @@ export function InsumoDetailsDialog({
                 observacoes: obs,
                 data_limite: dataLimite ? dataLimite.toISOString() : null,
             });
-            // Toast handled by parent or here if needed, but parent handles logic
+            toast.success("Informações salvas com sucesso!");
         } catch (error) {
             console.error("Erro ao salvar:", error);
             toast.error("Erro ao salvar. Verifique sua conexão.");
@@ -286,10 +281,7 @@ export function InsumoDetailsDialog({
             data_limite: dataLimite ? dataLimite.toISOString() : null,
         });
 
-        // Otimisticamente, atualiza o status local para feedback visual imediato
         setStatus(newStatus);
-
-        // Mensagem de sucesso genérica (o onSave do pai fará o toast real)
         toast.info(`Movendo para ${STATUS_LABELS[newStatus]}...`);
     };
 
@@ -324,33 +316,26 @@ export function InsumoDetailsDialog({
                 const isImage = file.type.startsWith('image/');
                 const tipo = isImage ? 'imagem' : 'pdf';
 
-                // 1. UI Otimista (Instantâneo)
                 setOptimisticAnexos(prev => [...prev, { id: tempId, nome_arquivo: file.name, loading: true, tipo }]);
 
-                // 2. Upload Assíncrono
                 uploadFile({
                     insumoId: insumo.id,
                     file,
                     tipo,
-                    legenda: file.name // Usa nome do arquivo como legenda padrão para ser instantâneo
+                    legenda: file.name
                 }, {
                     onSuccess: () => {
                         toast.success(`Arquivo ${file.name} enviado!`);
-                        // Remove item temporário (o real virá pelo refresh do React Query)
                         setOptimisticAnexos(prev => prev.filter(a => a.id !== tempId));
                     },
                     onError: (error) => {
                         console.error("Upload error:", error);
                         toast.error(`Erro ao enviar ${file.name}.`);
-                        // Remove item temporário em falha também
                         setOptimisticAnexos(prev => prev.filter(a => a.id !== tempId));
                     }
                 });
             });
-            // Finaliza loading state se fosse unico (opcional, mantido state antigo por compatibilidade se algo usar 'uploading')
             setUploading(false);
-
-            // Limpa input para permitir selecionar o mesmo arquivo novamente
             e.target.value = '';
         }
     };
@@ -518,18 +503,7 @@ export function InsumoDetailsDialog({
                                                         onChange={(e) => {
                                                             const newChecklist = [...(insumo.checklist || [])];
                                                             newChecklist[index] = { ...item, text: e.target.value };
-                                                            // For text updates, we might want to debounce or save on blur, 
-                                                            // but for now saving on every change for simplicity, 
-                                                            // OR better: save on blur to avoid excessive reqs.
-                                                            // Actually, let's use onBlur for the save, and local state for input?
-                                                            // To keep it simple and responsive, I'll update local Reference or just let onSave handle it (might be laggy).
-                                                            // Let's rely on onSave being fast enough or maybe just update on Blur.
-                                                            // Implementing SAVE ON BLUR for text.
-
-                                                            // Wait, onSave in props is void.
-                                                            // I can't use local state easily without refactoring the whole list.
-                                                            // I will enable 'onSave' usage here.
-                                                            // Actually, I recommend just updating `onSave` only when Blur or Enter.
+                                                            // For realtime feel we update local but usually sync on blur
                                                         }}
                                                         onBlur={(e) => {
                                                             const newChecklist = [...(insumo.checklist || [])];
@@ -568,8 +542,6 @@ export function InsumoDetailsDialog({
                                 </div>
                             )}
 
-                            {/* ... Attachments & Activity (Same as before) ... */}
-                            {/* Attachments moved to Sidebar as per User Request */}
                             {/* Activity Section */}
                             <div className="space-y-3">
                                 <div className="flex items-center gap-3">
@@ -718,7 +690,7 @@ export function InsumoDetailsDialog({
                                                                 e.preventDefault();
                                                                 e.stopPropagation();
 
-                                                                const finalName = newTagName.trim() || "Nova Etiqueta"; // Fallback safe
+                                                                const finalName = newTagName.trim() || "Nova Etiqueta";
 
                                                                 createTag({ nome: finalName, cor: newTagColor }, {
                                                                     onSuccess: (newTag) => {
@@ -726,7 +698,6 @@ export function InsumoDetailsDialog({
                                                                         setIsCreatingTag(false);
                                                                         setNewTagName("");
                                                                         setNewTagColor('#3b82f6');
-                                                                        // Auto-select the newly created tag
                                                                         if (newTag?.id) {
                                                                             addTag({ insumoId: insumo.id, tagId: newTag.id });
                                                                         }
@@ -891,6 +862,3 @@ export function InsumoDetailsDialog({
         </Dialog >
     );
 }
-
-// Re-export specific icons if needed elsewhere in the file (not needed here but good practice)
-
