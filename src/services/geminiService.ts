@@ -1,10 +1,10 @@
 
 export const geminiService = {
     async generateContent(prompt: string): Promise<string | null> {
-        const apiKey = process.env.API_KEY;
+        const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
 
         if (!apiKey) {
-            console.error("API Key not found in process.env.API_KEY");
+            console.error("API Key not found in import.meta.env.VITE_GEMINI_API_KEY");
             throw new Error("API Key not configuration. Check .env and vite.config.ts");
         }
 
