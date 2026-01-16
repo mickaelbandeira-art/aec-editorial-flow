@@ -750,7 +750,7 @@ export function InsumoDetailsDialog({
                                         <Calendar
                                             mode="single"
                                             selected={dataLimite}
-                                            onSelect={setDataLimite}
+                                            onSelect={(date) => setDataLimite(date)}
                                         />
                                         <div className="p-2 border-t border-slate-100 bg-slate-50 flex justify-end">
                                             <Button size="sm" onClick={handleSalvarDescricao} className="h-7 text-xs">Confirmar</Button>
