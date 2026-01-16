@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Plus, RefreshCw, Loader2, Lock } from "lucide-react";
 import { toast } from "sonner";
 import { DeadlineAlert } from "@/components/flowrev/DeadlineAlert";
+import { ClearInsumosBtn } from "@/components/flowrev/ClearInsumosBtn";
 
 export default function ProductPage() {
     const { slug } = useParams();
@@ -118,6 +119,9 @@ export default function ProductPage() {
                         )}
 
                         {/* 'Gerar Insumos Faltantes' button removed per user request */}
+                        {edicao && canManage && (
+                            <ClearInsumosBtn edicaoId={edicao.id} variant="outline" />
+                        )}
                     </div>
 
                     {isLoading || creatingEdicao ? (
