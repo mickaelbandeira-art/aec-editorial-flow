@@ -188,16 +188,7 @@ export function ProductInsumosBoard({ insumos, edicaoId, searchTerm = '' }: Prod
     return (
         <div className="h-full flex flex-col">
             <div className="flex justify-between items-center px-4 pb-2">
-                <div className="search-wrapper">
-                    <span className="search-icon">🔍</span>
-                    <input
-                        type="text"
-                        id="input-pesquisa"
-                        placeholder="Pesquisar cartões..."
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                    />
-                </div>
+
 
                 <div className="flex items-center bg-slate-100 p-1 rounded-lg border border-slate-200">
                     <Button
