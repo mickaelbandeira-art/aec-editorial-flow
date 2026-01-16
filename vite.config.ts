@@ -13,7 +13,7 @@ export default defineConfig(({ mode }) => {
     },
     define: {
       "process.env.NODE_ENV": JSON.stringify(mode),
-      "process.env.API_KEY": JSON.stringify(env.GEMINI_API_KEY || env.VITE_GEMINI_API_KEY),
+      "process.env.API_KEY": JSON.stringify(env.GEMINI_API_KEY || env.VITE_GEMINI_API_KEY || ""),
     },
     plugins: [react(), mode === "development" && componentTagger()].filter(Boolean),
     resolve: {
