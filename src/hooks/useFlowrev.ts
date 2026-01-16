@@ -723,7 +723,7 @@ export function useManagerStats() {
       const atrasados = insumosAtual?.filter(i => i.status !== 'aprovado' && i.data_limite && i.data_limite < today) || [];
 
       // 3. Product Progress - Map over ALL Active Products
-      const progressoPorProduto = allProducts.map(prod => {
+      const progressoPorProduto = (allProducts || []).map(prod => {
         const edicao = edicoesAtual?.find(e => e.produto_id === prod.id);
 
         if (!edicao) {

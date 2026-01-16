@@ -25,6 +25,7 @@ import {
     Trash2,
     X,
     Loader2,
+    Wand2,
 } from "lucide-react";
 import { format } from "date-fns";
 import { Calendar } from "@/components/ui/calendar";
@@ -50,6 +51,7 @@ import {
 } from "@/hooks/useFlowrev";
 import { toast } from "sonner";
 import { usePermissions } from "@/hooks/usePermission";
+import { useGemini } from "@/hooks/useGemini";
 
 interface InsumoDetailsDialogProps {
     isOpen: boolean;
@@ -94,6 +96,24 @@ const TiptapEditor = ({ content, onChange, editable = true }: { content: string,
         }
     }, [content, editor]);
 
+    const { fixGrammar, isLoading: isAiLoading } = useGemini();
+
+    const handleAiFix = async () => {
+        if (!editor) return;
+        const text = editor.getHTML();
+
+        // Basic validation
+        if (!text || text === '<p></p>' || text.trim() === '') {
+            toast.error("Escreva algo para a IA revisar.");
+            return;
+        }
+
+        const corrected = await fixGrammar(text);
+        if (corrected) {
+            editor.commands.setContent(corrected);
+        }
+    };
+
     if (!editor) {
         return null;
     }
@@ -133,6 +153,19 @@ const TiptapEditor = ({ content, onChange, editable = true }: { content: string,
                         <Underline className="h-4 w-4" />
                     </Button>
 
+                    <div className="w-px h-6 bg-slate-300 mx-1"></div>
+
+                    <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={handleAiFix}
+                        disabled={isAiLoading}
+                        className="text-purple-600 hover:text-purple-700 hover:bg-purple-50 gap-2"
+                        title="Revisar com IA"
+                    >
+                        {isAiLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Wand2 className="h-4 w-4" />}
+                        <span className="text-xs font-semibold">Revisar IA</span>
+                    </Button>
                     <div className="w-px h-6 bg-slate-300 mx-1"></div>
 
                     <Button
