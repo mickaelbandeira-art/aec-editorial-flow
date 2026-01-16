@@ -67,7 +67,7 @@ export function usePermissions() {
                 return ['supervisor', 'analista_pleno', 'coordenador', 'gerente'].includes(user.role);
 
             case 'upload':
-                return ['supervisor', 'analista_pleno', 'coordenador', 'gerente'].includes(user.role);
+                return ['supervisor', 'analista_pleno', 'coordenador', 'gerente', 'analista'].includes(user.role);
 
             case 'manage_flow': // Create Edition, Sync
                 return ['supervisor', 'analista_pleno', 'coordenador', 'gerente'].includes(user.role);
