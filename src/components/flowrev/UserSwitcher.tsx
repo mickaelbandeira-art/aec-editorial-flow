@@ -16,6 +16,7 @@ export function UserSwitcher() {
 
     const users = [
         { name: 'Maria Clara (Sup. Claro)', email: 'a.maria.clara@aec.com.br' },
+        { name: 'Silvia (Sup. Claro)', email: 'silvia.silvia@aec.com.br' },
         { name: 'Mariana Veras (Sup. iFood)', email: 'a.mariana.veras@if-aec.com.br' },
         { name: 'Yara Silva (Analista Pleno)', email: 'a.yara.ssilva@aec.com.br' },
         { name: 'Mickael (Analista Claro)', email: 'mickael.bandeira@aec.com.br' },

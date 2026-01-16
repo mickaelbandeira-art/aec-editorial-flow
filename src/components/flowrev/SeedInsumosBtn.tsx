@@ -107,6 +107,7 @@ export function SeedInsumosBtn() {
             const USERS_TO_SEED = [
                 { email: "gracyelle.azarias@aec.com.br", nome: "Gracyelle Azarias", role: "analista", matricula: "90001" },
                 { email: "a.mariana.veras@aec.com.br", nome: "Mariana Veras", role: "supervisor", matricula: "90002" },
+                { email: "silvia.silvia@aec.com.br", nome: "Silvia", role: "supervisor", matricula: "368774" },
                 { email: "a.yara.ssilva@aec.com.br", nome: "Yara Silva", role: "analista_pleno", matricula: "90003" },
                 { email: "jonathan.silva@aec.com.br", nome: "Jonathan Silva", role: "gerente", matricula: "90004" },
                 { email: "a.izaura.bezerra@aec.com.br", nome: "Izaura Bezerra", role: "coordenador", matricula: "90005" }
