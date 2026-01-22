@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useParams, Navigate } from "react-router-dom";
 import { FlowrevHeader } from "@/components/flowrev/Header";
-import { useProdutos, useEdicaoAtual, useInsumos, useCreateEdicao, useSyncInsumos } from "@/hooks/useFlowrev";
+import { useProdutos, useEdicaoAtual, useInsumos, useCreateEdicao } from "@/hooks/useFlowrev";
 import { usePermissions } from "@/hooks/usePermission";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card } from "@/components/ui/card";
@@ -25,7 +25,7 @@ export default function ProductPage() {
 
     // Mutations
     const { mutate: createEdicao, isPending: creatingEdicao } = useCreateEdicao();
-    const { mutate: syncInsumos, isPending: syncingInsumos } = useSyncInsumos();
+
 
     const hasAccess = produto && canAccessProduct(produto.slug);
     const canManage = canPerformAction('manage_flow');
@@ -69,21 +69,7 @@ export default function ProductPage() {
         });
     };
 
-    const handleSyncInsumos = () => {
-        if (!edicao) return;
-        syncInsumos(edicao.id, {
-            onSuccess: (data) => {
-                if (data.count > 0) {
-                    toast.success(`${data.count} insumos sincronizados/criados!`);
-                } else {
-                    toast.info("Todos os insumos já estão sincronizados.");
-                }
-            },
-            onError: () => {
-                toast.error("Erro ao sincronizar insumos.");
-            }
-        });
-    };
+
 
     return (
         <div className="min-h-screen bg-background">

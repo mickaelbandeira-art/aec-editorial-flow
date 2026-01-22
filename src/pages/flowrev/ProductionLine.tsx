@@ -1,6 +1,6 @@
 import { useState, useMemo } from "react";
 import { ProductInsumosBoard } from "@/components/flowrev/kanban/ProductInsumosBoard";
-import { useDashboardStats, useProdutos, useCreateEdicao, useSyncInsumos, useAllInsumos } from "@/hooks/useFlowrev";
+import { useDashboardStats, useProdutos, useCreateEdicao, useAllInsumos } from "@/hooks/useFlowrev";
 import { usePermissions } from "@/hooks/usePermission";
 import { Loader2, Plus, RefreshCw, Lock } from "lucide-react";
 import { Insumo } from "@/types/flowrev";
@@ -18,7 +18,7 @@ export default function ProductionLine() {
 
     // Actions
     const { mutate: createEdicao, isPending: creatingEdicao } = useCreateEdicao();
-    const { mutate: syncInsumos, isPending: syncingInsumos } = useSyncInsumos();
+
 
     const handleCreateEdicao = (produtoId: string) => {
         const now = new Date();
@@ -35,15 +35,7 @@ export default function ProductionLine() {
         });
     };
 
-    const handleSyncInsumos = (edicaoId: string) => {
-        syncInsumos(edicaoId, {
-            onSuccess: (data) => {
-                toast.success(`${data.count} insumos sincronizados/criados!`);
-                refetch();
-            },
-            onError: () => toast.error("Erro ao sincronizar insumos.")
-        });
-    };
+
 
     // Filter products based on permissions
     const filteredProdutos = useMemo(() => {
@@ -138,12 +130,7 @@ export default function ProductionLine() {
                                                 Iniciar Edição para {produto.nome}
                                             </Button>
                                         )}
-                                        {hasEdicao && !hasInsumos && (
-                                            <Button variant="outline" onClick={() => handleSyncInsumos(edicao.id)} disabled={syncingInsumos}>
-                                                {syncingInsumos ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <RefreshCw className="mr-2 h-4 w-4" />}
-                                                Gerar Insumos Faltantes
-                                            </Button>
-                                        )}
+
                                     </div>
 
                                     <div className="h-full rounded-md border border-dashed border-border bg-card/50">

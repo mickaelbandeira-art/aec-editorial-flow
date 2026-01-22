@@ -193,7 +193,7 @@ export function FlowrevSidebar({ isOpen, onClose, collapsed, setCollapsed }: Flo
                         )}
                       >
                         <img
-                          src={logoMap[produto.slug]}
+                          src={produto.logo_url || logoMap[produto.slug]}
                           alt={produto.nome}
                           className="h-5 w-5 rounded object-contain grayscale opacity-70 group-hover:grayscale-0 group-hover:opacity-100 transition-all"
                         />
@@ -215,7 +215,7 @@ export function FlowrevSidebar({ isOpen, onClose, collapsed, setCollapsed }: Flo
                     className="flex justify-center group relative"
                   >
                     <img
-                      src={logoMap[produto.slug]}
+                      src={produto.logo_url || logoMap[produto.slug]}
                       alt={produto.nome}
                       className="h-9 w-9 rounded-lg object-contain bg-white p-1.5 shadow-sm ring-1 ring-slate-100 group-hover:ring-primary group-hover:scale-105 transition-all"
                     />
