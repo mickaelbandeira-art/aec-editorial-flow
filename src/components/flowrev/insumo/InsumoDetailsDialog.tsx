@@ -83,7 +83,7 @@ const TiptapEditor = ({ content, onChange, editable = true }: { content: string,
     // CORREÇÃO: Sincronização de Estado Robusta
     // Isso garante que se o texto chegar atrasado do backend, o editor atualiza.
     useEffect(() => {
-        if (editor && content) {
+        if (editor && content !== undefined) {
             const currentContent = editor.getHTML();
             // Evita loops e atualizações desnecessárias
             // Verifica se o conteúdo é diferente antes de forçar a atualização

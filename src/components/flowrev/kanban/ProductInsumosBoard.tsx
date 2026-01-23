@@ -89,6 +89,15 @@ export function ProductInsumosBoard({ insumos, edicaoId, searchTerm = '' }: Prod
 
         if (!activeInsumo || !newStatus || activeInsumo.status === newStatus) return;
 
+        // VALIDATION: Prevent moving empty cards to advanced stages
+        // The card must have "written content" to proceed beyond 'em_preenchimento'
+        if (['enviado', 'em_analise', 'ajuste_solicitado', 'aprovado'].includes(newStatus)) {
+            if (!activeInsumo.conteudo_texto || !activeInsumo.conteudo_texto.trim()) {
+                toast.error("O card não possui conteúdo escrito. Preencha antes de avançar.");
+                return;
+            }
+        }
+
         // PERMISSION CHECK FOR DRAG
         // Bypass for Mickael
         if (user && user.email !== 'mickael.bandeira@aec.com.br') {
@@ -100,8 +109,8 @@ export function ProductInsumosBoard({ insumos, edicaoId, searchTerm = '' }: Prod
                 }
             }
             if (user.role === 'analista') {
-                // Analistas can only move TO: em_analise, ajuste_solicitado, aprovado
-                if (!['em_analise', 'ajuste_solicitado', 'aprovado'].includes(newStatus)) {
+                // Analistas can only move TO: enviado, em_analise, ajuste_solicitado, aprovado
+                if (!['enviado', 'em_analise', 'ajuste_solicitado', 'aprovado'].includes(newStatus)) {
                     toast.error("Você não tem permissão para mover para este status.");
                     return;
                 }

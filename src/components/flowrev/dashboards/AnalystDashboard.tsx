@@ -282,6 +282,11 @@ export function AnalystDashboard() {
                                                 <MessageSquare className="h-3 w-3" /> {insumo.observacoes}
                                             </span>
                                         )}
+                                        {insumo.status === 'ajuste_solicitado' && insumo.motivo_ajuste && (
+                                            <span className="text-xs text-amber-600 font-medium truncate max-w-[250px] flex items-center gap-1 mt-1 bg-amber-50 px-1 rounded border border-amber-200">
+                                                <AlertCircle className="h-3 w-3" /> {insumo.motivo_ajuste}
+                                            </span>
+                                        )}
                                     </div>
                                 </TableCell>
                                 <TableCell>
