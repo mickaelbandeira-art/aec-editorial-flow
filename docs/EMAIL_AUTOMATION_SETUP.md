@@ -40,9 +40,14 @@ Se tiver o CLI instalado:
 
 Para que o e-mail seja enviado automaticamente todo dia de manhã:
 
-1.  Acesse o **Dashboard do Supabase**.
-2.  Vá em **Integrations** ou **Database** > **Extensions** e ative `pg_cron`.
-3.  Vá em **SQL Editor** e execute (ajuste o nome da função se necessário):
+3.  Vá em **SQL Editor** e execute **primeiro este comando** para ativar as extensões necessárias:
+
+```sql
+create extension if not exists pg_cron;
+create extension if not exists pg_net;
+```
+
+4.  Em seguida, execute o comando de agendamento (ajuste o nome da função se necessário):
 
 ```sql
 select
