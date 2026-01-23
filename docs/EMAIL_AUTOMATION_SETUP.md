@@ -30,8 +30,8 @@ Se tiver o CLI instalado:
 
 1.  Acesse o **Dashboard do Supabase** > **Edge Functions**.
 2.  Clique em **Create a new Function**.
-3.  Nome: `check-deadlines`.
-4.  Cole o código do arquivo `supabase/functions/check-deadlines/index.ts`.
+3.  Nome: `resend-email` (ou `check-deadlines`).
+4.  Cole o código do arquivo `supabase/functions/check-deadlines/index.ts` (substituindo o exemplo padrão).
 5.  Salve e faça o Deploy.
 
 > A flag `--no-verify-jwt` é usada se você quiser chamar essa função via CRON ou publicamente sem token de usuário (opcional, mas comum para cron jobs internos). Se usar o agendador do Supabase, ele tem permissão.
@@ -42,7 +42,7 @@ Para que o e-mail seja enviado automaticamente todo dia de manhã:
 
 1.  Acesse o **Dashboard do Supabase**.
 2.  Vá em **Integrations** ou **Database** > **Extensions** e ative `pg_cron`.
-3.  Vá em **SQL Editor** e execute:
+3.  Vá em **SQL Editor** e execute (ajuste o nome da função se necessário):
 
 ```sql
 select
@@ -52,7 +52,7 @@ select
     $$
     select
       net.http_post(
-          url:='https://<PROJECT_REF>.supabase.co/functions/v1/check-deadlines',
+          url:='https://<PROJECT_REF>.supabase.co/functions/v1/resend-email',
           headers:='{"Content-Type": "application/json", "Authorization": "Bearer <ANON_KEY>"}'::jsonb,
           body:='{}'::jsonb
       ) as request_id;
@@ -61,13 +61,14 @@ select
 ```
 
 *Substitua `<PROJECT_REF>` e `<ANON_KEY>` pelos valores do seu projeto.*
+*Nota: Se você nomeou a função de `check-deadlines`, ajuste a URL acima.*
 
 ### 4. Teste Manual
 
 Você pode testar a função via curl:
 
 ```bash
-curl -i --location --request POST 'https://<PROJECT_REF>.supabase.co/functions/v1/check-deadlines' \
+curl -i --location --request POST 'https://<PROJECT_REF>.supabase.co/functions/v1/resend-email' \
   --header 'Authorization: Bearer <ANON_KEY>'
 ```
 
