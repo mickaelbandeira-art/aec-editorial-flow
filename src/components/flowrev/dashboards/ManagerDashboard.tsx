@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Loader2, TrendingUp, AlertTriangle, CheckCircle2, Clock, Package } from "lucide-react";
 import {
     BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
-    LineChart, Line, Legend, Cell
+    LineChart, Line, Legend, Cell, PieChart, Pie
 } from "recharts";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -88,27 +88,90 @@ export function ManagerDashboard() {
                     </div>
                 </div>
 
-                {/* Comparativo Mensal - Line Chart */}
-                <Card>
-                    <CardHeader>
-                        <CardTitle>Evolução Mensal</CardTitle>
-                        <CardDescription>Histórico de entregas nos últimos meses</CardDescription>
-                    </CardHeader>
-                    <CardContent className="h-[300px]">
-                        <ResponsiveContainer width="100%" height="100%">
-                            <LineChart data={monthlyData}>
-                                <CartesianGrid strokeDasharray="3 3" opacity={0.3} />
-                                <XAxis dataKey="name" />
-                                <YAxis />
-                                <Tooltip
-                                    contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
-                                />
-                                <Legend />
-                                <Line type="monotone" dataKey="progresso" name="Média de Conclusão (%)" stroke="#8884d8" strokeWidth={3} activeDot={{ r: 8 }} />
-                            </LineChart>
-                        </ResponsiveContainer>
-                    </CardContent>
-                </Card>
+                {/* Charts Grid */}
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    {/* Status Distribution - Donut Chart */}
+                    <Card>
+                        <CardHeader>
+                            <CardTitle>Distribuição por Fase</CardTitle>
+                            <CardDescription>Visão geral do pipeline de produção</CardDescription>
+                        </CardHeader>
+                        <CardContent className="h-[300px] flex items-center justify-center">
+                            <ResponsiveContainer width="100%" height="100%">
+                                <PieChart>
+                                    <Pie
+                                        data={stats?.dadosFaseChart || []}
+                                        cx="50%"
+                                        cy="50%"
+                                        innerRadius={60}
+                                        outerRadius={90}
+                                        paddingAngle={5}
+                                        dataKey="value"
+                                    >
+                                        {(stats?.dadosFaseChart || []).map((entry: any, index: number) => {
+                                            let color = '#94a3b8'; // default slate-400
+                                            if (entry.name === 'Finalizado') color = '#10b981'; // emerald-500
+                                            if (entry.name === 'Produção') color = '#3b82f6'; // blue-500
+                                            if (entry.name === 'Revisão') color = '#f59e0b'; // amber-500
+                                            if (entry.name === 'Ajustes') color = '#ef4444'; // red-500
+                                            if (entry.name === 'Kickoff') color = '#64748b'; // slate-500
+
+                                            return <Cell key={`cell-${index}`} fill={color} strokeWidth={0} />;
+                                        })}
+                                    </Pie>
+                                    <Tooltip
+                                        contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
+                                        formatter={(value: number, name: string) => [`${value} Insumos`, name]}
+                                    />
+                                    <Legend verticalAlign="bottom" height={36} iconType="circle" />
+                                </PieChart>
+                            </ResponsiveContainer>
+                        </CardContent>
+                    </Card>
+
+                    {/* Comparativo Mensal - Line Chart */}
+                    <Card>
+                        <CardHeader>
+                            <CardTitle>Evolução Mensal</CardTitle>
+                            <CardDescription>Histórico de entregas nos últimos meses</CardDescription>
+                        </CardHeader>
+                        <CardContent className="h-[300px]">
+                            <ResponsiveContainer width="100%" height="100%">
+                                <LineChart data={monthlyData} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
+                                    <CartesianGrid strokeDasharray="3 3" opacity={0.3} vertical={false} />
+                                    <XAxis
+                                        dataKey="name"
+                                        axisLine={false}
+                                        tickLine={false}
+                                        tickMargin={10}
+                                        tick={{ fill: '#64748b', fontSize: 12 }}
+                                    />
+                                    <YAxis
+                                        axisLine={false}
+                                        tickLine={false}
+                                        tickMargin={10}
+                                        tick={{ fill: '#64748b', fontSize: 12 }}
+                                        unit="%"
+                                    />
+                                    <Tooltip
+                                        cursor={{ stroke: '#cbd5e1', strokeWidth: 1, strokeDasharray: '4 4' }}
+                                        contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
+                                    />
+                                    <Legend verticalAlign="bottom" height={36} iconType="circle" />
+                                    <Line
+                                        type="monotone"
+                                        dataKey="progresso"
+                                        name="Média de Conclusão"
+                                        stroke="#3b82f6"
+                                        strokeWidth={3}
+                                        dot={{ fill: '#3b82f6', strokeWidth: 2, r: 4, stroke: '#fff' }}
+                                        activeDot={{ r: 7, strokeWidth: 0 }}
+                                    />
+                                </LineChart>
+                            </ResponsiveContainer>
+                        </CardContent>
+                    </Card>
+                </div>
             </div>
 
             {/* Insumos Atrasados/Pendentes */}

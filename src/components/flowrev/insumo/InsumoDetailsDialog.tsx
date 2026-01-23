@@ -384,9 +384,9 @@ export function InsumoDetailsDialog({
 
     return (
         <Dialog open={isOpen} onOpenChange={onOpenChange}>
-            <DialogContent className="max-w-[1000px] w-[90%] h-[90vh] flex flex-col p-0 gap-0 overflow-hidden bg-[#f4f5f7] sm:rounded-lg shadow-2xl border-0 [&>button]:hidden">
+            <DialogContent className="max-w-[1000px] w-full md:w-[90%] h-[100vh] md:h-[90vh] flex flex-col p-0 gap-0 overflow-hidden bg-[#f4f5f7] sm:rounded-lg shadow-2xl border-0 [&>button]:hidden">
                 {/* 1. Header (Banner-like) */}
-                <header className="px-6 py-4 bg-[#f4f5f7] shrink-0">
+                <header className="px-4 md:px-6 py-4 bg-[#f4f5f7] shrink-0">
                     <div className="flex items-start gap-4">
                         <FileText className="mt-1 h-6 w-6 text-slate-700" />
                         <div className="flex-1">
@@ -404,7 +404,7 @@ export function InsumoDetailsDialog({
                 </header>
 
                 {/* 2. Body (Trello Layout) */}
-                <div className="flex-1 overflow-y-auto px-6 pb-6 custom-scrollbar">
+                <div className="flex-1 overflow-y-auto px-4 md:px-6 pb-6 custom-scrollbar">
                     <div className="flex flex-col md:flex-row gap-8">
                         {/* LEFT COLUMN (Main Content) */}
                         <div className="flex-[3] space-y-8">
