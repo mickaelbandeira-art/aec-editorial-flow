@@ -1,4 +1,5 @@
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+// Setup type definitions for built-in Supabase Runtime APIs
+import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
@@ -10,14 +11,7 @@ const corsHeaders = {
     "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-interface EmailNotification {
-    email: string;
-    name: string;
-    subject: string;
-    html: string;
-}
-
-serve(async (req) => {
+Deno.serve(async (req) => {
     if (req.method === "OPTIONS") {
         return new Response("ok", { headers: corsHeaders });
     }
@@ -101,7 +95,7 @@ serve(async (req) => {
                     "Authorization": `Bearer ${RESEND_API_KEY}`,
                 },
                 body: JSON.stringify({
-                    from: "FlowRev Notificações <onboarding@resend.dev>", // Or your verified domain
+                    from: "FlowRev Atrasos <notificacoes@revistasinsumos.site>",
                     to: [user.email],
                     subject: emailSubject,
                     html: emailBody(user.nome || 'Usuário'),
