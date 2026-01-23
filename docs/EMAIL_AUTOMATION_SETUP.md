@@ -9,21 +9,30 @@ Este guia explica como ativar o envio automático de e-mails de prazo usando Sup
 
 ## Passo a Passo
 
-### 1. Configurar Segredos
+### 2. Configurar Segredos
 
-No terminal do seu projeto, execute o comando abaixo substituindo `re_123...` pela sua chave do Resend:
+Você precisará adicionar a chave do Resend como um segredo.
+**Via Dashboard:**
+1.  Vá em **Settings** > **Edge Functions** (ou pesquise por "Secrets").
+2.  Adicione um novo segredo:
+    *   Name: `RESEND_API_KEY`
+    *   Value: `re_cAfJGFee_EWU9XRaBACqcZyWeE1tYzo4J` (sua chave)
 
-```bash
-supabase secrets set RESEND_API_KEY=re_123456789
-```
+### 3. Implantar a Função
 
-### 2. Implantar a Função
+#### Opção A: Via CLI (Recomendado)
 
-Envie a função para o Supabase:
+Se tiver o CLI instalado:
+1.  `supabase secrets set RESEND_API_KEY=re_cAfJGFee_EWU9XRaBACqcZyWeE1tYzo4J`
+2.  `supabase functions deploy check-deadlines --no-verify-jwt`
 
-```bash
-supabase functions deploy check-deadlines --no-verify-jwt
-```
+#### Opção B: Via Dashboard (Sem Instalação)
+
+1.  Acesse o **Dashboard do Supabase** > **Edge Functions**.
+2.  Clique em **Create a new Function**.
+3.  Nome: `check-deadlines`.
+4.  Cole o código do arquivo `supabase/functions/check-deadlines/index.ts`.
+5.  Salve e faça o Deploy.
 
 > A flag `--no-verify-jwt` é usada se você quiser chamar essa função via CRON ou publicamente sem token de usuário (opcional, mas comum para cron jobs internos). Se usar o agendador do Supabase, ele tem permissão.
 
