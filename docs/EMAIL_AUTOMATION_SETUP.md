@@ -57,7 +57,7 @@ select
     $$
     select
       net.http_post(
-          url:='https://<PROJECT_REF>.supabase.co/functions/v1/resend-email',
+          url:='https://fvakqoufkkgdtezedfwy.supabase.co/functions/v1/smart-worker',
           headers:='{"Content-Type": "application/json", "Authorization": "Bearer <ANON_KEY>"}'::jsonb,
           body:='{}'::jsonb
       ) as request_id;
@@ -65,8 +65,8 @@ select
   );
 ```
 
-*Substitua `<PROJECT_REF>` e `<ANON_KEY>` pelos valores do seu projeto.*
-*Nota: Se você nomeou a função de `check-deadlines`, ajuste a URL acima.*
+*Substitua `<ANON_KEY>` pela sua chave pública `anon` que está no seu `.env`.*
+*Nota: A URL deve usar o slug exato da função: `smart-worker`.*
 
 ### 4. Teste Manual
 

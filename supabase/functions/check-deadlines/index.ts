@@ -107,6 +107,9 @@ Deno.serve(async (req) => {
             } else {
                 console.error(`Failed to send to ${user.email}`, await res.text());
             }
+
+            // Rate Limit Protection: Wait 1 second between emails
+            await new Promise(resolve => setTimeout(resolve, 1000));
         }
 
         return new Response(JSON.stringify({
