@@ -379,12 +379,14 @@ export function AnalystDashboard() {
             </Card>
 
             {/* Details Dialog */}
-            <InsumoDetailsDialog
-                isOpen={isDetailsOpen}
-                onOpenChange={setIsDetailsOpen}
-                insumo={selectedInsumo}
-                onSave={() => { }} // Read-only mostly, or handle save if needed
-            />
+            {selectedInsumo && (
+                <InsumoDetailsDialog
+                    isOpen={isDetailsOpen}
+                    onOpenChange={setIsDetailsOpen}
+                    insumo={selectedInsumo}
+                    onSave={() => { }} // Read-only mostly, or handle save if needed
+                />
+            )}
 
             {/* Adjustment Request Dialog */}
             <Dialog open={!!adjustmentInsumo} onOpenChange={(open) => !open && setAdjustmentInsumo(null)}>
