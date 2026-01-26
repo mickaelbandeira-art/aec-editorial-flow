@@ -66,7 +66,7 @@ export function ProductInsumoCard({ insumo, tipo, onClick }: ProductInsumoCardPr
 
                 <div className="flex justify-between items-start gap-2 mb-2">
                     <h3 className="card-title text-[0.95rem] font-medium text-slate-800 leading-tight">
-                        {insumo.titulo || tipo?.nome || "Sem Título"}
+                        <span>{insumo.titulo || tipo?.nome || "Sem Título"}</span>
                     </h3>
                 </div>
 
@@ -93,7 +93,7 @@ export function ProductInsumoCard({ insumo, tipo, onClick }: ProductInsumoCardPr
                         return (
                             <div className={`badge-date ${statusClass}`}>
                                 <Clock className="h-3 w-3" />
-                                <small className="date-text">{format(new Date(insumo.data_limite), "dd MMM", { locale: ptBR })}</small>
+                                <small className="date-text"><span>{format(new Date(insumo.data_limite), "dd MMM", { locale: ptBR })}</span></small>
                             </div>
                         );
                     })()}

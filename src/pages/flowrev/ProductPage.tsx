@@ -17,7 +17,17 @@ export default function ProductPage() {
     const { data: produtos } = useProdutos();
     const { canAccessProduct, canPerformAction, user } = usePermissions();
 
-    const produto = produtos?.find(p => p.slug === slug);
+    const produto = produtos?.find(p => p.slug === slug) || (slug === 'fabrica' ? {
+        id: 'fabrica-fallback-id',
+        created_at: new Date().toISOString(),
+        nome: 'Fábrica de Conteúdos',
+        slug: 'fabrica',
+        ordem: 99,
+        ativo: true,
+        // tipo: 'interno',
+        cor_tema: '#1a1a1a',
+        logo_url: null,
+    } as any : undefined);
 
     // Fetch current edition for this product
     const { data: edicao, isLoading: loadingEdicao } = useEdicaoAtual(produto?.id || "");

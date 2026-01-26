@@ -114,9 +114,9 @@ export function ProductKanbanColumn({ column, items, onItemClick, edicaoId }: Pr
             <CardHeader className="p-3 pb-2 bg-transparent border-none">
                 <div className="flex items-center justify-between">
                     <CardTitle className="text-sm font-bold text-slate-700 flex items-center justify-between w-full">
-                        {column.title}
+                        <span>{column.title}</span>
                         <span className="flex items-center justify-center min-w-[1.25rem] h-5 px-1 rounded-full bg-slate-200 text-slate-600 text-[10px] font-semibold border border-transparent">
-                            {items.length}
+                            <span>{items.length}</span>
                         </span>
                     </CardTitle>
                 </div>
