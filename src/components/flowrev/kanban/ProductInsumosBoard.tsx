@@ -373,12 +373,14 @@ export function ProductInsumosBoard({ insumos, edicaoId, searchTerm = '' }: Prod
                 />
             </div>
 
-            <InsumoDetailsDialog
-                isOpen={isDialogOpen}
-                onOpenChange={setIsDialogOpen}
-                insumo={selectedInsumo}
-                onSave={handleSaveInsumo}
-            />
+            {selectedInsumo && (
+                <InsumoDetailsDialog
+                    isOpen={isDialogOpen}
+                    onOpenChange={setIsDialogOpen}
+                    insumo={selectedInsumo}
+                    onSave={handleSaveInsumo}
+                />
+            )}
         </div>
     );
 }
