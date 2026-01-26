@@ -70,7 +70,7 @@ Deno.serve(async (req) => {
         const emailBody = (nome: string) => `
       <div style="font-family: sans-serif; color: #333;">
         <h2>Olá, ${nome}.</h2>
-        <p>Este é um lembrete automático do FlowRev.</p>
+        <p>Lembrete Automático: Prazo de Insumos (Revistas)</p>
         <div style="background-color: #fff3cd; border: 1px solid #ffeeba; padding: 15px; border-radius: 5px; margin: 20px 0;">
             <h3 style="margin-top: 0; color: #856404;">Prazo de ${targetPhase}</h3>
             <p style="font-size: 16px;">
@@ -95,7 +95,8 @@ Deno.serve(async (req) => {
                     "Authorization": `Bearer ${RESEND_API_KEY}`,
                 },
                 body: JSON.stringify({
-                    from: "FlowRev Atrasos <notificacoes@revistasinsumos.site>",
+                    from: "AeC Editorial Treinamento <notificacoes@revistasinsumos.site>",
+                    reply_to: "mickael.bandeira@aec.com.br",
                     to: [user.email],
                     subject: emailSubject,
                     html: emailBody(user.nome || 'Usuário'),
