@@ -1,5 +1,4 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { GoogleGenerativeAI } from "https://esm.sh/@google/generative-ai@0.1.3";
 
 const corsHeaders = {
     'Access-Control-Allow-Origin': '*',
@@ -17,6 +16,7 @@ serve(async (req) => {
         const apiKey = Deno.env.get('GEMINI_API_KEY');
 
         if (!apiKey) {
+            console.error("Missing GEMINI_API_KEY");
             throw new Error('GEMINI_API_KEY is not set in Edge Function secrets.');
         }
 
@@ -26,14 +26,37 @@ serve(async (req) => {
 
         console.log("Receiving request for Gemini...");
 
-        const genAI = new GoogleGenerativeAI(apiKey);
-        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+        // Use direct REST API to avoid SDK dependency issues in Deno
+        // Using v1beta as per common examples for stability
+        const response = await fetch(
+            `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`,
+            {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    contents: [{ parts: [{ text: prompt }] }],
+                }),
+            }
+        );
 
-        const result = await model.generateContent(prompt);
-        const response = await result.response;
-        const text = response.text();
+        const data = await response.json();
 
-        return new Response(JSON.stringify({ text }), {
+        if (!response.ok) {
+            console.error("Gemini API Error:", data);
+            throw new Error(data.error?.message || 'Error communicating with Gemini API');
+        }
+
+        // Extract text from Gemini response structure
+        const generatedText = data.candidates?.[0]?.content?.parts?.[0]?.text;
+
+        if (!generatedText) {
+            console.error("Unexpected response structure:", data);
+            throw new Error('Invalid response format from Gemini API');
+        }
+
+        return new Response(JSON.stringify({ text: generatedText }), {
             headers: { ...corsHeaders, 'Content-Type': 'application/json' },
             status: 200,
         });
