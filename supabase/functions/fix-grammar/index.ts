@@ -1,33 +1,28 @@
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-
+// Setup CORS headers for browser access
 const corsHeaders = {
     'Access-Control-Allow-Origin': '*',
     'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-};
+}
 
-serve(async (req) => {
+Deno.serve(async (req) => {
     // Handle CORS preflight request
     if (req.method === 'OPTIONS') {
-        return new Response(null, { headers: corsHeaders });
+        return new Response('ok', { headers: corsHeaders })
     }
 
     try {
-        const { prompt } = await req.json();
-        const apiKey = Deno.env.get('GEMINI_API_KEY');
+        const { prompt } = await req.json()
+        const apiKey = Deno.env.get('GEMINI_API_KEY')
 
         if (!apiKey) {
-            console.error("Missing GEMINI_API_KEY");
-            throw new Error('GEMINI_API_KEY is not set in Edge Function secrets.');
+            console.error("Missing GEMINI_API_KEY")
+            return new Response(JSON.stringify({ success: false, error: 'GEMINI_API_KEY is missing via Deno.env.get' }), {
+                headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+                status: 200, // Returning 200 to allow client error parsing
+            })
         }
 
-        if (!prompt) {
-            throw new Error('Prompt is required.');
-        }
-
-        console.log("Receiving request for Gemini...");
-
-        // Use direct REST API to avoid SDK dependency issues in Deno
-        // Using v1beta as per common examples for stability
+        // Call Google Gemini API directly
         const response = await fetch(
             `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`,
             {
@@ -39,33 +34,38 @@ serve(async (req) => {
                     contents: [{ parts: [{ text: prompt }] }],
                 }),
             }
-        );
+        )
 
-        const data = await response.json();
+        const data = await response.json()
 
         if (!response.ok) {
-            console.error("Gemini API Error:", data);
-            throw new Error(data.error?.message || 'Error communicating with Gemini API');
+            const errorMsg = data.error?.message || response.statusText;
+            console.error("Gemini API Error:", errorMsg);
+            return new Response(JSON.stringify({ success: false, error: `Gemini API: ${errorMsg}` }), {
+                headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+                status: 200,
+            })
         }
 
-        // Extract text from Gemini response structure
-        const generatedText = data.candidates?.[0]?.content?.parts?.[0]?.text;
+        const generatedText = data.candidates?.[0]?.content?.parts?.[0]?.text
 
         if (!generatedText) {
-            console.error("Unexpected response structure:", data);
-            throw new Error('Invalid response format from Gemini API');
+            return new Response(JSON.stringify({ success: false, error: 'Invalid response format from Gemini' }), {
+                headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+                status: 200,
+            })
         }
 
-        return new Response(JSON.stringify({ text: generatedText }), {
+        return new Response(JSON.stringify({ success: true, text: generatedText }), {
             headers: { ...corsHeaders, 'Content-Type': 'application/json' },
             status: 200,
-        });
+        })
 
-    } catch (error: any) {
-        console.error("Error in fix-grammar function:", error);
-        return new Response(JSON.stringify({ error: error.message }), {
+    } catch (error) {
+        console.error("Edge Function Critical Error:", error)
+        return new Response(JSON.stringify({ success: false, error: error.message || 'Unknown Error' }), {
             headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-            status: 500,
-        });
+            status: 200,
+        })
     }
-});
+})
