@@ -1,29 +1,30 @@
-import { GoogleGenerativeAI } from "@google/generative-ai";
+import { supabase } from "@/integrations/supabase/client";
 
 export const geminiService = {
     async generateContent(prompt: string): Promise<string | null> {
-        const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
-
-        if (!apiKey) throw new Error("API Key missing");
-
-        const genAI = new GoogleGenerativeAI(apiKey);
-
         try {
-            // 2. ATUALIZAÇÃO: Usamos o gemini-1.5-flash (Versão estável)
-            const model = genAI.getGenerativeModel({
-                model: "gemini-1.5-flash"
+            console.log("Gemini Service: Calling Edge Function 'fix-grammar'...");
+
+            const { data, error } = await supabase.functions.invoke('fix-grammar', {
+                body: { prompt },
             });
 
-            // 3. Execução da chamada conforme a documentação que enviaste
-            const result = await model.generateContent(prompt);
-            const response = await result.response;
+            if (error) {
+                console.error("Supabase Edge Function Error:", error);
+                throw new Error(`Erro na função Edge: ${error.message || error}`);
+            }
 
-            return response.text();
+            if (!data || !data.text) {
+                console.error("Invalid response from Edge Function:", data);
+                throw new Error("Resposta inválida da IA.");
+            }
+
+            return data.text;
+
         } catch (error: any) {
-            console.error("Erro na Chamada da IA:", error);
-            // Include specific error details if available
-            const errorDetail = error?.message || JSON.stringify(error);
-            throw new Error(`Falha na comunicação com o Gemini: ${errorDetail}`);
+            console.error("Gemini Service Error:", error);
+            // Propagate the error so useGemini.ts can handle it
+            throw error;
         }
     },
 };
