@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useParams, Navigate } from "react-router-dom";
 import { FlowrevHeader } from "@/components/flowrev/Header";
-import { useProdutos, useEdicaoAtual, useInsumos, useCreateEdicao } from "@/hooks/useFlowrev";
+import { useProdutos, useEdicoes, useInsumos, useCreateEdicao } from "@/hooks/useFlowrev";
 import { usePermissions } from "@/hooks/usePermission";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card } from "@/components/ui/card";
@@ -29,8 +29,19 @@ export default function ProductPage() {
         logo_url: null,
     } as any : undefined);
 
-    // Fetch current edition for this product
-    const { data: edicao, isLoading: loadingEdicao } = useEdicaoAtual(produto?.id || "");
+    // Fetch all editions for this product
+    const { data: edicoes, isLoading: loadingEdicoes } = useEdicoes(produto?.id || "");
+
+    // Logic to select which edition to show
+    // 1. If we have editions, show the most recent one (first in list due to API sorting)
+    const edicao = edicoes && edicoes.length > 0 ? edicoes[0] : null;
+
+    // Check if the current calendar month has an edition
+    const now = new Date();
+    const currentMonth = now.getMonth() + 1;
+    const currentYear = now.getFullYear();
+    const hasCurrentMonthEdition = edicoes?.some(e => e.mes === currentMonth && e.ano === currentYear);
+
     const { data: insumos, isLoading: loadingInsumos } = useInsumos(edicao?.id);
 
     // Mutations
@@ -58,16 +69,15 @@ export default function ProductPage() {
         return <div className="p-8">Produto não encontrado</div>;
     }
 
-    const isLoading = loadingEdicao || loadingInsumos;
+    const isLoading = loadingEdicoes || loadingInsumos;
 
 
 
     const handleCreateEdicao = () => {
-        const now = new Date();
         createEdicao({
             produtoId: produto.id,
-            mes: now.getMonth() + 1,
-            ano: now.getFullYear()
+            mes: currentMonth,
+            ano: currentYear
         }, {
             onSuccess: () => {
                 toast.success("Edição criada com sucesso!");
@@ -99,7 +109,7 @@ export default function ProductPage() {
                             <TabsTrigger value="list">Lista</TabsTrigger>
                         </TabsList>
 
-                        {!edicao && !isLoading && canManage && (
+                        {!hasCurrentMonthEdition && !isLoading && canManage && (
                             <Button onClick={handleCreateEdicao} disabled={creatingEdicao}>
                                 {creatingEdicao ? (
                                     <>
@@ -128,11 +138,11 @@ export default function ProductPage() {
                         </div>
                     ) : !edicao ? (
                         <div className="flex-1 flex flex-col items-center justify-center border-2 border-dashed rounded-lg bg-muted/50">
-                            <h3 className="text-xl font-semibold mb-2">Nenhuma edição encontrada para este mês</h3>
+                            <h3 className="text-xl font-semibold mb-2">Nenhuma edição encontrada</h3>
                             <p className="text-muted-foreground mb-4">
                                 {canManage
                                     ? "Inicie uma nova edição para começar a gerenciar os insumos."
-                                    : "Aguarde o Supervisor iniciar a edição deste mês."}
+                                    : "Aguarde o Supervisor iniciar a edição."}
                             </p>
                             {canManage && (
                                 <Button onClick={handleCreateEdicao}>
