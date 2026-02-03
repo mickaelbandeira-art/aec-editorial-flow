@@ -9,10 +9,9 @@ export const geminiService = {
         const genAI = new GoogleGenerativeAI(apiKey);
 
         try {
-            // 2. ATUALIZAÇÃO: Usamos o gemini-2.5-flash (O sucessor estável do 1.5)
-            // Em 2026, o 1.5-flash já não é aceite.
+            // 2. ATUALIZAÇÃO: Usamos o gemini-1.5-flash (Versão estável)
             const model = genAI.getGenerativeModel({
-                model: "gemini-2.5-flash"
+                model: "gemini-1.5-flash"
             });
 
             // 3. Execução da chamada conforme a documentação que enviaste
@@ -21,12 +20,10 @@ export const geminiService = {
 
             return response.text();
         } catch (error: any) {
-            // Diagnóstico amigável para 2026
-            if (error.message && error.message.includes("404")) {
-                console.error("ERRO: O modelo solicitado está obsoleto ou o ID mudou.");
-            }
             console.error("Erro na Chamada da IA:", error);
-            throw new Error("Falha na comunicação com o Gemini 2.5.");
+            // Include specific error details if available
+            const errorDetail = error?.message || JSON.stringify(error);
+            throw new Error(`Falha na comunicação com o Gemini: ${errorDetail}`);
         }
     },
 };
