@@ -14,6 +14,12 @@ export const geminiService = {
                 throw new Error(`Erro na função Edge: ${error.message || error}`);
             }
 
+            // Handle successful HTTP response but failed logic (tunneled error)
+            if (data && data.success === false) {
+                console.error("Edge Function Logic Error:", data.error);
+                throw new Error(`Erro na IA: ${data.error || "Erro desconhecido"}`);
+            }
+
             if (!data || !data.text) {
                 console.error("Invalid response from Edge Function:", data);
                 throw new Error("Resposta inválida da IA.");
