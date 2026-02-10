@@ -24,6 +24,7 @@ import ifoodPagoLogo from '@/assets/logos/ifood-pago.png';
 import tonLogo from '@/assets/logos/ton.png';
 import interLogo from '@/assets/logos/inter.png';
 import fabricaLogo from '@/assets/logos/fabrica.png';
+import aecLogo from '@/assets/logos/aec.png';
 
 const logoMap: Record<string, string> = {
   'claro': claroLogo,
@@ -32,6 +33,7 @@ const logoMap: Record<string, string> = {
   'ton': tonLogo,
   'inter': interLogo,
   'fabrica': fabricaLogo,
+  'rh': aecLogo,
 };
 
 const mainNavItems = [
