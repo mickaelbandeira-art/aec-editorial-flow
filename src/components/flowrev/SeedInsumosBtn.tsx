@@ -30,7 +30,8 @@ const PRODUCTS = [
     { nome: "iFood Pago", slug: "ifood-pago", cor: "#ea1d2c" },
     { nome: "Ton", slug: "ton", cor: "#00c868" },
     { nome: "Inter", slug: "inter", cor: "#ff7a00" },
-    { nome: "Fábrica de Conteúdos", slug: "fabrica", cor: "#1a1a1a" }
+    { nome: "Fábrica de Conteúdos", slug: "fabrica", cor: "#1a1a1a" },
+    { nome: "RH", slug: "rh", cor: "#8b5cf6" }
 ];
 
 export function SeedInsumosBtn() {
@@ -141,8 +142,14 @@ export function SeedInsumosBtn() {
                 { email: "a.mariana.veras@aec.com.br", nome: "Mariana Veras", role: "supervisor", matricula: "90002", produtos: ["ifood"] },
                 { email: "silvia.silvia@aec.com.br", nome: "Silvia", role: "supervisor", matricula: "368774", produtos: ["claro"] },
                 { email: "a.yara.ssilva@aec.com.br", nome: "Yara Benedita dos Santos Silva", role: "analista_pleno", matricula: "262756", produtos: ["fabrica"] },
-                { email: "jonathan.silva@aec.com.br", nome: "Jonathan Silva", role: "gerente", matricula: "90004", produtos: ["fabrica", "claro", "ifood", "ifood-pago", "ton", "inter"] },
-                { email: "a.izaura.bezerra@aec.com.br", nome: "Izaura Bezerra", role: "coordenador", matricula: "90005", produtos: ["fabrica"] }
+                { email: "jonathan.silva@aec.com.br", nome: "Jonathan Silva", role: "gerente", matricula: "90004", produtos: ["fabrica", "claro", "ifood", "ifood-pago", "ton", "inter", "rh"] },
+                { email: "a.izaura.bezerra@aec.com.br", nome: "Izaura Bezerra", role: "coordenador", matricula: "90005", produtos: ["fabrica", "rh"] },
+                // New Users for RH
+                { email: "mickael.bandeira@aec.com.br", nome: "Mickael Bandeira da Silva", role: "analista", matricula: "461576", produtos: ["rh", "claro", "ton"] },
+                { email: "arakem.rocha@aec.com.br", nome: "Arakem Alves Rocha", role: "analista", matricula: "135447", produtos: ["rh"] },
+                { email: "neliane.olimpio@aec.com.br", nome: "Neliane Alves Olimpio", role: "analista", matricula: "309582", produtos: ["rh"] },
+                { email: "milena.santos@aec.com.br", nome: "Milena Carla Costa dos Santos", role: "supervisor", matricula: "134056", produtos: ["rh"] },
+                { email: "adrisa.alves@aec.com.br", nome: "Adrisa Alves dos Santos", role: "supervisor", matricula: "251016", produtos: ["rh"] }
             ];
 
             // eslint-disable-next-line @typescript-eslint/no-explicit-any

@@ -65,7 +65,7 @@ export function usePermissions() {
 
         // Hardcoded overrides for specific users/cases
         if (user.email === 'mickael.bandeira@aec.com.br') {
-            if (productSlug === 'claro') return true;
+            if (productSlug === 'claro' || productSlug === 'rh' || productSlug === 'ton') return true;
             if (productSlug === 'fabrica') return false;
         }
 
