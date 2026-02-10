@@ -66,7 +66,7 @@ export function FlowrevSidebar({ isOpen, onClose, collapsed, setCollapsed }: Flo
   const fabricaSlug = 'fabrica';
   const hasFabricaInList = filteredProdutos.some(p => p.slug === fabricaSlug);
   const shouldShowFabrica = canAccessProduct(fabricaSlug) ||
-    ['jonathan.silva@aec.com.br', 'a.izaura.bezerra@aec.com.br', 'a.yara.ssilva@aec.com.br', 'a.mariana.veras@aec.com.br', 'gracyelle.azarias@aec.com.br'].includes(user?.email || '');
+    ['jonathan.silva@aec.com.br', 'a.izaura.bezerra@aec.com.br', 'a.yara.ssilva@aec.com.br', 'a.mariana.veras@aec.com.br'].includes(user?.email || '');
 
   if (shouldShowFabrica && !hasFabricaInList) {
     filteredProdutos = [

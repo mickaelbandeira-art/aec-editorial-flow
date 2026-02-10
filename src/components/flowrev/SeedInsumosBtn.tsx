@@ -137,10 +137,10 @@ export function SeedInsumosBtn() {
 
             // --- SEED USERS ---
             const USERS_TO_SEED = [
-                { email: "maria.franca@aec.com.br", nome: "Maria Clara Franca da Silva", role: "analista", matricula: "90001", produtos: ["ifood-pago"] },
+                { email: "maria.clfranca@aec.com.br", nome: "Maria Clara Franca da Silva", role: "analista", matricula: "452015", produtos: ["ifood-pago", "inter", "ton", "qualidade"] },
                 { email: "a.mariana.veras@aec.com.br", nome: "Mariana Veras", role: "supervisor", matricula: "90002", produtos: ["ifood"] },
                 { email: "silvia.silvia@aec.com.br", nome: "Silvia", role: "supervisor", matricula: "368774", produtos: ["claro"] },
-                { email: "a.yara.ssilva@aec.com.br", nome: "Yara Silva", role: "analista_pleno", matricula: "90003", produtos: ["fabrica"] },
+                { email: "a.yara.ssilva@aec.com.br", nome: "Yara Benedita dos Santos Silva", role: "analista_pleno", matricula: "262756", produtos: ["fabrica"] },
                 { email: "jonathan.silva@aec.com.br", nome: "Jonathan Silva", role: "gerente", matricula: "90004", produtos: ["fabrica", "claro", "ifood", "ifood-pago", "ton", "inter"] },
                 { email: "a.izaura.bezerra@aec.com.br", nome: "Izaura Bezerra", role: "coordenador", matricula: "90005", produtos: ["fabrica"] }
             ];

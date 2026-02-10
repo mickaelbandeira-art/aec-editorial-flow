@@ -18,9 +18,9 @@ export function UserSwitcher() {
         { name: 'Maria Clara (Sup. Claro)', email: 'a.maria.clara@aec.com.br' },
         { name: 'Silvia (Sup. Claro)', email: 'silvia.silvia@aec.com.br' },
         { name: 'Mariana Veras (Sup. iFood)', email: 'a.mariana.veras@if-aec.com.br' },
-        { name: 'Yara Silva (Analista Pleno)', email: 'a.yara.ssilva@aec.com.br' },
+        { name: 'Yara Benedita (Analista Pleno)', email: 'a.yara.ssilva@aec.com.br' },
         { name: 'Mickael (Analista Claro)', email: 'mickael.bandeira@aec.com.br' },
-        { name: 'Maria Clara (Analista iFood)', email: 'maria.franca@aec.com.br' },
+        { name: 'Maria Clara (Analista iFood)', email: 'maria.clfranca@aec.com.br' },
         { name: 'Kelciane (Coord.)', email: 'kelciane.lima@aec.com.br' },
         { name: 'Jonathan (Gerente)', email: 'jonathan.silva@aec.com.br' },
     ];

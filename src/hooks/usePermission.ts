@@ -18,6 +18,7 @@ interface AuthState {
     user: UserProfile | null;
     login: (user: UserProfile) => void;
     logout: () => void;
+    setSelectedEmail: (email: string) => Promise<void>;
 }
 
 export const useAuthStore = create<AuthState>()(
@@ -26,6 +27,22 @@ export const useAuthStore = create<AuthState>()(
             user: null,
             login: (user) => set({ user }),
             logout: () => set({ user: null }),
+            setSelectedEmail: async (email: string) => {
+                const { data, error } = await supabase
+                    .from('flowrev_users')
+                    .select('*')
+                    .eq('email', email)
+                    .single();
+
+                if (error) {
+                    console.error("Erro ao trocar usuário:", error);
+                    return;
+                }
+
+                if (data) {
+                    set({ user: data as UserProfile });
+                }
+            },
         }),
         {
             name: 'flowrev-auth-storage',
