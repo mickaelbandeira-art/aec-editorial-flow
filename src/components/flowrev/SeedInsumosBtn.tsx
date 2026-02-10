@@ -137,12 +137,12 @@ export function SeedInsumosBtn() {
 
             // --- SEED USERS ---
             const USERS_TO_SEED = [
-                { email: "maria.franca@aec.com.br", nome: "Maria Clara Franca da Silva", role: "analista", matricula: "90001" },
-                { email: "a.mariana.veras@aec.com.br", nome: "Mariana Veras", role: "supervisor", matricula: "90002" },
-                { email: "silvia.silvia@aec.com.br", nome: "Silvia", role: "supervisor", matricula: "368774" },
-                { email: "a.yara.ssilva@aec.com.br", nome: "Yara Silva", role: "analista_pleno", matricula: "90003" },
-                { email: "jonathan.silva@aec.com.br", nome: "Jonathan Silva", role: "gerente", matricula: "90004" },
-                { email: "a.izaura.bezerra@aec.com.br", nome: "Izaura Bezerra", role: "coordenador", matricula: "90005" }
+                { email: "maria.franca@aec.com.br", nome: "Maria Clara Franca da Silva", role: "analista", matricula: "90001", produtos: ["ifood-pago"] },
+                { email: "a.mariana.veras@aec.com.br", nome: "Mariana Veras", role: "supervisor", matricula: "90002", produtos: ["ifood"] },
+                { email: "silvia.silvia@aec.com.br", nome: "Silvia", role: "supervisor", matricula: "368774", produtos: ["claro"] },
+                { email: "a.yara.ssilva@aec.com.br", nome: "Yara Silva", role: "analista_pleno", matricula: "90003", produtos: ["fabrica"] },
+                { email: "jonathan.silva@aec.com.br", nome: "Jonathan Silva", role: "gerente", matricula: "90004", produtos: ["fabrica", "claro", "ifood", "ifood-pago", "ton", "inter"] },
+                { email: "a.izaura.bezerra@aec.com.br", nome: "Izaura Bezerra", role: "coordenador", matricula: "90005", produtos: ["fabrica"] }
             ];
 
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -153,7 +153,7 @@ export function SeedInsumosBtn() {
                     nome: u.nome,
                     role: u.role,
                     matricula: u.matricula,
-                    produtos_acesso: ["fabrica"],
+                    produtos_acesso: (u as any).produtos || ["fabrica"],
                     active: true
                 })), { onConflict: 'email' });
 
