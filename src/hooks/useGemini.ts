@@ -45,7 +45,7 @@ export function useGemini() {
             toast.success("Texto revisado com sucesso!");
             return sanitizedText;
 
-        } catch (error: any) {
+        } catch (error) {
             console.error("Gemini Error:", error);
             const msg = error instanceof Error ? error.message : "Erro desconhecido";
             toast.error(`Falha na IA: ${msg}`);

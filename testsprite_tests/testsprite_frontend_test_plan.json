@@ -1,0 +1,1189 @@
+[
+  {
+    "id": "TC001",
+    "title": "Dashboard displays stats and active items on load",
+    "description": "Verifies the Editorial Dashboard loads and shows high-level stats cards and a list of active editorial items.",
+    "category": "Editorial Dashboard",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /flowrev"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify page title contains \"Dashboard\""
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Active\" is visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify element \"Stats\" is visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify element \"Active items\" is visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify element \"Production Line\" is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC002",
+    "title": "Navigate from Dashboard to Production Line via quick link/button",
+    "description": "Verifies a user can use the Dashboard quick navigation to reach the Production Line page.",
+    "category": "Editorial Dashboard",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /flowrev"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify element \"Production Line\" is visible"
+      },
+      {
+        "type": "action",
+        "description": "Click on \"Production Line\""
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/production-line\""
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Production Line\" is visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify element \"Columns\" is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC003",
+    "title": "Production Line shows columns and items after navigating from Dashboard",
+    "description": "Verifies the Production Line view renders core kanban elements after entering from the Dashboard.",
+    "category": "Editorial Dashboard",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /flowrev"
+      },
+      {
+        "type": "action",
+        "description": "Click on \"Production Line\""
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/production-line\""
+      },
+      {
+        "type": "assertion",
+        "description": "Verify element \"To Do\" is visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify element \"In Progress\" is visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify element \"Done\" is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC004",
+    "title": "Production Line loads with visible stage columns and items",
+    "description": "Verifies the Production Line page renders with production stage columns and at least one visible editorial item card.",
+    "category": "Production Line",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /production-line"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify page title contains \"Production Line\""
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Editing\" is visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Review\" is visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify element \"an editorial item card\" is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC005",
+    "title": "Filter items by status using the filter control",
+    "description": "Verifies filtering by a specific status reduces the visible items to those matching the selected status.",
+    "category": "Production Line",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /production-line"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify element \"Status filter control\" is visible"
+      },
+      {
+        "type": "action",
+        "description": "Click on \"Status filter control\""
+      },
+      {
+        "type": "action",
+        "description": "Select \"Editing\" from dropdown"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Editing\" is visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify element \"at least one editorial item card in the Editing column\" is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC006",
+    "title": "Clear status filter to return to unfiltered view",
+    "description": "Verifies clearing the applied status filter restores the broader item list across columns.",
+    "category": "Production Line",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /production-line"
+      },
+      {
+        "type": "action",
+        "description": "Click on \"Status filter control\""
+      },
+      {
+        "type": "action",
+        "description": "Select \"Editing\" from dropdown"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify element \"Clear filter\" is visible"
+      },
+      {
+        "type": "action",
+        "description": "Click on \"Clear filter\""
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Editing\" is visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Review\" is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC007",
+    "title": "Switch to List view and verify items are still visible",
+    "description": "Verifies the view toggle changes to List view while still showing editorial items.",
+    "category": "Production Line",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /production-line"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify element \"View toggle\" is visible"
+      },
+      {
+        "type": "action",
+        "description": "Click on \"View toggle\""
+      },
+      {
+        "type": "action",
+        "description": "Click on \"List\""
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"List\" is visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify element \"a list row for an editorial item\" is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC008",
+    "title": "Empty state when filtering to a status with no results",
+    "description": "Verifies the UI shows a clear empty state message when a filter returns no matching items.",
+    "category": "Production Line",
+    "priority": "Low",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /production-line"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify element \"Status filter control\" is visible"
+      },
+      {
+        "type": "action",
+        "description": "Click on \"Status filter control\""
+      },
+      {
+        "type": "action",
+        "description": "Select \"Archived\" from dropdown"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify element \"No items\" empty state message is visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify element \"an editorial item card\" is not visible"
+      }
+    ]
+  },
+  {
+    "id": "TC009",
+    "title": "Create a new editorial item from a calendar date/time slot (month/week view)",
+    "description": "Verifies a user can create a new scheduled editorial item from a selected date/time slot and see it appear on the calendar.",
+    "category": "Calendar",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /calendar"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify element \"calendar\" is visible"
+      },
+      {
+        "type": "action",
+        "description": "Click on a date or time slot in the calendar grid"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify element \"create item\" modal or form is visible"
+      },
+      {
+        "type": "action",
+        "description": "Fill \"Title\" with \"UI Test Calendar Item\""
+      },
+      {
+        "type": "action",
+        "description": "Fill \"Date\" or \"Scheduled for\" with a valid value matching the selected slot"
+      },
+      {
+        "type": "action",
+        "description": "Click on \"Save\""
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"UI Test Calendar Item\" is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC010",
+    "title": "Cancel creating a calendar item and ensure nothing is added",
+    "description": "Verifies closing/canceling the create item modal does not create a new calendar item.",
+    "category": "Calendar",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /calendar"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify element \"calendar\" is visible"
+      },
+      {
+        "type": "action",
+        "description": "Click on a date or time slot in the calendar grid"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify element \"create item\" modal or form is visible"
+      },
+      {
+        "type": "action",
+        "description": "Fill \"Title\" with \"Should Not Be Created\""
+      },
+      {
+        "type": "action",
+        "description": "Click on \"Cancel\""
+      },
+      {
+        "type": "assertion",
+        "description": "Verify element \"create item\" modal or form is not visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Should Not Be Created\" is not visible"
+      }
+    ]
+  },
+  {
+    "id": "TC011",
+    "title": "Validation: attempt to save with required fields missing",
+    "description": "Verifies the create item form enforces required fields and shows a visible validation message.",
+    "category": "Calendar",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /calendar"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify element \"calendar\" is visible"
+      },
+      {
+        "type": "action",
+        "description": "Click on a date or time slot in the calendar grid"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify element \"create item\" modal or form is visible"
+      },
+      {
+        "type": "action",
+        "description": "Click on \"Save\""
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"required\" is visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify element \"create item\" modal or form is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC012",
+    "title": "Close create item modal with Escape key",
+    "description": "Verifies the create item modal can be dismissed via the Escape key without saving.",
+    "category": "Calendar",
+    "priority": "Low",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /calendar"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify element \"calendar\" is visible"
+      },
+      {
+        "type": "action",
+        "description": "Click on a date or time slot in the calendar grid"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify element \"create item\" modal or form is visible"
+      },
+      {
+        "type": "action",
+        "description": "Press \"Escape\""
+      },
+      {
+        "type": "assertion",
+        "description": "Verify element \"create item\" modal or form is not visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify element \"calendar\" is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC013",
+    "title": "Calendar loads events successfully and shows at least one item when available",
+    "description": "Verifies the calendar renders scheduled items after events are loaded (happy path visibility check).",
+    "category": "Calendar",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /calendar"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify element \"calendar\" is visible"
+      },
+      {
+        "type": "action",
+        "description": "Wait for element \"calendar event\" to appear"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify element \"calendar event\" is visible"
+      },
+      {
+        "type": "action",
+        "description": "Click on a visible calendar event"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify element \"event details\" or \"item details\" is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC014",
+    "title": "Create item from a different day/time slot results in item shown on that selected slot",
+    "description": "Verifies creating from another slot schedules the item on the intended date/time and displays it accordingly.",
+    "category": "Calendar",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /calendar"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify element \"calendar\" is visible"
+      },
+      {
+        "type": "action",
+        "description": "Click on a different date or time slot than previously used"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify element \"create item\" modal or form is visible"
+      },
+      {
+        "type": "action",
+        "description": "Fill \"Title\" with \"Second Slot Item\""
+      },
+      {
+        "type": "action",
+        "description": "Click on \"Save\""
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Second Slot Item\" is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC015",
+    "title": "Submit feedback with required text only",
+    "description": "Verifies a user can submit feedback by entering only the required feedback text and sees a confirmation message.",
+    "category": "Feedback Submission",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /feedback"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Feedback\" is visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify element \"feedback form\" is visible"
+      },
+      {
+        "type": "action",
+        "description": "Type \"The handoff between writing and review is unclear; please add a checklist.\" into the \"Feedback\" text field"
+      },
+      {
+        "type": "action",
+        "description": "Click on \"Submit\""
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Thank you\" is visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"submitted\" is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC016",
+    "title": "Submit feedback with text and optional metadata",
+    "description": "Verifies a user can fill feedback text plus optional metadata (if present) and successfully submit.",
+    "category": "Feedback Submission",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /feedback"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify element \"feedback form\" is visible"
+      },
+      {
+        "type": "action",
+        "description": "Type \"Calendar scheduling needs a clearer time zone indicator.\" into the \"Feedback\" text field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"Scheduling\" into the \"Topic\" field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"High\" into the \"Priority\" field"
+      },
+      {
+        "type": "action",
+        "description": "Click on \"Submit\""
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Thank you\" is visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"submitted\" is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC017",
+    "title": "Validation: submit with empty required feedback text",
+    "description": "Verifies submitting without the required feedback text shows inline validation and prevents submission.",
+    "category": "Feedback Submission",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /feedback"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify element \"feedback form\" is visible"
+      },
+      {
+        "type": "action",
+        "description": "Click on \"Submit\""
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"required\" is visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"cannot be empty\" is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC018",
+    "title": "Validation clears after entering feedback following an error",
+    "description": "Verifies that after a required-field validation error, entering feedback removes the error and allows successful submission.",
+    "category": "Feedback Submission",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /feedback"
+      },
+      {
+        "type": "action",
+        "description": "Click on \"Submit\""
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"required\" is visible"
+      },
+      {
+        "type": "action",
+        "description": "Type \"Please add an audit-history link from each kanban card.\" into the \"Feedback\" text field"
+      },
+      {
+        "type": "action",
+        "description": "Click on \"Submit\""
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Thank you\" is visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"submitted\" is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC019",
+    "title": "Whitespace-only feedback is rejected",
+    "description": "Verifies the form blocks submission when the feedback text contains only whitespace and shows an inline validation message.",
+    "category": "Feedback Submission",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /feedback"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify element \"feedback form\" is visible"
+      },
+      {
+        "type": "action",
+        "description": "Type \"     \" into the \"Feedback\" text field"
+      },
+      {
+        "type": "action",
+        "description": "Click on \"Submit\""
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"required\" is visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"valid\" is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC020",
+    "title": "Long feedback text can be submitted",
+    "description": "Verifies the feedback field accepts a long entry and submission still completes with a confirmation message.",
+    "category": "Feedback Submission",
+    "priority": "Low",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /feedback"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify element \"feedback form\" is visible"
+      },
+      {
+        "type": "action",
+        "description": "Type \"In the production line, the status transitions are confusing. When moving an item from Draft to Review, there should be a prompt to assign a reviewer. Also, the dashboard should highlight overdue items more clearly, and the calendar should show conflicts when multiple deadlines overlap. Finally, settings should explain each notification option in plain language.\" into the \"Feedback\" text field"
+      },
+      {
+        "type": "action",
+        "description": "Click on \"Submit\""
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Thank you\" is visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"submitted\" is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC021",
+    "title": "Submit via Enter key if the form supports it",
+    "description": "Verifies that pressing Enter submits the form (when supported) and results in a visible confirmation message.",
+    "category": "Feedback Submission",
+    "priority": "Low",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /feedback"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify element \"feedback form\" is visible"
+      },
+      {
+        "type": "action",
+        "description": "Type \"Please add clearer inline help text for each field.\" into the \"Feedback\" text field"
+      },
+      {
+        "type": "action",
+        "description": "Press \"Enter\""
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Thank you\" is visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"submitted\" is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC022",
+    "title": "Save profile changes successfully from Settings",
+    "description": "Verifies a user can update profile fields or preferences and see a visible success confirmation.",
+    "category": "Settings",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /settings"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify page title contains \"Settings\""
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Account\" is visible"
+      },
+      {
+        "type": "action",
+        "description": "Type \"QA Updated Name\" into the \"Name\" field"
+      },
+      {
+        "type": "action",
+        "description": "Click on \"Save\""
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Saved\" is visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"QA Updated Name\" is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC023",
+    "title": "Save preference changes successfully from Settings",
+    "description": "Verifies a user can change an app preference and see a saved confirmation and persisted UI state.",
+    "category": "Settings",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /settings"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"App Settings\" is visible"
+      },
+      {
+        "type": "action",
+        "description": "Select \"Dark\" from the \"Theme\" dropdown"
+      },
+      {
+        "type": "action",
+        "description": "Click on \"Save\""
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Saved\" is visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Dark\" is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC024",
+    "title": "Required field validation prevents saving in Settings",
+    "description": "Verifies client-side validation shows an error and prevents saving when a required field is empty.",
+    "category": "Settings",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /settings"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Account\" is visible"
+      },
+      {
+        "type": "action",
+        "description": "Fill \"\" into the \"Name\" field"
+      },
+      {
+        "type": "action",
+        "description": "Click on \"Save\""
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"required\" is visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Saved\" is not visible"
+      }
+    ]
+  },
+  {
+    "id": "TC025",
+    "title": "Invalid email format shows validation error in Settings",
+    "description": "Verifies an invalid email address is rejected with a visible validation message and no success confirmation.",
+    "category": "Settings",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /settings"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Account\" is visible"
+      },
+      {
+        "type": "action",
+        "description": "Type \"not-an-email\" into the \"Email\" field"
+      },
+      {
+        "type": "action",
+        "description": "Click on \"Save\""
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"invalid\" is visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Saved\" is not visible"
+      }
+    ]
+  },
+  {
+    "id": "TC026",
+    "title": "Server-side validation or permission error displays error and does not apply changes",
+    "description": "Verifies that when saving is rejected by the server, an error is shown and the attempted change is not persisted on the page.",
+    "category": "Settings",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /settings"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Settings\" is visible"
+      },
+      {
+        "type": "action",
+        "description": "Type \"!!!\" into the \"Display Name\" field"
+      },
+      {
+        "type": "action",
+        "description": "Click on \"Save\""
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"error\" is visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Saved\" is not visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"!!!\" is not visible"
+      }
+    ]
+  },
+  {
+    "id": "TC027",
+    "title": "No changes made: Save does not show a success confirmation (or Save is disabled)",
+    "description": "Verifies the Settings page handles the no-op save state by disabling Save or not showing a saved confirmation.",
+    "category": "Settings",
+    "priority": "Low",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /settings"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Settings\" is visible"
+      },
+      {
+        "type": "action",
+        "description": "Click on \"Save\""
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"No changes\" is visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Saved\" is not visible"
+      }
+    ]
+  },
+  {
+    "id": "TC028",
+    "title": "Cancel/discard changes restores previous values",
+    "description": "Verifies that discarding edits returns the form to its previously saved values.",
+    "category": "Settings",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /settings"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Settings\" is visible"
+      },
+      {
+        "type": "action",
+        "description": "Type \"Temp Name\" into the \"Name\" field"
+      },
+      {
+        "type": "action",
+        "description": "Click on \"Cancel\""
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Temp Name\" is not visible"
+      }
+    ]
+  },
+  {
+    "id": "TC029",
+    "title": "Settings page shows both account and app settings sections",
+    "description": "Verifies core settings sections are visible so the user can find account and application preferences.",
+    "category": "Settings",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /settings"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Account\" is visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"App Settings\" is visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify element \"Save\" is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC030",
+    "title": "History list loads and displays chronological audit actions",
+    "description": "Verifies that the History page shows a visible chronological list of editorial actions.",
+    "category": "History",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /history"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify page title contains \"History\""
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"History\" is visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify element \"Audit history list\" is visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify element \"Filter\" is visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify element \"Date filter\" is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC031",
+    "title": "Filter history by user",
+    "description": "Verifies that applying a user filter narrows the visible audit actions to that user.",
+    "category": "History",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /history"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify element \"Audit history list\" is visible"
+      },
+      {
+        "type": "action",
+        "description": "Click on \"Filter\""
+      },
+      {
+        "type": "action",
+        "description": "Select \"User\" from dropdown \"Filter type\""
+      },
+      {
+        "type": "action",
+        "description": "Select \"{{LOGIN_USER}}\" from dropdown \"User\""
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Filtered by user\" is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC032",
+    "title": "Filter history by date range",
+    "description": "Verifies that applying a date filter narrows the visible audit actions to the selected date range.",
+    "category": "History",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /history"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify element \"Audit history list\" is visible"
+      },
+      {
+        "type": "action",
+        "description": "Click on \"Date filter\""
+      },
+      {
+        "type": "action",
+        "description": "Type \"2026-01-01\" into field \"Start date\""
+      },
+      {
+        "type": "action",
+        "description": "Type \"2026-01-31\" into field \"End date\""
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Filtered by date\" is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC033",
+    "title": "Open an audit action to view details",
+    "description": "Verifies that clicking an audit action opens a detail view showing metadata.",
+    "category": "History",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /history"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify element \"Audit history list\" is visible"
+      },
+      {
+        "type": "action",
+        "description": "Click on \"First audit action\" in the history list"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify element \"Action details\" is visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Metadata\" is visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify element \"Timestamp\" is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC034",
+    "title": "Audit action details include actor and action type",
+    "description": "Verifies that the action detail view shows who performed the action and what happened.",
+    "category": "History",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /history"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify element \"Audit history list\" is visible"
+      },
+      {
+        "type": "action",
+        "description": "Click on \"First audit action\" in the history list"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify element \"Actor\" is visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify element \"Action type\" is visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify element \"Affected item\" is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC035",
+    "title": "No results state when filters return empty set",
+    "description": "Verifies that the History page shows a clear empty state when filters yield no matching actions.",
+    "category": "History",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /history"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify element \"Audit history list\" is visible"
+      },
+      {
+        "type": "action",
+        "description": "Click on \"Filter\""
+      },
+      {
+        "type": "action",
+        "description": "Type \"1900-01-01\" into field \"Start date\""
+      },
+      {
+        "type": "action",
+        "description": "Type \"1900-01-02\" into field \"End date\""
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"No history events\" is visible"
+      }
+    ]
+  }
+]

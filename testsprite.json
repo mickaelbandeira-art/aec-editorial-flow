@@ -1,0 +1,13 @@
+{
+    "name": "AeC Editorial Flow",
+    "project_type": "web",
+    "tech_stack": [
+        "React",
+        "TypeScript",
+        "Vite",
+        "Supabase"
+    ],
+    "test_framework": "playwright",
+    "entry_point": "src/main.tsx",
+    "base_url": "http://localhost:8081"
+}

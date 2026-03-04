@@ -1,0 +1,126 @@
+{
+    "version": "2",
+    "type": "frontend",
+    "tech_stack": [
+        "TypeScript",
+        "React (Vite)",
+        "Tailwind CSS",
+        "shadcn/ui",
+        "Supabase",
+        "TanStack Query",
+        "Zustand"
+    ],
+    "routes": [
+        {
+            "path": "/login",
+            "file": "src/pages/LoginPage.tsx",
+            "auth_required": false,
+            "description": "User authentication page"
+        },
+        {
+            "path": "/",
+            "file": "src/pages/Index.tsx",
+            "auth_required": true,
+            "description": "Main landing or redirect page"
+        },
+        {
+            "path": "/flowrev",
+            "file": "src/pages/FlowrevDashboard.tsx",
+            "auth_required": true,
+            "description": "Main editorial flow dashboard"
+        },
+        {
+            "path": "/production-line",
+            "file": "src/pages/ProductionLine.tsx",
+            "auth_required": true,
+            "description": "Editorial production line management"
+        },
+        {
+            "path": "/calendar",
+            "file": "src/pages/CalendarPage.tsx",
+            "auth_required": true,
+            "description": "Calendar view for editorial items"
+        },
+        {
+            "path": "/feedback",
+            "file": "src/pages/FeedbackSubmission.tsx",
+            "auth_required": true,
+            "description": "Feedback submission page"
+        },
+        {
+            "path": "/settings",
+            "file": "src/pages/Settings.tsx",
+            "auth_required": true,
+            "description": "User and application settings"
+        },
+        {
+            "path": "/history",
+            "file": "src/pages/History.tsx",
+            "auth_required": true,
+            "description": "Audit history of editorial actions"
+        }
+    ],
+    "features": [
+        {
+            "name": "Authentication",
+            "description": "User login using Supabase Auth",
+            "files": [
+                "src/pages/LoginPage.tsx",
+                "src/components/auth/AuthOverlay.tsx"
+            ],
+            "entry_route": "/login",
+            "user_interactions": [
+                "Enter email and password",
+                "Click login button",
+                "Redirect to dashboard on success"
+            ],
+            "api_calls": [
+                {
+                    "method": "POST",
+                    "endpoint": "/auth/v1/token"
+                }
+            ],
+            "auth_required": false
+        },
+        {
+            "name": "Editorial Dashboard",
+            "description": "Overview of active editorial items and their statuses",
+            "files": [
+                "src/pages/FlowrevDashboard.tsx",
+                "src/components/dashboard/FlowrevStats.tsx"
+            ],
+            "entry_route": "/flowrev",
+            "user_interactions": [
+                "View stats cards",
+                "Navigate to production line"
+            ],
+            "api_calls": [
+                {
+                    "method": "GET",
+                    "endpoint": "/rest/v1/items"
+                }
+            ],
+            "auth_required": true
+        },
+        {
+            "name": "Production Line",
+            "description": "Kanover or list view of editorial items in production",
+            "files": [
+                "src/pages/ProductionLine.tsx"
+            ],
+            "entry_route": "/production-line",
+            "user_interactions": [
+                "Drag and drop items between columns",
+                "Filter items by status"
+            ],
+            "api_calls": [
+                {
+                    "method": "PATCH",
+                    "endpoint": "/rest/v1/items"
+                }
+            ],
+            "auth_required": true
+        }
+    ],
+    "known_limitations": []
+}

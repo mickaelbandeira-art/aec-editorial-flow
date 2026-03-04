@@ -12,6 +12,8 @@ import { toast } from "sonner";
 import { DeadlineAlert } from "@/components/flowrev/DeadlineAlert";
 import { ClearInsumosBtn } from "@/components/flowrev/ClearInsumosBtn";
 
+import { Produto } from "@/types/flowrev";
+
 export default function ProductPage() {
     const { slug } = useParams();
     const { data: produtos } = useProdutos();
@@ -20,14 +22,14 @@ export default function ProductPage() {
     const produto = produtos?.find(p => p.slug === slug) || (slug === 'fabrica' ? {
         id: 'fabrica-fallback-id',
         created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
         nome: 'Fábrica de Conteúdos',
         slug: 'fabrica',
         ordem: 99,
         ativo: true,
-        // tipo: 'interno',
         cor_tema: '#1a1a1a',
         logo_url: null,
-    } as any : undefined);
+    } as Produto : undefined);
 
     // Fetch all editions for this product
     const { data: edicoes, isLoading: loadingEdicoes } = useEdicoes(produto?.id || "");

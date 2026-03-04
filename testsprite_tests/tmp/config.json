@@ -1,0 +1,29 @@
+{
+  "executionArgs": {
+    "projectName": "AeC Editorial Flow",
+    "projectPath": "C:\\AeC SaaS\\aec-editorial-flow-main",
+    "testIds": [],
+    "additionalInstruction": "",
+    "serverMode": "development",
+    "type": "frontend",
+    "localEndpoint": "http://localhost:8081",
+    "api_key": "sk-user-nlawsqfVbU97GCbRb4tzQDVtdyJbjZFvZtJ7rjqg9jk6QBAjiZUnyuZCMt_uyx5US256o8cgyYc0HZSwmWABLEG5kWGyy7Q5cdSBXFZqBOx8EdHimvGpQlxWQjE1BYiBFNo",
+    "envs": {
+      "PORT": "8081",
+      "BASE_URL": "http://localhost:8081",
+      "API_KEY": "sk-user-nlawsqfVbU97GCbRb4tzQDVtdyJbjZFvZtJ7rjqg9jk6QBAjiZUnyuZCMt_uyx5US256o8cgyYc0HZSwmWABLEG5kWGyy7Q5cdSBXFZqBOx8EdHimvGpQlxWQjE1BYiBFNo"
+    }
+  },
+  "type": "frontend",
+  "localEndpoint": "http://localhost:8081",
+  "projectName": "AeC Editorial Flow",
+  "projectPath": "C:\\AeC SaaS\\aec-editorial-flow-main",
+  "api_key": "sk-user-nlawsqfVbU97GCbRb4tzQDVtdyJbjZFvZtJ7rjqg9jk6QBAjiZUnyuZCMt_uyx5US256o8cgyYc0HZSwmWABLEG5kWGyy7Q5cdSBXFZqBOx8EdHimvGpQlxWQjE1BYiBFNo",
+  "envs": {
+    "PORT": "8081",
+    "BASE_URL": "http://localhost:8081",
+    "API_KEY": "sk-user-nlawsqfVbU97GCbRb4tzQDVtdyJbjZFvZtJ7rjqg9jk6QBAjiZUnyuZCMt_uyx5US256o8cgyYc0HZSwmWABLEG5kWGyy7Q5cdSBXFZqBOx8EdHimvGpQlxWQjE1BYiBFNo"
+  },
+  "serverPort": 51941,
+  "proxy": "http://c8e31757-afe5-4c5c-b099-acee8696e703:0oKAq5VOTmt9Mx0uDunau2LFD3o3o5os@tun.testsprite.com:8080"
+}

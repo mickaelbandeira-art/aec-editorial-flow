@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { ArrowRight, AlertTriangle, CheckCircle2, AlertCircle, PlayCircle, FolderClock } from "lucide-react";
 import { Link } from "react-router-dom";
 
-interface ProductStats {
+export interface ProductStats {
     id: string;
     nome: string;
     slug: string;

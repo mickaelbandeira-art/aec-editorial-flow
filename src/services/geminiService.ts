@@ -1,11 +1,17 @@
 import { supabase } from "@/integrations/supabase/client";
 
+interface GeminiResponse {
+    success?: boolean;
+    text?: string;
+    error?: string;
+}
+
 export const geminiService = {
     async generateContent(prompt: string): Promise<string | null> {
         try {
             console.log("Gemini Service: Calling Edge Function 'fix-grammar'...");
 
-            const { data, error } = await supabase.functions.invoke('fix-grammar', {
+            const { data, error } = await supabase.functions.invoke<GeminiResponse>('fix-grammar', {
                 body: { prompt },
             });
 
@@ -27,10 +33,10 @@ export const geminiService = {
 
             return data.text;
 
-        } catch (error: any) {
+        } catch (error) {
             console.error("Gemini Service Error:", error);
             // Propagate the error so useGemini.ts can handle it
-            throw error;
+            throw error instanceof Error ? error : new Error(String(error));
         }
     },
 };

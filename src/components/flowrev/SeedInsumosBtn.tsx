@@ -116,17 +116,23 @@ export function SeedInsumosBtn() {
                 { nome: 'Cinza', cor: '#64748b' }
             ];
 
-            const { data: existingTags, error: tagFetchError } = await (supabase as any)
+            interface FlowrevTag {
+                nome: string;
+            }
+
+            // @ts-expect-error - Table might not be in Database types yet
+            const { data: existingTags, error: tagFetchError } = await supabase
                 .from('flowrev_tags')
                 .select('nome');
 
             if (tagFetchError) throw new Error(`Erro ao buscar etiquetas: ${tagFetchError.message}`);
 
-            const existingTagNames = new Set(existingTags?.map((t: any) => t.nome));
+            const existingTagNames = new Set((existingTags as FlowrevTag[] | null)?.map(t => t.nome));
             const newTags = TAGS_TO_SEED.filter(t => !existingTagNames.has(t.nome));
 
             if (newTags.length > 0) {
-                const { error: tagInsertError } = await (supabase as any)
+                // @ts-expect-error - Table might not be in Database types yet
+                const { error: tagInsertError } = await supabase
                     .from('flowrev_tags')
                     .insert(newTags);
 
@@ -152,15 +158,15 @@ export function SeedInsumosBtn() {
                 { email: "adrisa.alves@aec.com.br", nome: "Adrisa Alves dos Santos", role: "supervisor", matricula: "251016", produtos: ["rh"] }
             ];
 
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            const { error: userError } = await (supabase as any)
+            // @ts-expect-error - Table might not be in Database types yet
+            const { error: userError } = await supabase
                 .from('flowrev_users')
                 .upsert(USERS_TO_SEED.map(u => ({
                     email: u.email,
                     nome: u.nome,
                     role: u.role,
                     matricula: u.matricula,
-                    produtos_acesso: (u as any).produtos || ["fabrica"],
+                    produtos_acesso: u.produtos || ["fabrica"],
                     active: true
                 })), { onConflict: 'email' });
 

@@ -10,7 +10,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { format } from "date-fns";
 import { ProductionTimeline } from "@/components/flowrev/ProductionTimeline";
-import { ProductStrategyCard } from "./ProductStrategyCard";
+import { ProductStrategyCard, type ProductStats } from "./ProductStrategyCard";
 
 export function ManagerDashboard() {
     const { data: stats, isLoading } = useManagerStats();
@@ -81,9 +81,9 @@ export function ManagerDashboard() {
                 <div>
                     <h3 className="text-xl font-semibold tracking-tight mb-4">Performance por Produto</h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                        {/* @ts-ignore - TS might complain about mismatch in hook return vs component prop, but logic aligns */}
+                        {/* @ts-expect-error - TS might complain about mismatch in hook return vs component prop, but logic aligns */}
                         {productsData.map((prod) => (
-                            <ProductStrategyCard key={prod.id} product={prod as any} />
+                            <ProductStrategyCard key={prod.id} product={prod as unknown as ProductStats} />
                         ))}
                     </div>
                 </div>
@@ -108,7 +108,7 @@ export function ManagerDashboard() {
                                         paddingAngle={5}
                                         dataKey="value"
                                     >
-                                        {(stats?.dadosFaseChart || []).map((entry: any, index: number) => {
+                                        {(stats?.dadosFaseChart || []).map((entry: { name: string, value: number }, index: number) => {
                                             let color = '#94a3b8'; // default slate-400
                                             if (entry.name === 'Finalizado') color = '#10b981'; // emerald-500
                                             if (entry.name === 'Produção') color = '#3b82f6'; // blue-500
