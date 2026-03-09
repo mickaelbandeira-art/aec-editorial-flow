@@ -701,19 +701,26 @@ export function useManagerStats() {
       if (errEdicoes) throw errEdicoes;
 
       const edicoesIds = edicoesAtual?.map(e => e.id) || [];
-      const { data: insumosAtual, error: errInsumos } = await supabase
-        .from('flowrev_insumos')
-        .select(`
-          *,
-          tipo_insumo:flowrev_tipos_insumos(*),
-          edicao:flowrev_edicoes(
-            id, 
-            produto:flowrev_produtos(nome, slug)
-          )
-        `)
-        .in('edicao_id', edicoesIds);
+      let insumosAtual: Insumo[] = [];
+      if (edicoesIds.length > 0) {
+        const { data, error: errInsumos } = await supabase
+          .from('flowrev_insumos')
+          .select(`
+            *,
+            tipo_insumo:flowrev_tipos_insumos(*),
+            edicao:flowrev_edicoes(
+              id, 
+              produto:flowrev_produtos(nome, slug)
+            )
+          `)
+          .in('edicao_id', edicoesIds);
 
-      if (errInsumos) throw errInsumos;
+        if (errInsumos) {
+          console.error("Erro ao buscar insumos:", errInsumos);
+          throw errInsumos;
+        }
+        insumosAtual = data || [];
+      }
 
       // 2. Calculate KPI stats
       const totalInsumos = insumosAtual?.length || 0;
@@ -768,7 +775,7 @@ export function useManagerStats() {
       });
 
       // 4. Phase Progress (Simulated based on status groups)
-      const statusFaseMap = {
+      const statusFaseMap: Record<string, string> = {
         'nao_iniciado': 'Kickoff',
         'em_preenchimento': 'Produção',
         'enviado': 'Revisão',
@@ -777,17 +784,16 @@ export function useManagerStats() {
         'aprovado': 'Finalizado'
       };
 
-      const progressoPorFase = Object.values(statusFaseMap).reduce((acc, fase) => {
-        acc[fase] = { total: 0, count: 0 };
-        return acc;
-      }, {} as Record<string, { total: number, count: number }>);
+      const progressoPorFase: Record<string, { total: number, count: number }> = {};
+      Object.values(statusFaseMap).forEach(fase => {
+        if (!progressoPorFase[fase]) progressoPorFase[fase] = { total: 0, count: 0 };
+      });
 
       insumosAtual?.forEach(i => {
-        const fase = statusFaseMap[i.status as keyof typeof statusFaseMap] || 'Outros';
+        const fase = statusFaseMap[i.status] || 'Outros';
         if (progressoPorFase[fase]) {
           progressoPorFase[fase].total++;
-          if (i.status === 'aprovado') progressoPorFase[fase].count++;
-          progressoPorFase[fase].count = insumosAtual.filter(item => statusFaseMap[item.status as keyof typeof statusFaseMap] === fase).length;
+          progressoPorFase[fase].count++;
         }
       });
 
@@ -796,17 +802,14 @@ export function useManagerStats() {
         value: val.count
       }));
 
-      // 5. Monthly Comparison (Last 6 Months)
-      const comparativoMensal = [];
-      for (let i = 5; i >= 0; i--) {
+      // 5. Monthly Comparison (Last 6 Months) - Parallelized
+      const months = Array.from({ length: 6 }, (_, i) => 5 - i);
+      const comparativoMensalPromises = months.map(async (i) => {
         const d = new Date();
         d.setMonth(d.getMonth() - i);
         const m = d.getMonth() + 1;
         const y = d.getFullYear();
 
-        // optimization: could assume we don't have future data, but for now specific query per month is clear
-        // Better approach: fetch all editions for the last 6 months in one GO if performance needed.
-        // For now, sequential await inside Promise.all is cleaner.
         const { data: eds } = await supabase
           .from('flowrev_edicoes')
           .select('percentual_conclusao')
@@ -817,11 +820,13 @@ export function useManagerStats() {
           ? eds.reduce((a, b) => a + (b.percentual_conclusao || 0), 0) / eds.length
           : 0;
 
-        comparativoMensal.push({
+        return {
           name: `${m}/${y}`,
           progresso: Math.round(avg)
-        });
-      }
+        };
+      });
+
+      const comparativoMensal = await Promise.all(comparativoMensalPromises);
 
       return {
         kpis: {

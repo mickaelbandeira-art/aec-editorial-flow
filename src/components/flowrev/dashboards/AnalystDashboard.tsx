@@ -228,7 +228,6 @@ export function AnalystDashboard() {
                             </SelectTrigger>
                             <SelectContent>
                                 <SelectItem value="all">Todos os Produtos</SelectItem>
-                                <SelectItem value="all">Todos os Produtos</SelectItem>
                                 {activeProducts.map((p) => (
                                     <SelectItem key={p} value={p}>{p}</SelectItem>
                                 ))}

@@ -81,10 +81,19 @@ export function ManagerDashboard() {
                 <div>
                     <h3 className="text-xl font-semibold tracking-tight mb-4">Performance por Produto</h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                        {/* @ts-expect-error - TS might complain about mismatch in hook return vs component prop, but logic aligns */}
-                        {productsData.map((prod) => (
-                            <ProductStrategyCard key={prod.id} product={prod as unknown as ProductStats} />
-                        ))}
+                        {productsData.length === 0 ? (
+                            <div className="col-span-full py-12 text-center bg-slate-50 rounded-xl border-2 border-dashed border-slate-200">
+                                <Package className="h-12 w-12 text-slate-300 mx-auto mb-3" />
+                                <h3 className="text-lg font-medium text-slate-600">Nenhuma edição ativa em {new Date().toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' })}</h3>
+                                <p className="text-sm text-slate-400 max-w-xs mx-auto mt-1">
+                                    Não há dados de produção para exibir neste período.
+                                </p>
+                            </div>
+                        ) : (
+                            productsData.map((prod) => (
+                                <ProductStrategyCard key={prod.id} product={prod as unknown as ProductStats} />
+                            ))
+                        )}
                     </div>
                 </div>
 
