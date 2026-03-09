@@ -150,59 +150,60 @@ export function AnalystDashboard() {
     }
 
     return (
-        <div className="p-6 space-y-6 animate-fade-in relative min-h-screen">
+        <div className="p-6 space-y-8 animate-fade-in relative min-h-screen bg-slate-50/30">
             {/* Header & KPI Summary */}
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+            <div className="flex flex-col md:flex-row justify-between items-end md:items-center gap-6 border-b border-slate-200 pb-8">
                 <div>
-                    <h2 className="text-3xl font-bold tracking-tight">Painel Operacional</h2>
-                    <p className="text-muted-foreground">Gestão de filas e aprovação de conteúdo</p>
+                    <h2 className="text-4xl font-black tracking-tighter uppercase text-slate-900 leading-none">Painel <span className="text-primary">Operacional</span></h2>
+                    <p className="text-xs font-medium text-slate-500 mt-2 tracking-widest uppercase">Sistema de Gestão de Filas v2.0</p>
                 </div>
+                <SeedInsumosBtn className="rounded-none border-2 border-slate-900 hover:bg-slate-900 hover:text-white transition-all font-bold uppercase tracking-wider" />
             </div>
 
-            <div className="flex flex-wrap gap-3 items-center">
+            <div className="flex flex-wrap gap-4 items-center">
                 <Badge
                     variant={activeFilter === 'pending' ? 'default' : 'outline'}
-                    className={`px-3 py-1 h-8 flex gap-2 cursor-pointer transition-all ${activeFilter === 'all' && 'hover:bg-accent'}`}
+                    className={`px-4 py-2 h-10 flex gap-2 cursor-pointer transition-all rounded-none border-2 font-black uppercase text-[10px] tracking-widest ${activeFilter === 'pending' ? 'bg-slate-900 border-slate-900' : 'hover:bg-slate-900/5 border-slate-200'}`}
                     onClick={() => setActiveFilter(activeFilter === 'pending' ? 'all' : 'pending')}
                 >
                     <FileText className="h-4 w-4" />
-                    Pendentes: <span className="font-bold">{stats.pending}</span>
+                    Pendentes: {stats.pending}
                 </Badge>
 
                 <Badge
                     variant={activeFilter === 'adjustments' ? 'default' : 'outline'}
-                    className={`px-3 py-1 h-8 flex gap-2 cursor-pointer transition-all border-amber-200 ${activeFilter === 'adjustments'
-                        ? 'bg-amber-500 hover:bg-amber-600 border-amber-500'
-                        : 'bg-amber-50 text-amber-900'
+                    className={`px-4 py-2 h-10 flex gap-2 cursor-pointer transition-all rounded-none border-2 font-black uppercase text-[10px] tracking-widest ${activeFilter === 'adjustments'
+                        ? 'bg-amber-500 border-amber-500 hover:bg-amber-600'
+                        : 'bg-amber-50/50 text-amber-900 border-amber-200'
                         }`}
                     onClick={() => setActiveFilter(activeFilter === 'adjustments' ? 'all' : 'adjustments')}
                 >
                     <AlertCircle className="h-4 w-4" />
-                    Ajustes: <span className="font-bold">{stats.adjustments}</span>
+                    Ajustes: {stats.adjustments}
                 </Badge>
 
                 <Badge
                     variant={activeFilter === 'delayed' ? 'default' : 'outline'}
-                    className={`px-3 py-1 h-8 flex gap-2 cursor-pointer transition-all border-red-200 ${activeFilter === 'delayed'
-                        ? 'bg-destructive hover:bg-destructive/90 border-destructive'
-                        : 'bg-red-50 text-red-900'
+                    className={`px-4 py-2 h-10 flex gap-2 cursor-pointer transition-all rounded-none border-2 font-black uppercase text-[10px] tracking-widest ${activeFilter === 'delayed'
+                        ? 'bg-red-600 border-red-600 hover:bg-red-700 text-white'
+                        : 'bg-red-50/50 text-red-900 border-red-200'
                         }`}
                     onClick={() => setActiveFilter(activeFilter === 'delayed' ? 'all' : 'delayed')}
                 >
                     <AlertCircle className="h-4 w-4" />
-                    Atrasados: <span className="font-bold">{stats.delayed}</span>
+                    Atrasados: {stats.delayed}
                 </Badge>
 
                 <Badge
                     variant={activeFilter === 'approved' ? 'default' : 'outline'}
-                    className={`px-3 py-1 h-8 flex gap-2 cursor-pointer transition-all border-emerald-200 ${activeFilter === 'approved'
-                        ? 'bg-emerald-600 hover:bg-emerald-700 border-emerald-600'
-                        : 'bg-emerald-50 text-emerald-900'
+                    className={`px-4 py-2 h-10 flex gap-2 cursor-pointer transition-all rounded-none border-2 font-black uppercase text-[10px] tracking-widest ${activeFilter === 'approved'
+                        ? 'bg-emerald-600 border-emerald-600 hover:bg-emerald-700 text-white'
+                        : 'bg-emerald-50/50 text-emerald-900 border-emerald-200'
                         }`}
                     onClick={() => setActiveFilter(activeFilter === 'approved' ? 'all' : 'approved')}
                 >
                     <CheckCircle2 className="h-4 w-4" />
-                    Aprovados: <span className="font-bold">{stats.approved}</span>
+                    Aprovados: {stats.approved}
                 </Badge>
             </div>
 
@@ -210,41 +211,41 @@ export function AnalystDashboard() {
             <ProductionTimeline />
 
             {/* Filters */}
-            <Card>
-                <CardContent className="p-4 flex flex-col md:flex-row gap-4 items-end md:items-center">
+            <Card className="rounded-none border-2 border-slate-900 shadow-[4px_4px_0px_0px_rgba(15,23,42,1)]">
+                <CardContent className="p-4 flex flex-col md:flex-row gap-4 items-end md:items-center bg-white">
                     <div className="flex-1 w-full relative">
-                        <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
                         <Input
-                            placeholder="Buscar por insumo ou produto..."
-                            className="pl-9"
+                            placeholder="FILTRAR POR INSUMO OU PRODUTO..."
+                            className="pl-10 rounded-none border-slate-200 focus-visible:ring-slate-900 placeholder:text-[10px] placeholder:tracking-widest placeholder:uppercase font-bold"
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
                         />
                     </div>
                     <div className="flex gap-2 w-full md:w-auto">
                         <Select value={productFilter} onValueChange={setProductFilter}>
-                            <SelectTrigger className="w-[180px]">
+                            <SelectTrigger className="w-[180px] rounded-none border-slate-200 font-bold uppercase text-[10px] tracking-wider">
                                 <SelectValue placeholder="Produto" />
                             </SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value="all">Todos os Produtos</SelectItem>
+                            <SelectContent className="rounded-none border-2 border-slate-900">
+                                <SelectItem value="all" className="uppercase text-[10px] font-bold">Todos os Produtos</SelectItem>
                                 {activeProducts.map((p) => (
-                                    <SelectItem key={p} value={p}>{p}</SelectItem>
+                                    <SelectItem key={p} value={p} className="uppercase text-[10px] font-bold">{p}</SelectItem>
                                 ))}
                             </SelectContent>
                         </Select>
 
                         <Select value={statusFilter} onValueChange={setStatusFilter}>
-                            <SelectTrigger className="w-[180px]">
+                            <SelectTrigger className="w-[180px] rounded-none border-slate-200 font-bold uppercase text-[10px] tracking-wider">
                                 <SelectValue placeholder="Status" />
                             </SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value="all">Todos os Status</SelectItem>
-                                <SelectItem value="nao_iniciado">Não Iniciado</SelectItem>
-                                <SelectItem value="em_preenchimento">Em Produção</SelectItem>
-                                <SelectItem value="enviado">Enviado / Revisão</SelectItem>
-                                <SelectItem value="ajuste_solicitado">Ajuste Solicitado</SelectItem>
-                                <SelectItem value="aprovado">Aprovado</SelectItem>
+                            <SelectContent className="rounded-none border-2 border-slate-900">
+                                <SelectItem value="all" className="uppercase text-[10px] font-bold">Todos os Status</SelectItem>
+                                <SelectItem value="nao_iniciado" className="uppercase text-[10px] font-bold">Não Iniciado</SelectItem>
+                                <SelectItem value="em_preenchimento" className="uppercase text-[10px] font-bold">Em Produção</SelectItem>
+                                <SelectItem value="enviado" className="uppercase text-[10px] font-bold">Enviado / Revisão</SelectItem>
+                                <SelectItem value="ajuste_solicitado" className="uppercase text-[10px] font-bold">Ajuste Solicitado</SelectItem>
+                                <SelectItem value="aprovado" className="uppercase text-[10px] font-bold">Aprovado</SelectItem>
                             </SelectContent>
                         </Select>
                     </div>
@@ -252,52 +253,52 @@ export function AnalystDashboard() {
             </Card>
 
             {/* Data Table */}
-            <Card className="overflow-hidden">
+            <Card className="rounded-none border-2 border-slate-900 overflow-hidden shadow-[8px_8px_0px_0px_rgba(15,23,42,1)] bg-white">
                 <Table>
-                    <TableHeader className="bg-muted/50">
-                        <TableRow>
-                            <TableHead className="w-[300px]">Insumo / Detalhes</TableHead>
-                            <TableHead>Produto</TableHead>
-                            <TableHead>Data Limite</TableHead>
-                            <TableHead>Status</TableHead>
-                            <TableHead>Anexos</TableHead>
-                            <TableHead className="text-right">Ações Rápidas</TableHead>
+                    <TableHeader className="bg-slate-900">
+                        <TableRow className="hover:bg-slate-900 border-none">
+                            <TableHead className="w-[300px] text-white uppercase text-[10px] font-black tracking-widest py-5">Insumo / Detalhes</TableHead>
+                            <TableHead className="text-white uppercase text-[10px] font-black tracking-widest py-5">Produto</TableHead>
+                            <TableHead className="text-white uppercase text-[10px] font-black tracking-widest py-5">Data Limite</TableHead>
+                            <TableHead className="text-white uppercase text-[10px] font-black tracking-widest py-5">Status</TableHead>
+                            <TableHead className="text-white uppercase text-[10px] font-black tracking-widest py-5">Anexos</TableHead>
+                            <TableHead className="text-right text-white uppercase text-[10px] font-black tracking-widest py-5">Ações Rápidas</TableHead>
                         </TableRow>
                     </TableHeader>
                     <TableBody>
                         {filteredInsumos.length === 0 ? (
                             <TableRow>
-                                <TableCell colSpan={6} className="h-24 text-center text-muted-foreground">
-                                    Nenhum insumo encontrado.
+                                <TableCell colSpan={6} className="h-32 text-center text-slate-400 uppercase text-[10px] font-bold tracking-widest">
+                                    Nenhum dado encontrado no sistema.
                                 </TableCell>
                             </TableRow>
                         ) : filteredInsumos.map((insumo) => (
-                            <TableRow key={insumo.id} className="group hover:bg-muted/50 transition-colors">
-                                <TableCell>
+                            <TableRow key={insumo.id} className="group hover:bg-slate-50 border-b border-slate-200 transition-all duration-300">
+                                <TableCell className="py-5">
                                     <div className="flex flex-col">
-                                        <span className="font-semibold text-foreground/90">{insumo.titulo || insumo.tipo_insumo?.nome}</span>
+                                        <span className="font-black text-slate-900 uppercase text-xs tracking-tight leading-4">{insumo.titulo || insumo.tipo_insumo?.nome}</span>
                                         {insumo.observacoes && (
-                                            <span className="text-xs text-muted-foreground truncate max-w-[250px] flex items-center gap-1 mt-1">
+                                            <span className="text-[10px] text-slate-500 font-medium truncate max-w-[250px] flex items-center gap-1.5 mt-2 bg-slate-100/50 w-fit px-2 py-0.5 border border-slate-200">
                                                 <MessageSquare className="h-3 w-3" /> {insumo.observacoes}
                                             </span>
                                         )}
                                         {insumo.status === 'ajuste_solicitado' && insumo.motivo_ajuste && (
-                                            <span className="text-xs text-amber-600 font-medium truncate max-w-[250px] flex items-center gap-1 mt-1 bg-amber-50 px-1 rounded border border-amber-200">
+                                            <span className="text-[10px] text-amber-700 font-bold truncate max-w-[250px] flex items-center gap-1.5 mt-2 bg-amber-100/50 px-2 py-0.5 border-l-4 border-l-amber-500 border-r border-t border-b border-amber-200">
                                                 <AlertCircle className="h-3 w-3" /> {insumo.motivo_ajuste}
                                             </span>
                                         )}
                                     </div>
                                 </TableCell>
                                 <TableCell>
-                                    <Badge variant="outline" className="font-normal">
+                                    <Badge variant="outline" className="rounded-none border-slate-200 font-bold uppercase text-[9px] tracking-widest bg-slate-50">
                                         {insumo.edicao?.produto?.nome}
                                     </Badge>
                                 </TableCell>
                                 <TableCell>
-                                    <div className="flex flex-col text-sm">
+                                    <div className="flex flex-col text-xs font-mono font-bold text-slate-600">
                                         <span>{insumo.data_limite ? format(new Date(insumo.data_limite), 'dd/MM/yyyy') : '-'}</span>
                                         {insumo.data_limite && new Date(insumo.data_limite) < new Date() && insumo.status !== 'aprovado' && (
-                                            <span className="text-[10px] text-red-500 font-bold uppercase">Atrasado</span>
+                                            <span className="text-[9px] text-red-600 font-black uppercase tracking-tighter mt-1 animate-pulse">ALERTA: ATRASADO</span>
                                         )}
                                     </div>
                                 </TableCell>
@@ -305,46 +306,47 @@ export function AnalystDashboard() {
                                     <Badge
                                         variant="secondary"
                                         className={`
-                                    capitalize 
-                                    ${insumo.status === 'aprovado' ? 'bg-emerald-100 text-emerald-800 hover:bg-emerald-100' : ''}
-                                    ${insumo.status === 'ajuste_solicitado' ? 'bg-amber-100 text-amber-800 hover:bg-amber-100' : ''}
+                                    rounded-none uppercase text-[9px] font-black tracking-widest px-2 py-1
+                                    ${insumo.status === 'aprovado' ? 'bg-emerald-100 text-emerald-800 border-l-4 border-emerald-500' : ''}
+                                    ${insumo.status === 'ajuste_solicitado' ? 'bg-amber-100 text-amber-800 border-l-4 border-amber-500' : ''}
+                                    ${insumo.status === 'nao_iniciado' ? 'bg-slate-100 text-slate-500 border-l-4 border-slate-400' : ''}
                                 `}
                                     >
                                         {insumo.status.replace('_', ' ')}
                                     </Badge>
                                 </TableCell>
                                 <TableCell>
-                                    <div className="flex gap-1">
+                                    <div className="flex gap-1.5">
                                         {insumo.anexos?.map((anexo) => (
                                             <a
                                                 key={anexo.id}
                                                 href={anexo.url}
                                                 target="_blank"
                                                 rel="noopener noreferrer"
-                                                className="h-8 w-8 rounded bg-muted flex items-center justify-center hover:bg-primary/10 hover:text-primary transition-colors border"
+                                                className="h-9 w-9 rounded-none bg-white flex items-center justify-center hover:bg-slate-900 hover:text-white transition-all border-2 border-slate-200"
                                                 title={anexo.nome_arquivo}
                                             >
                                                 {anexo.tipo === 'pdf' ? <FileText className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                                             </a>
                                         ))}
                                         {(!insumo.anexos || insumo.anexos.length === 0) && (
-                                            <span className="text-muted-foreground text-xs">-</span>
+                                            <span className="text-slate-300 font-mono text-xs">---</span>
                                         )}
                                     </div>
                                 </TableCell>
                                 <TableCell className="text-right">
-                                    <div className="flex justify-end gap-2">
+                                    <div className="flex justify-end gap-3">
                                         <Button
                                             size="sm"
                                             variant="ghost"
-                                            className="h-8 w-8 p-0"
+                                            className="h-10 w-10 p-0 rounded-none border-2 border-transparent hover:border-slate-900 transition-all group/btn"
                                             onClick={() => {
                                                 setSelectedInsumoId(insumo.id);
                                                 setIsDetailsOpen(true);
                                             }}
                                             title="Ver Detalhes"
                                         >
-                                            <Eye className="h-4 w-4 text-muted-foreground" />
+                                            <Eye className="h-5 w-5 text-slate-400 group-hover/btn:text-slate-900 transition-colors" />
                                         </Button>
 
                                         {insumo.status !== 'aprovado' && (
@@ -352,20 +354,20 @@ export function AnalystDashboard() {
                                                 <Button
                                                     size="sm"
                                                     variant="ghost"
-                                                    className="h-8 w-8 p-0 hover:bg-amber-50 hover:text-amber-600"
+                                                    className="h-10 w-10 p-0 rounded-none border-2 border-transparent hover:border-amber-500 hover:text-amber-600 transition-all group/adj"
                                                     onClick={() => setAdjustmentInsumo(insumo)}
                                                     title="Solicitar Ajuste"
                                                 >
-                                                    <ThumbsDown className="h-4 w-4" />
+                                                    <ThumbsDown className="h-5 w-5 text-slate-300 group-hover/adj:text-amber-500 transition-colors" />
                                                 </Button>
                                                 <Button
                                                     size="sm"
                                                     variant="ghost"
-                                                    className="h-8 w-8 p-0 hover:bg-emerald-50 hover:text-emerald-600"
+                                                    className="h-10 w-10 p-0 rounded-none border-2 border-transparent hover:border-emerald-500 hover:text-emerald-600 transition-all group/apr"
                                                     onClick={() => handleApprove(insumo)}
                                                     title="Aprovar"
                                                 >
-                                                    <ThumbsUp className="h-4 w-4" />
+                                                    <ThumbsUp className="h-5 w-5 text-slate-300 group-hover/apr:text-emerald-500 transition-colors" />
                                                 </Button>
                                             </>
                                         )}

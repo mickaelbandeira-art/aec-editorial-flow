@@ -32,102 +32,102 @@ export function ProductStrategyCard({ product }: ProductStrategyCardProps) {
     // Could come from DB, but hardcoding for consistency in UI demo
     const getProductColor = (slug: string) => {
         const colors: Record<string, string> = {
-            'claro': 'bg-red-500',
-            'ifood': 'bg-red-600',
-            'ifood-pago': 'bg-red-700',
-            'ton': 'bg-green-500',
-            'inter': 'bg-orange-500',
-            'fabrica': 'bg-zinc-800'
+            'claro': 'bg-red-600',
+            'ifood': 'bg-red-700',
+            'ifood-pago': 'bg-red-800',
+            'ton': 'bg-emerald-600',
+            'inter': 'bg-orange-600',
+            'fabrica': 'bg-slate-900'
         };
-        return colors[slug] || 'bg-blue-500';
+        return colors[slug] || 'bg-slate-800';
     };
 
     const headerColor = isInactive ? 'bg-slate-100' : getProductColor(product.slug);
 
     return (
-        <Card className={`overflow-hidden transition-all hover:shadow-md border-t-4 ${isInactive ? 'border-t-slate-300 opacity-75' : `border-t-transparent`}`}>
-            <div className={`h-2 w-full ${headerColor}`} />
+        <Card className={`rounded-none border-2 transition-all hover:-translate-y-1 hover:shadow-[8px_8px_0px_0px_rgba(15,23,42,1)] duration-300 ${isInactive ? 'border-slate-200 opacity-60 grayscale' : `border-slate-900`}`}>
+            <div className={`h-4 w-full ${headerColor} border-b-2 border-slate-900`} />
 
-            <CardHeader className="pb-2 pt-4 px-4 flex flex-row items-center justify-between">
+            <CardHeader className="pb-4 pt-6 px-6 flex flex-row items-center justify-between">
                 <div>
-                    <h3 className="font-bold text-lg leading-none">{product.nome}</h3>
+                    <h3 className="font-black text-xl uppercase tracking-tighter leading-none text-slate-900">{product.nome}</h3>
                     {isInactive ? (
-                        <p className="text-xs text-muted-foreground mt-1">Nenhuma edição ativa</p>
+                        <p className="text-[10px] font-bold text-slate-400 mt-2 uppercase tracking-widest">Inativo</p>
                     ) : (
-                        <p className="text-xs text-muted-foreground mt-1">{product.total} insumos neste ciclo</p>
+                        <p className="text-[10px] font-black text-slate-500 mt-2 uppercase tracking-widest">{product.total} Insumos ativos</p>
                     )}
                 </div>
                 {!isInactive && (
                     <div className="flex flex-col items-end">
-                        <span className="text-2xl font-bold">{product.percentual}%</span>
+                        <span className="text-3xl font-black tracking-tighter text-slate-900">{product.percentual}%</span>
                     </div>
                 )}
             </CardHeader>
 
-            <CardContent className="px-4 py-2">
+            <CardContent className="px-6 py-4">
                 {isInactive ? (
-                    <div className="h-24 flex items-center justify-center text-sm text-muted-foreground border-2 border-dashed rounded-md bg-slate-50">
-                        Aguardando início do ciclo
+                    <div className="h-32 flex items-center justify-center text-[10px] font-black uppercase tracking-widest text-slate-400 border-2 border-dashed border-slate-200 bg-slate-50">
+                        Ciclo finalizado
                     </div>
                 ) : (
-                    <div className="space-y-4">
+                    <div className="space-y-6">
                         {/* Progress Bar */}
-                        <div className="h-2 w-full bg-slate-100 rounded-full overflow-hidden">
+                        <div className="h-4 w-full bg-slate-100 border-2 border-slate-900 overflow-hidden p-0.5">
                             <div
-                                className={`h-full transition-all duration-500 ${headerColor}`}
+                                className={`h-full transition-all duration-1000 ${headerColor}`}
                                 style={{ width: `${product.percentual}%` }}
                             />
                         </div>
 
                         {/* Vital Signs Grid */}
-                        <div className="grid grid-cols-2 gap-2 text-xs">
-                            <div className="bg-slate-50 p-2 rounded border flex flex-col justify-between">
-                                <span className="text-muted-foreground mb-1 flex items-center gap-1">
-                                    <AlertTriangle className={`w-3 h-3 ${product.atrasados > 0 ? 'text-red-500 animate-pulse' : 'text-slate-300'}`} />
-                                    Atrasados
+                        <div className="grid grid-cols-2 gap-4">
+                            <div className="bg-white p-3 border-2 border-slate-900 shadow-[4px_4px_0px_0px_rgba(15,23,42,1)] flex flex-col justify-between">
+                                <span className="text-[9px] font-black uppercase text-slate-400 mb-2 flex items-center gap-2">
+                                    <AlertTriangle className={`w-3 h-3 ${product.atrasados > 0 ? 'text-red-600 animate-pulse' : 'text-slate-300'}`} />
+                                    Atraso
                                 </span>
-                                <span className={`font-bold text-lg ${product.atrasados > 0 ? 'text-red-500' : 'text-slate-700'}`}>
+                                <span className={`font-black text-2xl tracking-tighter ${product.atrasados > 0 ? 'text-red-600' : 'text-slate-900'}`}>
                                     {product.atrasados}
                                 </span>
                             </div>
-                            <div className="bg-slate-50 p-2 rounded border flex flex-col justify-between">
-                                <span className="text-muted-foreground mb-1 flex items-center gap-1">
-                                    <FolderClock className="w-3 h-3 text-blue-500" />
-                                    Em Andamento
+                            <div className="bg-white p-3 border-2 border-slate-900 shadow-[4px_4px_0px_0px_rgba(15,23,42,1)] flex flex-col justify-between">
+                                <span className="text-[9px] font-black uppercase text-slate-400 mb-2 flex items-center gap-2">
+                                    <FolderClock className="w-3 h-3 text-blue-600" />
+                                    Fluxo
                                 </span>
-                                <span className="font-bold text-lg text-slate-700">
+                                <span className="font-black text-2xl tracking-tighter text-slate-900">
                                     {product.total - product.concluidos}
                                 </span>
                             </div>
                         </div>
 
                         {/* Workflow Breakdown */}
-                        <div className="space-y-1">
-                            <p className="text-[10px] uppercase font-bold text-muted-foreground">Status do Fluxo</p>
-                            <div className="flex justify-between items-center text-xs border-b border-dashed border-slate-200 pb-1">
-                                <span className="flex items-center gap-1"><PlayCircle className="w-3 h-3 text-slate-400" /> Produção</span>
-                                <span className="font-medium bg-slate-100 px-1.5 rounded">{product.fases.producao}</span>
+                        <div className="space-y-2 border-t-2 border-slate-100 pt-4">
+                            <div className="flex justify-between items-center text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-2">
+                                <span>Status Atual</span>
                             </div>
-                            <div className="flex justify-between items-center text-xs border-b border-dashed border-slate-200 pb-1">
-                                <span className="flex items-center gap-1"><AlertCircle className="w-3 h-3 text-amber-400" /> Ajustes/Rev.</span>
-                                <span className="font-medium bg-amber-50 text-amber-700 px-1.5 rounded">
-                                    {product.fases.revisao + product.fases.ajustes} ({product.fases.ajustes} retornos)
-                                </span>
+                            <div className="flex justify-between items-center text-[11px] font-black uppercase tracking-tight py-1 border-b border-slate-50">
+                                <span className="flex items-center gap-2 text-slate-400"><PlayCircle className="w-3.5 h-3.5" /> Produção</span>
+                                <span className="text-slate-900">{product.fases.producao}</span>
                             </div>
-                            <div className="flex justify-between items-center text-xs">
-                                <span className="flex items-center gap-1"><CheckCircle2 className="w-3 h-3 text-emerald-500" /> Aprovado</span>
-                                <span className="font-medium bg-emerald-50 text-emerald-700 px-1.5 rounded">{product.fases.aprovado}</span>
+                            <div className="flex justify-between items-center text-[11px] font-black uppercase tracking-tight py-1 border-b border-slate-50 text-amber-600">
+                                <span className="flex items-center gap-2"><AlertCircle className="w-3.5 h-3.5" /> Ajustes</span>
+                                <span>{product.fases.revisao + product.fases.ajustes}</span>
+                            </div>
+                            <div className="flex justify-between items-center text-[11px] font-black uppercase tracking-tight py-1 text-emerald-600">
+                                <span className="flex items-center gap-2"><CheckCircle2 className="w-3.5 h-3.5" /> Aprovado</span>
+                                <span>{product.fases.aprovado}</span>
                             </div>
                         </div>
                     </div>
                 )}
             </CardContent>
 
-            <CardFooter className="px-4 py-3 bg-slate-50/50 mt-2">
-                <Button asChild variant="ghost" size="sm" className="w-full text-xs h-8 group hover:bg-white hover:shadow-sm border border-transparent hover:border-slate-200">
+            <CardFooter className="px-6 py-4 bg-slate-900 border-t-2 border-slate-900">
+                <Button asChild variant="ghost" size="sm" className="w-full text-[10px] font-black uppercase tracking-[0.2em] text-white h-10 hover:bg-white hover:text-slate-900 transition-all rounded-none">
                     <Link to={`/flowrev/produto/${product.slug}`}>
-                        Acessar Quadro
-                        <ArrowRight className="w-3 h-3 ml-2 group-hover:translate-x-1 transition-transform" />
+                        Expandir Quadro
+                        <ArrowRight className="w-4 h-4 ml-3" />
                     </Link>
                 </Button>
             </CardFooter>

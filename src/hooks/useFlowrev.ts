@@ -803,18 +803,24 @@ export function useManagerStats() {
       }));
 
       // 5. Monthly Comparison (Last 6 Months) - Parallelized
+      const now_base = new Date();
       const months = Array.from({ length: 6 }, (_, i) => 5 - i);
+      
       const comparativoMensalPromises = months.map(async (i) => {
-        const d = new Date();
-        d.setMonth(d.getMonth() - i);
+        const d = new Date(now_base.getFullYear(), now_base.getMonth() - i, 1);
         const m = d.getMonth() + 1;
         const y = d.getFullYear();
 
-        const { data: eds } = await supabase
+        const { data: eds, error: edErr } = await supabase
           .from('flowrev_edicoes')
           .select('percentual_conclusao')
           .eq('mes', m)
           .eq('ano', y);
+
+        if (edErr) {
+          console.warn(`Erro ao buscar histórico para ${m}/${y}:`, edErr);
+          return { name: `${m}/${y}`, progresso: 0 };
+        }
 
         const avg = eds && eds.length > 0
           ? eds.reduce((a, b) => a + (b.percentual_conclusao || 0), 0) / eds.length
@@ -849,6 +855,7 @@ export function useManagerStats() {
         comparativoMensal
       };
     },
+    staleTime: 1000 * 60 * 5, // Cache for 5 minutes
   });
 }
 
