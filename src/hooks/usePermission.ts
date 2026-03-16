@@ -12,6 +12,9 @@ export interface UserProfile {
     matricula: string;
     role: FlowrevRole;
     produtos_acesso: string[]; // Slugs
+    avatar_url?: string;
+    apelido?: string;
+    login_rede?: string;
 }
 
 interface AuthState {

@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
   LayoutDashboard,
   Newspaper,
@@ -10,11 +10,13 @@ import {
   ChevronRight,
   LogOut,
   MessageSquare,
-  Users
+  Users,
+  Settings
 } from 'lucide-react';
 import { useProdutos } from '@/hooks/useFlowrev';
 import { usePermissions, useAuthStore } from '@/hooks/usePermission';
 import { Button } from '@/components/ui/button';
+import { ProfileSettingsDialog } from './ProfileSettingsDialog';
 // Removed UserSwitcher
 
 
@@ -241,31 +243,43 @@ export function FlowrevSidebar({ isOpen, onClose, collapsed, setCollapsed }: Flo
           <div className="p-4 border-t-2 border-slate-200">
             <div className={cn(
               "bg-white border-2 border-slate-900 flex items-center transition-all shadow-[2px_2px_0px_0px_rgba(15,23,42,1)] rounded-none",
-              collapsed ? "p-2 justify-center aspect-square" : "p-3 gap-3"
+              collapsed ? "p-2 justify-center aspect-square" : "p-3 gap-2"
             )}>
               {!collapsed ? (
                 <>
-                  <Avatar className="h-10 w-10 border-2 border-slate-900 rounded-none shadow-none bg-slate-100">
+                  <Avatar className="h-10 w-10 border-2 border-slate-900 rounded-none shadow-none bg-slate-100 shrink-0">
+                    <AvatarImage src={user?.avatar_url || undefined} className="object-cover" />
                     <AvatarFallback className="bg-slate-900 text-white font-bold rounded-none">
-                      {user?.nome?.substring(0, 2).toUpperCase() || 'U'}
+                      {user?.apelido?.substring(0, 2).toUpperCase() || user?.nome?.substring(0, 2).toUpperCase() || 'U'}
                     </AvatarFallback>
                   </Avatar>
                   <div className="flex-1 min-w-0 overflow-hidden">
                     <p className="text-[11px] font-black uppercase tracking-wider text-slate-900 truncate">
-                      {user?.nome?.split(' ')[0]}
+                      {user?.apelido || user?.nome?.split(' ')[0]}
                     </p>
                     <p className="text-[9px] uppercase tracking-widest text-slate-500 font-bold truncate">
                       {user?.role?.replace('_', ' ') || 'Convidado'}
                     </p>
                   </div>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-8 w-8 text-slate-500 hover:text-white hover:bg-red-600 rounded-none shrink-0 border-2 border-transparent hover:border-red-600 transition-all"
-                    onClick={handleLogout}
-                  >
-                    <LogOut className="h-4 w-4" />
-                  </Button>
+                  <div className="flex flex-col gap-1 shrink-0">
+                    <ProfileSettingsDialog>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-6 w-6 text-slate-500 hover:text-slate-900 hover:bg-slate-100 rounded-none border-2 border-transparent hover:border-slate-300 transition-all"
+                      >
+                        <Settings className="h-3 w-3" />
+                      </Button>
+                    </ProfileSettingsDialog>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-6 w-6 text-slate-500 hover:text-white hover:bg-red-600 rounded-none border-2 border-transparent hover:border-red-600 transition-all"
+                      onClick={handleLogout}
+                    >
+                      <LogOut className="h-3 w-3" />
+                    </Button>
+                  </div>
                 </>
               ) : (
                 <Button

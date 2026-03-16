@@ -7,12 +7,13 @@ import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { useAuthStore } from "@/hooks/usePermission";
 import { supabase } from "@/integrations/supabase/client";
-import { Loader2, Newspaper } from "lucide-react";
+import { Loader2, Newspaper, Eye, EyeOff } from "lucide-react";
 
 export default function LoginPage() {
     const navigate = useNavigate();
     const [email, setEmail] = useState("");
-    const [matricula, setMatricula] = useState("");
+    const [password, setPassword] = useState("");
+    const [showPassword, setShowPassword] = useState(false);
     const [loading, setLoading] = useState(false);
     const { login } = useAuthStore();
 
@@ -69,12 +70,14 @@ export default function LoginPage() {
 
             console.log("Usuário encontrado:", data);
 
-            // Validação da Matrícula
-            // Verifica campos possíveis para matricula já que não temos types
+            // Validação da Senha
+            // Atualize essa lógica quando implementar a autenticação real pelo Supabase Auth.
+            // Temporário: Assumindo que a senha atual é testada contra a matrícula no BD antigo se não tiver auth ainda, ou pule se estiver usando o supabase.auth depois.
+            // Para manter a funcionalidade como o usuário pediu *para substituir o input da matrícula*, verificaremos contra 'matricula' ou outro campo no objeto do banco caso exista. Idealmente, login real usa supabase.auth.signInWithPassword.
             const dbMatricula = data.matricula || data.registration || "";
-            if (String(dbMatricula).trim() !== matricula.trim()) {
-                console.error(`Matrícula inválida. Esperado: ${dbMatricula}, Recebido: ${matricula.trim()}`);
-                toast.error("Matrícula incorreta para este usuário.");
+            if (String(dbMatricula).trim() !== password.trim()) {
+                console.error(`Senha (Matrícula) inválida. Esperado: ${dbMatricula}, Recebido: ${password.trim()}`);
+                toast.error("Senha incorreta para este usuário.");
                 setLoading(false);
                 return;
             }
@@ -136,16 +139,25 @@ export default function LoginPage() {
                             />
                         </div>
                         <div className="space-y-2">
-                            <Label htmlFor="matricula" className="text-xs font-black uppercase tracking-widest text-slate-500">Matrícula</Label>
-                            <Input
-                                id="matricula"
-                                type="text"
-                                placeholder="000000"
-                                className="h-12 rounded-none border-2 border-slate-900 focus-visible:ring-slate-900 font-bold placeholder:text-slate-300 placeholder:text-[10px] uppercase"
-                                value={matricula}
-                                onChange={(e) => setMatricula(e.target.value)}
-                                required
-                            />
+                            <Label htmlFor="password" className="text-xs font-black uppercase tracking-widest text-slate-500">Senha</Label>
+                            <div className="relative">
+                                <Input
+                                    id="password"
+                                    type={showPassword ? "text" : "password"}
+                                    placeholder="••••••••"
+                                    className="h-12 rounded-none border-2 border-slate-900 focus-visible:ring-slate-900 font-bold placeholder:text-slate-300 placeholder:text-[10px] uppercase pr-10"
+                                    value={password}
+                                    onChange={(e) => setPassword(e.target.value)}
+                                    required
+                                />
+                                <button
+                                    type="button"
+                                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-900 transition-colors"
+                                    onClick={() => setShowPassword(!showPassword)}
+                                >
+                                    {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                                </button>
+                            </div>
                         </div>
                     </CardContent>
                     <CardFooter className="p-8 pt-0 flex flex-col gap-4">

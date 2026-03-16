@@ -724,15 +724,17 @@ export function useAllInsumos(mesParam?: number, anoParam?: number) {
   });
 }
 export function useManagerStats(mesParam?: number, anoParam?: number) {
+  const currentUser = useAuthStore(state => state.user);
+
   return useQuery({
-    queryKey: ['flowrev-manager-stats', mesParam, anoParam],
+    queryKey: ['flowrev-manager-stats', mesParam, anoParam, currentUser?.id],
     queryFn: async () => {
       const now = new Date();
       const mesAtual = mesParam || now.getMonth() + 1;
       const anoAtual = anoParam || now.getFullYear();
 
       // 0. Fetch ALL Active Products
-      const { data: allProducts, error: errProd } = await supabase
+      let { data: allProducts, error: errProd } = await supabase
         .from('flowrev_produtos')
         .select('*')
         .eq('ativo', true)
@@ -740,8 +742,15 @@ export function useManagerStats(mesParam?: number, anoParam?: number) {
 
       if (errProd) throw errProd;
 
+      // Aplicar filtro de permissão por usuário
+      if (currentUser?.role !== 'gerente') {
+        allProducts = (allProducts || []).filter(p => currentUser?.produtos_acesso?.includes(p.slug));
+      }
+      
+      const allowedProdutoIds = (allProducts || []).map(p => p.id);
+
       // 1. Fetch current month editions and their insumos
-      const { data: edicoesAtual, error: errEdicoes } = await supabase
+      const { data: edicoesAtualRaw, error: errEdicoes } = await supabase
         .from('flowrev_edicoes')
         .select(`
           *,
@@ -752,7 +761,8 @@ export function useManagerStats(mesParam?: number, anoParam?: number) {
 
       if (errEdicoes) throw errEdicoes;
 
-      const edicoesIds = edicoesAtual?.map(e => e.id) || [];
+      const edicoesAtual = (edicoesAtualRaw || []).filter(e => allowedProdutoIds.includes(e.produto_id));
+      const edicoesIds = edicoesAtual.map(e => e.id);
       let insumosAtual: Insumo[] = [];
       if (edicoesIds.length > 0) {
         const { data, error: errInsumos } = await supabase
@@ -865,7 +875,7 @@ export function useManagerStats(mesParam?: number, anoParam?: number) {
 
         const { data: eds, error: edErr } = await supabase
           .from('flowrev_edicoes')
-          .select('percentual_conclusao')
+          .select('percentual_conclusao, produto_id')
           .eq('mes', m)
           .eq('ano', y);
 
@@ -874,8 +884,10 @@ export function useManagerStats(mesParam?: number, anoParam?: number) {
           return { name: `${m}/${y}`, progresso: 0 };
         }
 
-        const avg = eds && eds.length > 0
-          ? eds.reduce((a, b) => a + (b.percentual_conclusao || 0), 0) / eds.length
+        const filteredEds = (eds || []).filter(e => allowedProdutoIds.includes(e.produto_id));
+
+        const avg = filteredEds.length > 0
+          ? filteredEds.reduce((a, b) => a + (b.percentual_conclusao || 0), 0) / filteredEds.length
           : 0;
 
         return {
@@ -1147,8 +1159,25 @@ export function useUpdateUserRole() {
         throw error;
       }
     },
-    onSuccess: () => {
+    onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ['flowrev-users-management'] });
+      
+      const authState = useAuthStore.getState();
+      if (authState.user && authState.user.id === variables.userId) {
+        // Atualiza o estado do usuário logado localmente para refletir na sidebar
+        useAuthStore.setState({
+          user: {
+            ...authState.user,
+            role: variables.role as any,
+            produtos_acesso: variables.produtos_acesso
+          }
+        });
+        
+        // Ou refetch completo (opcional, setando estado local garante UI instantanea)
+        if (authState.setSelectedEmail) {
+          authState.setSelectedEmail(authState.user.email);
+        }
+      }
     },
   });
 }
@@ -1204,5 +1233,94 @@ export function useDeleteUser() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['flowrev-users-management'] });
     },
+  });
+}
+
+export function useUploadAvatar() {
+  const currentUser = useAuthStore.getState().user;
+
+  return useMutation({
+    mutationFn: async (file: File) => {
+      if (!currentUser) throw new Error("Usuário não autenticado");
+
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${currentUser.id}/${Date.now()}-avatar.${fileExt}`;
+      const bucket = 'flowrev-avatars';
+
+      const { error: uploadError } = await supabase.storage
+        .from(bucket)
+        .upload(fileName, file, { upsert: true });
+
+      if (uploadError) {
+        console.error("Erro no upload do Avatar:", uploadError);
+        throw new Error(`Erro no upload: ${uploadError.message}`);
+      }
+
+      const { data: { publicUrl } } = supabase.storage
+        .from(bucket)
+        .getPublicUrl(fileName);
+
+      return publicUrl;
+    }
+  });
+}
+
+export function useUpdateUserProfile() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({
+      userId,
+      apelido,
+      avatar_url,
+      login_rede
+    }: {
+      userId: string;
+      apelido?: string;
+      avatar_url?: string;
+      login_rede?: string;
+    }) => {
+      const updates: Record<string, string> = {};
+      if (apelido !== undefined) updates.apelido = apelido;
+      if (avatar_url !== undefined) updates.avatar_url = avatar_url;
+      if (login_rede !== undefined) updates.login_rede = login_rede;
+
+      const { error } = await supabase
+        .from('flowrev_users')
+        .update(updates)
+        .eq('id', userId);
+
+      if (error) {
+        console.error("Erro ao atualizar perfil:", error);
+        throw error;
+      }
+    },
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: ['flowrev-users-management'] });
+      
+      const authState = useAuthStore.getState();
+      if (authState.user && authState.user.id === variables.userId) {
+        useAuthStore.setState({
+          user: {
+            ...authState.user,
+            apelido: variables.apelido !== undefined ? variables.apelido : authState.user.apelido,
+            avatar_url: variables.avatar_url !== undefined ? variables.avatar_url : authState.user.avatar_url,
+            login_rede: variables.login_rede !== undefined ? variables.login_rede : authState.user.login_rede,
+          }
+        });
+      }
+    },
+  });
+}
+
+export function useUpdatePassword() {
+  return useMutation({
+    mutationFn: async (password: string) => {
+      const { error } = await supabase.auth.updateUser({ password });
+      if (error) {
+        console.error("Erro ao atualizar senha:", error);
+        throw new Error(error.message);
+      }
+    }
   });
 }
