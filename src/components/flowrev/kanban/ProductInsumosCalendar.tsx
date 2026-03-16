@@ -43,15 +43,15 @@ function CalendarDay({ day, insumos, isCurrentMonth, onClick }: { day: Date, ins
     return (
         <div
             ref={setNodeRef}
-            className={`min-h-[120px] p-2 border-r border-b border-slate-100 transition-colors 
-                ${!isCurrentMonth ? 'bg-slate-50/50' : 'bg-white'} 
-                ${isOver ? 'bg-blue-50 ring-2 ring-inset ring-blue-200' : ''}
-                ${isCurrentDay ? 'bg-blue-50/30' : ''}
+            className={`min-h-[120px] p-2 border-r-2 border-b-2 border-slate-900 transition-colors 
+                ${!isCurrentMonth ? 'bg-slate-100/50' : 'bg-white'} 
+                ${isOver ? 'bg-primary/20' : ''}
+                ${isCurrentDay ? 'bg-primary/10' : ''}
             `}
         >
-            <div className={`text-right text-sm mb-2 font-medium ${!isCurrentMonth ? 'text-slate-300' : isCurrentDay ? 'text-blue-600' : 'text-slate-500'}`}>
+            <div className={`text-right text-xs mb-2 font-black italic uppercase tracking-tighter ${!isCurrentMonth ? 'text-slate-400' : isCurrentDay ? 'text-primary' : 'text-slate-900'}`}>
                 {format(day, 'd')}
-                {isCurrentDay && <span className="ml-1 text-[10px] font-normal">(Hoje)</span>}
+                {isCurrentDay && <span className="ml-1 text-[8px]">(Hoje)</span>}
             </div>
 
             <div className="space-y-2">
@@ -74,13 +74,13 @@ export function ProductInsumosCalendar({ insumos, onUpdateDate, onInsumoClick }:
     const currentDate = new Date(); // You might want to make this stateful to navigate months
 
     const calendarDays = useMemo(() => {
-        const monthStart = startOfMonth(currentDate);
+        const monthStart = startOfMonth(new Date()); // Fix: Use static date or state
         const monthEnd = endOfMonth(monthStart);
-        const startDate = startOfWeek(monthStart);
-        const endDate = endOfWeek(monthEnd);
+        const startDate = startOfWeek(monthStart, { locale: ptBR });
+        const endDate = endOfWeek(monthEnd, { locale: ptBR });
 
         return eachDayOfInterval({ start: startDate, end: endDate });
-    }, [currentDate]);
+    }, []); // Empty dependency since currentDate is static for now
 
     const sensors = useSensors(
         useSensor(PointerSensor, {
@@ -121,11 +121,11 @@ export function ProductInsumosCalendar({ insumos, onUpdateDate, onInsumoClick }:
             onDragStart={onDragStart}
             onDragEnd={onDragEnd}
         >
-            <div className="flex flex-col h-full bg-white rounded-lg border border-slate-200 shadow-sm overflow-hidden">
+            <div className="flex flex-col h-full bg-white rounded-none border-4 border-slate-900 shadow-[16px_16px_0_0_rgba(15,23,42,1)] overflow-hidden">
                 {/* Calendar Header Row */}
-                <div className="grid grid-cols-7 border-b border-slate-200 bg-slate-50">
+                <div className="grid grid-cols-7 border-b-4 border-slate-900 bg-slate-900">
                     {weekDays.map(day => (
-                        <div key={day} className="py-2 text-center text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                        <div key={day} className="py-3 text-center text-[10px] font-black text-white uppercase tracking-[0.2em] italic">
                             {day}
                         </div>
                     ))}

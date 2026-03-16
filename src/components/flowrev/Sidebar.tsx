@@ -9,7 +9,8 @@ import {
   ChevronLeft,
   ChevronRight,
   LogOut,
-  MessageSquare
+  MessageSquare,
+  Users
 } from 'lucide-react';
 import { useProdutos } from '@/hooks/useFlowrev';
 import { usePermissions, useAuthStore } from '@/hooks/usePermission';
@@ -41,6 +42,7 @@ const mainNavItems = [
   { icon: Newspaper, label: 'Esteira de Produção', href: '/flowrev/production' },
   { icon: Calendar, label: 'Calendário', href: '/flowrev/calendar' },
   { icon: MessageSquare, label: 'Central de Feedback', href: '/flowrev/feedback' },
+  { icon: Users, label: 'Gestão de Usuários', href: '/flowrev/usuarios' },
 ];
 
 interface FlowrevSidebarProps {
@@ -157,6 +159,11 @@ export function FlowrevSidebar({ isOpen, onClose, collapsed, setCollapsed }: Flo
             <div className="space-y-1">
               {mainNavItems.map((item) => {
                 const isActive = location.pathname === item.href;
+                // Filtrar Gestão de Usuários apenas para admin
+                if (item.label === 'Gestão de Usuários' && user?.role !== 'gerente' && user?.role !== 'coordenador') {
+                  return null;
+                }
+
                 return (
                   <Link
                     key={item.href}

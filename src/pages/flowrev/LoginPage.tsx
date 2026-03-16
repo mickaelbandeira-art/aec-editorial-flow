@@ -35,22 +35,7 @@ export default function LoginPage() {
         setLoading(true);
 
         try {
-            // BYPASS FOR DEV/TESTING
-            if (email.trim() === 'mickael.bandeira@aec.com.br' && matricula.trim() === '461576') {
-                const userProfile = {
-                    id: "dev-bypass-id",
-                    email: "mickael.bandeira@aec.com.br",
-                    nome: "Mickael Bandeira",
-                    matricula: "461576",
-                    role: "analista" as const,
-                    produtos_acesso: ["claro", "rh", "ton"]
-                };
-                login(userProfile);
-                toast.success(`Bem-vindo, ${userProfile.nome}! (Modo Dev)`);
-                navigate("/flowrev");
-                setLoading(false);
-                return;
-            }
+            // Validação de acesso via Banco de Dados (flowrev_users)
 
             // Verifica se o usuário existe no banco 'flowrev_users' (conforme solicitado pelo usuário, apesar de não estar nos types)
             console.log("Tentando buscar em flowrev_users para o email:", email.trim());

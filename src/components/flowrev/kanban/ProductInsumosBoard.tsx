@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import {
     DndContext,
     DragEndEvent,
@@ -54,6 +54,44 @@ export function ProductInsumosBoard({ insumos, edicaoId, searchTerm = '' }: Prod
     const [isDialogOpen, setIsDialogOpen] = useState(false);
     const [viewMode, setViewMode] = useState<'board' | 'calendar'>('board');
     const [activeMobileColumn, setActiveMobileColumn] = useState<InsumoStatus>('nao_iniciado');
+
+    // Scroll Logic
+    const scrollContainerRef = useRef<HTMLDivElement>(null);
+    const [isDraggingBoard, setIsDraggingBoard] = useState(false);
+    const [startX, setStartX] = useState(0);
+    const [scrollLeftState, setScrollLeftState] = useState(0);
+
+    const handleMouseDown = (e: React.MouseEvent) => {
+        // Evita interferir em botões ou inputs
+        if ((e.target as HTMLElement).closest('button') || (e.target as HTMLElement).closest('select') || activeItem) {
+            return;
+        }
+        
+        if (scrollContainerRef.current) {
+            setIsDraggingBoard(true);
+            setStartX(e.pageX - scrollContainerRef.current.offsetLeft);
+            setScrollLeftState(scrollContainerRef.current.scrollLeft);
+        }
+    };
+
+    const handleMouseLeave = () => setIsDraggingBoard(false);
+    const handleMouseUp = () => setIsDraggingBoard(false);
+
+    const handleMouseMove = (e: React.MouseEvent) => {
+        if (!isDraggingBoard || !scrollContainerRef.current || activeItem) return;
+        
+        e.preventDefault();
+        const x = e.pageX - scrollContainerRef.current.offsetLeft;
+        const walk = (x - startX) * 1.5; // Velocidade do scroll
+        scrollContainerRef.current.scrollLeft = scrollLeftState - walk;
+    };
+
+    const handleWheel = (e: React.WheelEvent) => {
+        if (scrollContainerRef.current && !activeItem) {
+            // Converte scroll vertical em horizontal
+            scrollContainerRef.current.scrollLeft += e.deltaY;
+        }
+    };
 
     const filteredInsumos = insumos.filter(i => {
         // 1. Search Term
@@ -352,7 +390,18 @@ export function ProductInsumosBoard({ insumos, edicaoId, searchTerm = '' }: Prod
                     </div>
 
                     {/* Desktop Board View (Horizontal Scroll) */}
-                    <div className="hidden md:flex flex-1 gap-4 overflow-x-auto p-4 custom-scrollbar min-h-0">
+                    <div 
+                        ref={scrollContainerRef}
+                        onMouseDown={handleMouseDown}
+                        onMouseLeave={handleMouseLeave}
+                        onMouseUp={handleMouseUp}
+                        onMouseMove={handleMouseMove}
+                        onWheel={handleWheel}
+                        className={cn(
+                            "hidden md:flex flex-1 gap-4 overflow-x-auto p-4 custom-scrollbar min-h-0 select-none transition-colors",
+                            isDraggingBoard ? "cursor-grabbing bg-slate-100/30" : "cursor-grab"
+                        )}
+                    >
                         {COLUMNS.map(col => (
                             <div key={col.id} className="shrink-0 h-full">
                                 <ProductKanbanColumn

@@ -1103,3 +1103,106 @@ export function useDuplicateInsumo() {
     },
   });
 }
+
+export function useUsersManagement() {
+  return useQuery({
+    queryKey: ['flowrev-users-management'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('flowrev_users')
+        .select('*')
+        .order('nome');
+
+      if (error) throw error;
+      return data as any[];
+    },
+  });
+}
+
+export function useUpdateUserRole() {
+  const queryClient = useQueryClient();
+  const currentUser = useAuthStore.getState().user;
+
+  return useMutation({
+    mutationFn: async ({
+      userId,
+      role,
+      produtos_acesso
+    }: {
+      userId: string;
+      role: string;
+      produtos_acesso: string[];
+    }) => {
+      console.log("Chamando RPC flowrev_update_user_permissions", { userId, role, produtos_acesso, adminEmail: currentUser?.email });
+      
+      const { error } = await supabase.rpc('flowrev_update_user_permissions', {
+        target_user_id: userId,
+        new_role: role,
+        new_produtos: produtos_acesso,
+        admin_email: currentUser?.email || ''
+      });
+
+      if (error) {
+        console.error("Erro RPC:", error);
+        throw error;
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['flowrev-users-management'] });
+    },
+  });
+}
+
+export function useCreateUser() {
+  const queryClient = useQueryClient();
+  const currentUser = useAuthStore.getState().user;
+
+  return useMutation({
+    mutationFn: async ({
+      email,
+      nome,
+      matricula,
+      role,
+      produtos_acesso
+    }: {
+      email: string;
+      nome: string;
+      matricula: string;
+      role: string;
+      produtos_acesso: string[];
+    }) => {
+      const { error } = await supabase.rpc('flowrev_create_user', {
+        new_email: email,
+        new_nome: nome,
+        new_matricula: matricula,
+        new_role: role,
+        new_produtos: produtos_acesso,
+        admin_email: currentUser?.email || ''
+      });
+
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['flowrev-users-management'] });
+    },
+  });
+}
+
+export function useDeleteUser() {
+  const queryClient = useQueryClient();
+  const currentUser = useAuthStore.getState().user;
+
+  return useMutation({
+    mutationFn: async (userId: string) => {
+      const { error } = await supabase.rpc('flowrev_delete_user', {
+        target_user_id: userId,
+        admin_email: currentUser?.email || ''
+      });
+
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['flowrev-users-management'] });
+    },
+  });
+}

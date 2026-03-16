@@ -1,4 +1,4 @@
-export type FlowrevRole = 'coordenador' | 'supervisor' | 'analista' | 'gerente';
+export type FlowrevRole = 'coordenador' | 'supervisor' | 'analista' | 'analista_pleno' | 'gerente';
 
 export type InsumoStatus =
   | 'nao_iniciado'

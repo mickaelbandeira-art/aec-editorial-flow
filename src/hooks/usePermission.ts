@@ -3,14 +3,14 @@ import { supabase } from "@/integrations/supabase/client";
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
-export type UserRole = 'supervisor' | 'analista_pleno' | 'analista' | 'coordenador' | 'gerente';
+export type FlowrevRole = 'supervisor' | 'analista_pleno' | 'analista' | 'coordenador' | 'gerente';
 
 export interface UserProfile {
     id: string;
     email: string;
     nome: string;
     matricula: string;
-    role: UserRole;
+    role: FlowrevRole;
     produtos_acesso: string[]; // Slugs
 }
 
@@ -62,12 +62,6 @@ export function usePermissions() {
 
     const canAccessProduct = (productSlug: string) => {
         if (!user) return false;
-
-        // Hardcoded overrides for specific users/cases
-        if (user.email === 'mickael.bandeira@aec.com.br') {
-            if (productSlug === 'claro' || productSlug === 'rh' || productSlug === 'ton') return true;
-            if (productSlug === 'fabrica') return false;
-        }
 
         if (user.role === 'gerente') return true; // Full access
         return user.produtos_acesso?.includes(productSlug) || false;
