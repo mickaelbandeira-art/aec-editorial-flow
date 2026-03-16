@@ -55,5 +55,26 @@ export function useGemini() {
         }
     };
 
-    return { fixGrammar, isLoading };
+    const generateDraft = async (titulo: string, tipo: string, observacoes: string = ""): Promise<string | null> => {
+        setIsLoading(true);
+        const toastId = toast.loading("Gerando rascunho mágico com a IA... ✨");
+        try {
+            const draftHtml = await geminiService.generateDraft(titulo, tipo, observacoes);
+            
+            if (draftHtml) {
+               toast.success("Rascunho gerado com sucesso!", { id: toastId });
+               return draftHtml;
+            }
+            throw new Error("Falha na geração");
+        } catch (error) {
+            console.error("Generate Draft Error:", error);
+            const msg = error instanceof Error ? error.message : "Erro na geração";
+            toast.error(`Falha: ${msg}`, { id: toastId });
+            return null;
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    return { fixGrammar, generateDraft, isLoading };
 }

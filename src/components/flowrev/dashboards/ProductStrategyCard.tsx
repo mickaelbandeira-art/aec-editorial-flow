@@ -48,18 +48,18 @@ export function ProductStrategyCard({ product }: ProductStrategyCardProps) {
         <Card className={`rounded-none border-2 transition-all hover:-translate-y-1 hover:shadow-[8px_8px_0px_0px_rgba(15,23,42,1)] duration-300 ${isInactive ? 'border-slate-200 opacity-60 grayscale' : `border-slate-900`}`}>
             <div className={`h-4 w-full ${headerColor} border-b-2 border-slate-900`} />
 
-            <CardHeader className="pb-4 pt-6 px-6 flex flex-row items-center justify-between">
+            <CardHeader className="pb-4 pt-6 px-6 flex flex-row items-center justify-between border-b-2 border-slate-900">
                 <div>
-                    <h3 className="font-black text-xl uppercase tracking-tighter leading-none text-slate-900">{product.nome}</h3>
+                    <h3 className="font-black text-2xl uppercase tracking-tighter leading-none text-slate-900 italic">{product.nome}</h3>
                     {isInactive ? (
-                        <p className="text-[10px] font-bold text-slate-400 mt-2 uppercase tracking-widest">Inativo</p>
+                        <p className="text-[10px] font-bold text-slate-400 mt-2 uppercase tracking-widest leading-none">Inativo</p>
                     ) : (
-                        <p className="text-[10px] font-black text-slate-500 mt-2 uppercase tracking-widest">{product.total} Insumos ativos</p>
+                        <p className="text-[10px] font-black text-slate-500 mt-2 uppercase tracking-widest leading-none">{product.total} Insumos ativos</p>
                     )}
                 </div>
                 {!isInactive && (
                     <div className="flex flex-col items-end">
-                        <span className="text-3xl font-black tracking-tighter text-slate-900">{product.percentual}%</span>
+                        <span className="text-4xl font-black tracking-tighter text-slate-900 italic">{product.percentual}%</span>
                     </div>
                 )}
             </CardHeader>
@@ -72,9 +72,9 @@ export function ProductStrategyCard({ product }: ProductStrategyCardProps) {
                 ) : (
                     <div className="space-y-6">
                         {/* Progress Bar */}
-                        <div className="h-4 w-full bg-slate-100 border-2 border-slate-900 overflow-hidden p-0.5">
+                        <div className="h-6 w-full bg-slate-100 border-4 border-slate-900 overflow-hidden p-1 shadow-[2px_2px_0_0_rgba(15,23,42,1)]">
                             <div
-                                className={`h-full transition-all duration-1000 ${headerColor}`}
+                                className={`h-full transition-all duration-1000 ${headerColor} border-r-2 border-slate-900`}
                                 style={{ width: `${product.percentual}%` }}
                             />
                         </div>

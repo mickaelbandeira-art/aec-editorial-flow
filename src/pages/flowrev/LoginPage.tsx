@@ -123,48 +123,53 @@ export default function LoginPage() {
     };
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-gray-100 dark:bg-gray-900 p-4">
-            <Card className="w-full max-w-md">
-                <CardHeader className="space-y-1 flex flex-col items-center text-center">
-                    <div className="flex flex-col items-center gap-2 mb-8">
-                        <div className="h-12 w-12 rounded-xl bg-primary flex items-center justify-center mb-2">
-                            <Newspaper className="h-7 w-7 text-primary-foreground" />
+        <div className="min-h-screen flex items-center justify-center bg-[#fafafa] p-6 animate-fade-in">
+            <Card className="w-full max-w-md rounded-none border-4 border-slate-900 shadow-[16px_16px_0_0_rgba(15,23,42,1)] bg-white overflow-hidden">
+                <CardHeader className="space-y-4 flex flex-col items-center text-center bg-slate-900 p-8 border-b-4 border-slate-900">
+                    <div className="flex flex-col items-center gap-4">
+                        <div className="h-16 w-16 rounded-none border-4 border-white bg-white flex items-center justify-center rotate-3 shadow-[4px_4px_0_0_rgba(255,255,255,0.2)]">
+                            <Newspaper className="h-8 w-8 text-slate-900" />
                         </div>
-                        <h1 className="text-2xl font-bold text-center">Revistas do Treinamento</h1>
-                        <p className="text-sm text-muted-foreground text-center">
-                            Entre com seu e-mail corporativo e matrícula
-                        </p>
+                        <div>
+                            <h1 className="text-3xl font-black text-white uppercase tracking-tighter leading-none italic">AEC Flow</h1>
+                            <p className="text-[10px] font-bold text-slate-400 mt-2 uppercase tracking-[0.2em]">Editorial & Production Central</p>
+                        </div>
                     </div>
                 </CardHeader>
                 <form onSubmit={handleLogin}>
-                    <CardContent className="space-y-4">
+                    <CardContent className="space-y-6 p-8">
                         <div className="space-y-2">
-                            <Label htmlFor="email">E-mail</Label>
+                            <Label htmlFor="email" className="text-xs font-black uppercase tracking-widest text-slate-500">E-mail Corporativo</Label>
                             <Input
                                 id="email"
                                 type="email"
-                                placeholder="nome.sobrenome@aec.com.br"
+                                placeholder="NOME.SOBRENOME@AEC.COM.BR"
+                                className="h-12 rounded-none border-2 border-slate-900 focus-visible:ring-slate-900 font-bold placeholder:text-slate-300 placeholder:text-[10px] uppercase"
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}
                                 required
                             />
                         </div>
                         <div className="space-y-2">
-                            <Label htmlFor="matricula">Matrícula</Label>
+                            <Label htmlFor="matricula" className="text-xs font-black uppercase tracking-widest text-slate-500">Matrícula</Label>
                             <Input
                                 id="matricula"
                                 type="text"
-                                placeholder="123456"
+                                placeholder="000000"
+                                className="h-12 rounded-none border-2 border-slate-900 focus-visible:ring-slate-900 font-bold placeholder:text-slate-300 placeholder:text-[10px] uppercase"
                                 value={matricula}
                                 onChange={(e) => setMatricula(e.target.value)}
                                 required
                             />
                         </div>
                     </CardContent>
-                    <CardFooter>
-                        <Button type="submit" className="w-full" disabled={loading}>
-                            {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : "Entrar"}
+                    <CardFooter className="p-8 pt-0 flex flex-col gap-4">
+                        <Button type="submit" className="w-full h-14 rounded-none border-2 border-slate-900 bg-primary text-primary-foreground font-black uppercase tracking-[0.2em] shadow-[4px_4px_0_0_rgba(15,23,42,1)] hover:translate-y-[-2px] hover:shadow-[6px_6px_0_0_rgba(15,23,42,1)] transition-all active:translate-y-[2px] active:shadow-none" disabled={loading}>
+                            {loading ? <Loader2 className="mr-2 h-5 w-5 animate-spin" /> : "Acessar Sistema"}
                         </Button>
+                        <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest text-center">
+                            Acesso restrito a colaboradores autorizados
+                        </p>
                     </CardFooter>
                 </form>
             </Card>

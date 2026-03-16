@@ -99,7 +99,7 @@ export function ProductKanbanColumn({ column, items, onItemClick, edicaoId }: Pr
             <div
                 ref={setNodeRef}
                 style={style}
-                className="w-[300px] h-full rounded-xl flex flex-col bg-background/50 opacity-50 border-2 border-primary/20"
+                className="w-[300px] h-full rounded-none flex flex-col bg-slate-100 border-2 border-slate-900 border-dashed"
             ></div>
         );
     }
@@ -109,13 +109,13 @@ export function ProductKanbanColumn({ column, items, onItemClick, edicaoId }: Pr
             ref={setNodeRef}
             style={style}
             id={column.id}
-            className={`column min-w-[280px] w-[300px] h-full rounded-xl flex flex-col border border-slate-200 bg-slate-50 p-2`}
+            className={`column min-w-[280px] w-[300px] h-full rounded-none flex flex-col border-2 border-slate-900 bg-slate-50 p-2 shadow-[4px_4px_0_0_rgba(15,23,42,1)] transition-transform`}
         >
             <CardHeader className="p-3 pb-2 bg-transparent border-none">
                 <div className="flex items-center justify-between">
-                    <CardTitle className="text-sm font-bold text-slate-700 flex items-center justify-between w-full">
+                    <CardTitle className="text-[11px] font-black uppercase tracking-[0.2em] text-slate-900 flex items-center gap-3 w-full">
                         <span>{column.title}</span>
-                        <span className="flex items-center justify-center min-w-[1.25rem] h-5 px-1 rounded-full bg-slate-200 text-slate-600 text-[10px] font-semibold border border-transparent">
+                        <span className="flex items-center justify-center min-w-[1.5rem] h-6 px-1.5 rounded-none bg-slate-900 text-white shadow-[2px_2px_0_0_rgba(203,213,225,1)] text-[10px] font-bold border-2 border-slate-900">
                             <span>{items.length}</span>
                         </span>
                     </CardTitle>
@@ -142,21 +142,21 @@ export function ProductKanbanColumn({ column, items, onItemClick, edicaoId }: Pr
                     {!isAdding ? (
                         <button
                             onClick={() => setIsAdding(true)}
-                            className="flex items-center gap-2 w-full text-left text-slate-500 hover:bg-slate-200 p-2 rounded-lg text-sm transition-colors"
+                            className="flex items-center gap-2 w-full text-left text-slate-800 bg-white hover:bg-slate-100 p-2 rounded-none border-2 border-slate-900 shadow-[2px_2px_0_0_rgba(15,23,42,1)] text-[10px] font-black uppercase tracking-wider transition-all hover:translate-y-px hover:shadow-none"
                         >
                             <Plus className="h-4 w-4" />
-                            <span>Adicionar cartão</span>
+                            <span>Novo Cartão</span>
                         </button>
                     ) : (
-                        <div className="bg-white rounded-lg p-2 shadow-sm border border-slate-200 animate-in fade-in zoom-in-95 duration-100">
+                        <div className="bg-white rounded-none p-2 border-2 border-slate-900 shadow-[4px_4px_0_0_rgba(15,23,42,1)] animate-in fade-in zoom-in-95 duration-100">
                             <div className="mb-2">
                                 <Select value={selectedTypeId} onValueChange={setSelectedTypeId}>
-                                    <SelectTrigger className="h-7 text-xs w-full mb-2">
+                                    <SelectTrigger className="h-8 text-[10px] uppercase font-bold tracking-wider rounded-none border-2 border-slate-900 w-full mb-2">
                                         <SelectValue placeholder="Selecione o tipo..." />
                                     </SelectTrigger>
-                                    <SelectContent>
+                                    <SelectContent className="rounded-none border-2 border-slate-900 shadow-[4px_4px_0_0_rgba(15,23,42,1)]">
                                         {tiposInsumo?.map((tipo) => (
-                                            <SelectItem key={tipo.id} value={tipo.id}>
+                                            <SelectItem key={tipo.id} value={tipo.id} className="text-[10px] font-bold uppercase tracking-wider cursor-pointer focus:bg-slate-100">
                                                 {tipo.nome}
                                             </SelectItem>
                                         ))}
@@ -166,8 +166,8 @@ export function ProductKanbanColumn({ column, items, onItemClick, edicaoId }: Pr
                             <div className="flex flex-col gap-2">
                                 <textarea
                                     autoFocus
-                                    className="w-full text-sm resize-none border-none focus:ring-0 p-0 placeholder:text-slate-400 min-h-[60px]"
-                                    placeholder="Insira um título para este cartão..."
+                                    className="w-full text-sm font-bold resize-none border-2 border-slate-200 focus:border-slate-900 p-2 placeholder:text-slate-400 min-h-[60px] transition-colors"
+                                    placeholder="INSIRA UM TÍTULO PARA ESTE CARTÃO..."
                                     value={newCardTitle}
                                     onChange={e => setNewCardTitle(e.target.value)}
                                     onKeyDown={handleKeyDown}
@@ -176,19 +176,19 @@ export function ProductKanbanColumn({ column, items, onItemClick, edicaoId }: Pr
                             <div className="flex items-center gap-2 mt-2">
                                 <Button
                                     size="sm"
-                                    className="h-8 bg-blue-600 hover:bg-blue-700 text-white"
+                                    className="h-8 bg-slate-900 hover:bg-slate-800 text-white rounded-none border-2 border-slate-900 text-[10px] uppercase font-black tracking-wider flex-1"
                                     onClick={handleAddCard}
                                     disabled={isCreating}
                                 >
-                                    {isCreating ? "Adicionando..." : "Adicionar cartão"}
+                                    {isCreating ? "Adicionando..." : "Salvar"}
                                 </Button>
                                 <Button
                                     size="sm"
-                                    variant="ghost"
-                                    className="h-8 w-8 p-0 text-slate-500 hover:bg-slate-100"
+                                    variant="outline"
+                                    className="h-8 w-8 p-0 text-slate-900 rounded-none border-2 border-slate-900 hover:bg-slate-100 shrink-0"
                                     onClick={() => setIsAdding(false)}
                                 >
-                                    <X className="h-5 w-5" />
+                                    <X className="h-4 w-4" />
                                 </Button>
                             </div>
                         </div>

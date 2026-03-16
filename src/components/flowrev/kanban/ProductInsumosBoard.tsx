@@ -232,48 +232,53 @@ export function ProductInsumosBoard({ insumos, edicaoId, searchTerm = '' }: Prod
                     {/* Meus Insumos Toggle */}
                     <div
                         className={cn(
-                            "flex items-center gap-2 px-3 py-1.5 rounded-full border text-xs font-medium cursor-pointer transition-colors select-none shrink-0",
-                            onlyMyTasks ? "bg-blue-50 border-blue-200 text-blue-700" : "bg-white border-slate-200 text-slate-600 hover:bg-slate-50"
+                            "flex items-center gap-2 px-3 py-1.5 rounded-none border-2 text-[10px] font-black uppercase tracking-widest cursor-pointer transition-all select-none shrink-0 shadow-[2px_2px_0_0_rgba(15,23,42,1)] hover:-translate-y-px hover:shadow-[4px_4px_0_0_rgba(15,23,42,1)] active:translate-y-0 active:shadow-none",
+                            onlyMyTasks ? "bg-blue-300 border-blue-900 text-blue-950 shadow-[2px_2px_0_0_rgba(30,58,138,1)]" : "bg-white border-slate-900 text-slate-900"
                         )}
                         onClick={() => setOnlyMyTasks(!onlyMyTasks)}
                     >
-                        <span className={cn("w-2 h-2 rounded-full", onlyMyTasks ? "bg-blue-500" : "bg-slate-300")} />
+                        <span className={cn("w-2 h-2 rounded-none border-2 border-slate-900", onlyMyTasks ? "bg-blue-600" : "bg-white")} />
                         Meus
                     </div>
 
                     {/* Delayed Toggle */}
                     <div
                         className={cn(
-                            "flex items-center gap-2 px-3 py-1.5 rounded-full border text-xs font-medium cursor-pointer transition-colors select-none shrink-0",
-                            onlyDelayed ? "bg-red-50 border-red-200 text-red-700" : "bg-white border-slate-200 text-slate-600 hover:bg-slate-50"
+                            "flex items-center gap-2 px-3 py-1.5 rounded-none border-2 text-[10px] font-black uppercase tracking-widest cursor-pointer transition-all select-none shrink-0 shadow-[2px_2px_0_0_rgba(15,23,42,1)] hover:-translate-y-px hover:shadow-[4px_4px_0_0_rgba(15,23,42,1)] active:translate-y-0 active:shadow-none",
+                            onlyDelayed ? "bg-red-400 border-red-900 text-red-950 shadow-[2px_2px_0_0_rgba(127,29,29,1)] hover:shadow-[4px_4px_0_0_rgba(127,29,29,1)]" : "bg-white border-slate-900 text-slate-900"
                         )}
                         onClick={() => setOnlyDelayed(!onlyDelayed)}
                     >
-                        <span className={cn("w-2 h-2 rounded-full", onlyDelayed ? "bg-red-500" : "bg-slate-300")} />
+                        <span className={cn("w-2 h-2 rounded-none border-2 border-slate-900", onlyDelayed ? "bg-white" : "bg-white")} />
                         Atrasados
                     </div>
 
                     {/* Type Filter */}
                     <div className="relative shrink-0">
                         <select
-                            className="h-8 pl-2 pr-8 text-xs bg-white border border-slate-200 rounded-full focus:outline-none focus:ring-1 focus:ring-blue-500 appearance-none cursor-pointer"
+                            className="h-8 pl-3 pr-8 text-[10px] font-black uppercase tracking-widest bg-white border-2 border-slate-900 rounded-none shadow-[2px_2px_0_0_rgba(15,23,42,1)] focus:outline-none appearance-none cursor-pointer transition-all hover:-translate-y-px hover:shadow-[4px_4px_0_0_rgba(15,23,42,1)]"
                             value={selectedType}
                             onChange={(e) => setSelectedType(e.target.value)}
                         >
-                            <option value="all">Todos os tipos</option>
+                            <option value="all" className="font-bold">TODOS OS TIPOS</option>
                             {tiposInsumos?.map(tipo => (
-                                <option key={tipo.id} value={tipo.id}>{tipo.nome}</option>
+                                <option key={tipo.id} value={tipo.id} className="font-bold">{tipo.nome.toUpperCase()}</option>
                             ))}
                         </select>
-                        <div className="absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400 text-[10px]">▼</div>
+                        <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-slate-900 text-[10px]">▼</div>
                     </div>
                 </div>
 
-                <div className="flex items-center bg-slate-100 p-1 rounded-lg border border-slate-200 shrink-0">
+                <div className="flex items-center gap-2 bg-slate-50 p-1 border-2 border-slate-900 rounded-none shrink-0 shadow-[2px_2px_0_0_rgba(15,23,42,1)]">
                     <Button
-                        variant="ghost"
+                        variant={viewMode === 'board' ? 'default' : 'outline'}
                         size="sm"
-                        className={`h-7 px-3 text-xs gap-2 ${viewMode === 'board' ? 'bg-white shadow-sm font-semibold text-blue-600' : 'text-slate-500'}`}
+                        className={cn(
+                            "h-7 px-3 text-[10px] font-black uppercase tracking-widest gap-2 rounded-none border-2 border-transparent transition-all",
+                            viewMode === 'board' 
+                                ? "bg-slate-900 text-white shadow-none" 
+                                : "bg-transparent text-slate-500 border-none hover:bg-slate-200 hover:text-slate-900 shadow-none"
+                        )}
                         onClick={() => {
                             setViewMode('board');
                             if (window.mostrarView) window.mostrarView('quadro');
@@ -283,9 +288,14 @@ export function ProductInsumosBoard({ insumos, edicaoId, searchTerm = '' }: Prod
                         Quadro
                     </Button>
                     <Button
-                        variant="ghost"
+                        variant={viewMode === 'calendar' ? 'default' : 'outline'}
                         size="sm"
-                        className={`h-7 px-3 text-xs gap-2 ${viewMode === 'calendar' ? 'bg-white shadow-sm font-semibold text-blue-600' : 'text-slate-500'}`}
+                        className={cn(
+                            "h-7 px-3 text-[10px] font-black uppercase tracking-widest gap-2 rounded-none border-2 border-transparent transition-all",
+                            viewMode === 'calendar' 
+                                ? "bg-slate-900 text-white shadow-none" 
+                                : "bg-transparent text-slate-500 border-none hover:bg-slate-200 hover:text-slate-900 shadow-none"
+                        )}
                         onClick={() => {
                             setViewMode('calendar');
                             if (window.mostrarView) window.mostrarView('calendario');

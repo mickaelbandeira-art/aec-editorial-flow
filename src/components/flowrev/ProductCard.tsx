@@ -23,7 +23,7 @@ const logoMap: Record<string, string> = {
 };
 
 interface ProductCardProps {
-  produto: Produto;
+  produto: Produto & { descricao?: string };
   edicao?: Edicao | null;
   insumosStats?: {
     total: number;
@@ -40,7 +40,7 @@ export function ProductCard({ produto, edicao, insumosStats }: ProductCardProps)
 
   return (
     <Link to={`/flowrev/produto/${produto.slug}`}>
-      <Card className="group relative overflow-hidden transition-all hover:shadow-soft hover:-translate-y-1">
+      <Card className="group relative overflow-hidden bg-white rounded-none border-2 border-slate-900 shadow-[4px_4px_0_0_rgba(15,23,42,1)] transition-transform hover:-translate-y-1 hover:shadow-[6px_6px_0_0_rgba(15,23,42,1)]">
         {/* Gradient Accent */}
         <div
           className="absolute top-0 left-0 right-0 h-1"
@@ -51,14 +51,16 @@ export function ProductCard({ produto, edicao, insumosStats }: ProductCardProps)
           <div className="flex items-start gap-4">
             {/* Logo */}
             <div className="relative">
-              <img
-                src={logoMap[produto.slug]}
-                alt={produto.nome}
-                className="h-14 w-14 rounded-xl object-contain bg-white p-2 shadow-sm"
-              />
+              <div className="h-14 w-14 bg-white border-2 border-slate-900 flex items-center justify-center p-2 rounded-none shadow-[2px_2px_0_0_rgba(15,23,42,1)]">
+                <img
+                  src={logoMap[produto.slug]}
+                  alt={produto.nome}
+                  className="h-full w-full object-contain"
+                />
+              </div>
               {insumosStats?.atrasados && insumosStats.atrasados > 0 && (
-                <div className="absolute -top-1 -right-1 h-5 w-5 rounded-full bg-destructive flex items-center justify-center">
-                  <span className="text-[10px] font-bold text-destructive-foreground">
+                <div className="absolute -top-2 -right-2 h-6 w-6 rounded-none border-2 border-slate-900 shadow-[1px_1px_0_0_rgba(15,23,42,1)] bg-red-500 flex items-center justify-center">
+                  <span className="text-[10px] font-black text-white">
                     {insumosStats.atrasados}
                   </span>
                 </div>
@@ -67,28 +69,28 @@ export function ProductCard({ produto, edicao, insumosStats }: ProductCardProps)
 
             {/* Info */}
             <div className="flex-1">
-              <h3 className="text-lg font-semibold text-gray-800">{produto.nome}</h3>
-              <p className="text-sm text-gray-500 line-clamp-1">{produto.descricao}</p>
+              <h3 className="text-xl font-black uppercase tracking-tight text-slate-900">{produto.nome}</h3>
+              <p className="text-xs font-bold text-slate-500 uppercase tracking-widest line-clamp-1 mt-1">{produto.descricao}</p>
 
-              <div className="mt-3 flex items-center justify-between text-sm text-gray-600">
+              <div className="mt-4 flex flex-col gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-600">
                 <div className="flex items-center gap-2">
                   {faseInfo?.icon && (
-                    <faseInfo.icon className="h-4 w-4 text-gray-500" />
+                    <faseInfo.icon className="h-4 w-4 text-slate-900" />
                   )}
-                  <span>{faseInfo?.label || 'Kickoff'}</span>
+                  <span className="bg-slate-100 px-2 py-1 border-2 border-slate-200">{faseInfo?.label || 'Kickoff'}</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <Clock className="h-4 w-4 text-gray-500" />
-                  <span>{edicao?.data_entrega_prevista || 'N/A'}</span>
+                  <Clock className="h-4 w-4 text-slate-900" />
+                  <span className="bg-slate-100 px-2 py-1 border-2 border-slate-200">{edicao?.data_entrega_prevista || 'N/A'}</span>
                 </div>
               </div>
 
               {edicao && (
-                <div className="mt-4">
-                  <Progress value={percentual} className="h-2" indicatorColor={produto.cor_tema} />
-                  <div className="mt-2 flex justify-between text-xs text-gray-500">
+                <div className="mt-4 bg-slate-50 border-2 border-slate-200 p-2">
+                  <Progress value={percentual} className="h-2 rounded-none border-2 border-slate-900 bg-white" />
+                  <div className="mt-2 flex justify-between text-[10px] font-bold uppercase tracking-wider text-slate-500">
                     <span>Progresso</span>
-                    <span>{percentual}%</span>
+                    <span className="text-slate-900">{percentual}%</span>
                   </div>
                 </div>
               )}
@@ -96,19 +98,19 @@ export function ProductCard({ produto, edicao, insumosStats }: ProductCardProps)
               {insumosStats && (
                 <div className="mt-4 flex flex-wrap gap-2">
                   {insumosStats.aprovados > 0 && (
-                    <Badge variant="outline" className="flex items-center gap-1 text-green-600 border-green-200 bg-green-50">
+                    <Badge variant="outline" className="flex items-center gap-1 text-green-700 border-2 border-green-700 bg-green-50 rounded-none shadow-[2px_2px_0_0_rgba(21,128,61,1)] text-[10px] font-bold uppercase tracking-wider px-2 py-1">
                       <CheckCircle2 className="h-3 w-3" />
                       {insumosStats.aprovados} Aprovados
                     </Badge>
                   )}
                   {insumosStats.pendentes > 0 && (
-                    <Badge variant="outline" className="flex items-center gap-1 text-yellow-600 border-yellow-200 bg-yellow-50">
+                    <Badge variant="outline" className="flex items-center gap-1 text-yellow-700 border-2 border-yellow-700 bg-yellow-50 rounded-none shadow-[2px_2px_0_0_rgba(161,98,7,1)] text-[10px] font-bold uppercase tracking-wider px-2 py-1">
                       <Clock className="h-3 w-3" />
                       {insumosStats.pendentes} Pendentes
                     </Badge>
                   )}
                   {insumosStats.atrasados > 0 && (
-                    <Badge variant="outline" className="flex items-center gap-1 text-red-600 border-red-200 bg-red-50">
+                    <Badge variant="outline" className="flex items-center gap-1 text-red-600 border-2 border-red-600 bg-red-50 rounded-none shadow-[2px_2px_0_0_rgba(220,38,38,1)] text-[10px] font-bold uppercase tracking-wider px-2 py-1">
                       <AlertTriangle className="h-3 w-3" />
                       {insumosStats.atrasados} Atrasados
                     </Badge>

@@ -33,9 +33,9 @@ export function ProductionTimeline() {
     }, []);
 
     return (
-        <div className="w-full bg-white rounded-lg border border-slate-200 p-4 shadow-sm mb-6">
-            <h3 className="text-sm font-semibold text-slate-500 uppercase tracking-wide mb-4 flex items-center gap-2">
-                <Clock className="w-4 h-4" /> Cronograma de Produção
+        <div className="w-full bg-white rounded-none border-2 border-slate-900 shadow-[4px_4px_0_0_rgba(15,23,42,1)] p-6 mb-6">
+            <h3 className="text-xs font-black text-slate-900 uppercase tracking-widest mb-8 flex items-center gap-2">
+                <Clock className="w-5 h-5" /> CRONOGRAMA DE PRODUÇÃO
             </h3>
 
             <div className="relative flex items-center justify-between w-full">
@@ -57,27 +57,27 @@ export function ProductionTimeline() {
                         <div key={fase.fase} className="relative z-10 flex flex-col items-center group">
                             <div
                                 className={cn(
-                                    "w-10 h-10 rounded-full flex items-center justify-center border-4 transition-all duration-300 shadow-sm",
-                                    isActive ? "bg-blue-600 border-blue-100 text-white scale-110 shadow-blue-200" :
-                                        isCompleted ? "bg-green-500 border-green-100 text-white" :
-                                            "bg-white border-slate-200 text-slate-300"
+                                    "w-12 h-12 flex items-center justify-center border-2 border-slate-900 transition-all duration-300 rounded-none shadow-[2px_2px_0_0_rgba(15,23,42,1)]",
+                                    isActive ? "bg-slate-900 text-white scale-110 translate-y-[-4px] shadow-[4px_4px_0_0_rgba(15,23,42,1)]" :
+                                        isCompleted ? "bg-green-400 text-slate-900" :
+                                            "bg-white text-slate-400"
                                 )}
                             >
                                 <span className="text-lg">{fase.icon}</span>
                             </div>
 
-                            <div className="mt-3 text-center">
+                            <div className="mt-4 text-center">
                                 <span
                                     className={cn(
-                                        "block text-xs font-bold transition-colors",
-                                        isActive ? "text-blue-700" :
-                                            isCompleted ? "text-green-600" :
+                                        "block text-[10px] font-black uppercase tracking-wider transition-colors",
+                                        isActive ? "text-slate-900" :
+                                            isCompleted ? "text-green-700" :
                                                 "text-slate-400"
                                     )}
                                 >
                                     {fase.label}
                                 </span>
-                                <span className="text-[10px] text-slate-400 font-medium bg-slate-50 px-2 py-0.5 rounded-full mt-1 inline-block border border-slate-100">
+                                <span className="text-[9px] text-slate-900 font-bold bg-yellow-300 px-2 py-0.5 rounded-none mt-2 inline-block border-2 border-slate-900 shadow-[2px_2px_0_0_rgba(15,23,42,1)] uppercase tracking-wider">
                                     {fase.dataLimite}
                                 </span>
                             </div>

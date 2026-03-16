@@ -31,12 +31,13 @@ export default function CalendarPage() {
 
     const getStatusColor = (status: string) => {
         switch (status) {
-            case 'aprovado': return 'bg-green-500 hover:bg-green-600';
-            case 'atrasado': return 'bg-red-500 hover:bg-red-600'; // Custom logic needed for this
-            case 'enviado': return 'bg-purple-500 hover:bg-purple-600';
-            case 'em_analise': return 'bg-yellow-500 hover:bg-yellow-600';
-            case 'ajuste_solicitado': return 'bg-orange-500 hover:bg-orange-600';
-            default: return 'bg-slate-500 hover:bg-slate-600';
+            case 'aprovado': return 'bg-green-400 text-slate-900';
+            case 'atrasado': return 'bg-red-500 text-white'; 
+            case 'enviado': return 'bg-purple-400 text-slate-900';
+            case 'em_analise': return 'bg-yellow-400 text-slate-900';
+            case 'ajuste_solicitado': return 'bg-orange-400 text-slate-900';
+            case 'em_preenchimento': return 'bg-blue-400 text-slate-900';
+            default: return 'bg-slate-200 text-slate-900';
         }
     };
 
@@ -63,48 +64,48 @@ export default function CalendarPage() {
         );
     }
 
-    const weekDays = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
+    const weekDays = ['DOM', 'SEG', 'TER', 'QUA', 'QUI', 'SEX', 'SÁB'];
 
     return (
         <div className="flex flex-col h-full bg-background p-6">
-            <div className="flex items-center justify-between mb-8">
+            <div className="flex items-center justify-between mb-8 border-b-4 border-slate-900 pb-6">
                 <div>
-                    <h2 className="text-3xl font-bold tracking-tight">Calendário Editorial</h2>
-                    <p className="text-muted-foreground">
+                    <h2 className="text-4xl font-black uppercase tracking-tighter text-slate-900">Calendário Editorial</h2>
+                    <p className="text-xs font-bold text-slate-500 uppercase tracking-widest mt-2">
                         Visualize as entregas e prazos de todos os produtos.
                     </p>
                 </div>
                 <div className="flex items-center gap-4">
-                    <div className="flex items-center rounded-md border bg-card">
-                        <Button variant="ghost" size="icon" onClick={prevMonth}>
+                    <div className="flex items-center rounded-none border-2 border-slate-900 bg-white shadow-[4px_4px_0_0_rgba(15,23,42,1)] p-1">
+                        <Button variant="ghost" size="icon" onClick={prevMonth} className="rounded-none hover:bg-slate-900 hover:text-white transition-colors">
                             <ChevronLeft className="h-4 w-4" />
                         </Button>
-                        <div className="px-4 font-semibold min-w-[140px] text-center capitalize">
+                        <div className="px-4 font-black uppercase tracking-widest min-w-[160px] text-center text-slate-900">
                             {format(currentDate, 'MMMM yyyy', { locale: ptBR })}
                         </div>
-                        <Button variant="ghost" size="icon" onClick={nextMonth}>
+                        <Button variant="ghost" size="icon" onClick={nextMonth} className="rounded-none hover:bg-slate-900 hover:text-white transition-colors">
                             <ChevronRight className="h-4 w-4" />
                         </Button>
                     </div>
                 </div>
             </div>
 
-            <div className="flex-1 rounded-lg border bg-card shadow-sm overflow-hidden flex flex-col">
+            <div className="flex-1 rounded-none border-2 border-slate-900 bg-slate-200 shadow-[6px_6px_0_0_rgba(15,23,42,1)] overflow-hidden flex flex-col mb-4">
                 {/* Header Days */}
-                <div className="grid grid-cols-7 border-b bg-muted/50">
+                <div className="grid grid-cols-7 border-b-2 border-slate-900 bg-slate-900">
                     {weekDays.map(day => (
-                        <div key={day} className="p-4 text-center text-sm font-semibold text-muted-foreground">
+                        <div key={day} className="p-4 text-center text-xs font-black tracking-widest uppercase text-white">
                             {day}
                         </div>
                     ))}
                 </div>
 
                 {/* Calendar Grid */}
-                <div className="flex-1 grid grid-cols-7 auto-rows-fr bg-muted/20 gap-[1px]">
+                <div className="flex-1 grid grid-cols-7 auto-rows-fr bg-slate-200 gap-[2px]">
                     {/* Placeholder for empty start days could be added here if needed for alignment */}
                     {/* For strict alignment, we'd need to calculate startDayOfWeek padding */}
                     {Array.from({ length: startOfMonth(currentDate).getDay() }).map((_, i) => (
-                        <div key={`empty-${i}`} className="bg-background min-h-[120px] opacity-50" />
+                        <div key={`empty-${i}`} className="bg-slate-100 min-h-[120px] opacity-70" />
                     ))}
 
                     {daysInMonth.map((date, i) => {
@@ -113,46 +114,53 @@ export default function CalendarPage() {
 
                         return (
                             <div key={i} className={cn(
-                                "bg-background p-3 min-h-[120px] border-t border-l transition-colors hover:bg-accent/5",
-                                isToday && "bg-accent/10"
+                                "bg-white p-3 min-h-[120px] transition-colors relative group",
+                                isToday && "bg-yellow-50"
                             )}>
-                                <div className="flex justify-between items-start mb-2">
+                                <div className="flex justify-between items-start mb-3">
                                     <span className={cn(
-                                        "text-sm font-medium w-7 h-7 flex items-center justify-center rounded-full",
-                                        isToday ? "bg-primary text-primary-foreground" : "text-muted-foreground"
+                                        "text-sm font-black w-8 h-8 flex items-center justify-center border-2 border-transparent transition-all",
+                                        isToday ? "bg-slate-900 text-white border-slate-900 shadow-[2px_2px_0_0_rgba(15,23,42,1)]" : "text-slate-900"
                                     )}>
                                         {format(date, 'd')}
                                     </span>
                                     {dayInsumos.length > 0 && (
-                                        <Badge variant="secondary" className="text-[10px] h-5 px-1.5">
+                                        <Badge className="text-[10px] h-6 px-2 rounded-none border-2 border-slate-900 bg-yellow-300 text-slate-900 font-black shadow-[2px_2px_0_0_rgba(15,23,42,1)] hover:bg-yellow-400">
                                             {dayInsumos.length}
                                         </Badge>
                                     )}
                                 </div>
 
-                                <div className="space-y-1 overflow-y-auto max-h-[100px]">
+                                <div className="space-y-1.5 overflow-y-auto max-h-[120px] pr-1 styled-scrollbar">
                                     {dayInsumos.map(insumo => (
                                         <HoverCard key={insumo.id}>
                                             <HoverCardTrigger asChild>
                                                 <div className={cn(
-                                                    "text-[10px] px-2 py-1 rounded cursor-pointer truncate text-white font-medium shadow-sm transition-all hover:scale-105",
+                                                    "text-[10px] px-2 py-1.5 rounded-none cursor-pointer truncate font-bold border-2 border-slate-900 uppercase tracking-tighter shadow-[2px_2px_0_0_rgba(15,23,42,1)] hover:translate-y-[-2px] hover:shadow-[4px_4px_0_0_rgba(15,23,42,1)] transition-all mb-1",
                                                     getStatusColor(insumo.status)
                                                 )}>
                                                     [{insumo.edicao?.produto?.slug}] {insumo.tipo_insumo?.nome}
                                                 </div>
                                             </HoverCardTrigger>
-                                            <HoverCardContent className="w-80">
-                                                <div className="flex justify-between space-x-4">
-                                                    <div className="space-y-1">
-                                                        <h4 className="text-sm font-semibold">
-                                                            {insumo.tipo_insumo?.nome}
-                                                        </h4>
-                                                        <p className="text-xs text-muted-foreground">
-                                                            {insumo.edicao?.produto?.nome} - {format(date, 'dd/MM/yyyy')}
-                                                        </p>
-                                                        <div className="flex items-center pt-2">
-                                                            <CalendarIcon className="mr-2 h-3 w-3 opacity-70" />
-                                                            <span className="text-xs text-muted-foreground capitalize">
+                                            <HoverCardContent className="w-80 rounded-none border-4 border-slate-900 p-0 shadow-[8px_8px_0_0_rgba(15,23,42,1)] bg-white overflow-hidden">
+                                                <div className="bg-slate-900 p-3 pb-4">
+                                                    <h4 className="text-sm font-black text-white uppercase tracking-widest">
+                                                        {insumo.tipo_insumo?.nome}
+                                                    </h4>
+                                                </div>
+                                                <div className="p-4 space-y-4">
+                                                    <div>
+                                                        <span className="text-[10px] uppercase font-bold tracking-widest text-slate-500 block">Produto</span>
+                                                        <span className="text-xs font-black text-slate-900 uppercase">{insumo.edicao?.produto?.nome}</span>
+                                                    </div>
+                                                    <div className="flex justify-between border-t-2 border-slate-100 pt-4">
+                                                        <div>
+                                                            <span className="text-[10px] uppercase font-bold tracking-widest text-slate-500 block">Prazo</span>
+                                                            <span className="text-xs font-black text-slate-900">{format(date, 'dd/MM/yyyy')}</span>
+                                                        </div>
+                                                        <div className="text-right">
+                                                            <span className="text-[10px] uppercase font-bold tracking-widest text-slate-500 block">Status</span>
+                                                            <span className="text-xs font-black text-slate-900 uppercase">
                                                                 {getStatusLabel(insumo.status)}
                                                             </span>
                                                         </div>

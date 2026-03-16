@@ -39,21 +39,21 @@ export function StatsCard({
   variant = 'default' 
 }: StatsCardProps) {
   return (
-    <Card className={cn(variantStyles[variant], "transition-all hover:shadow-soft")}>
+    <Card className={cn("bg-white rounded-none border-2 border-slate-900 shadow-[4px_4px_0px_0px_rgba(15,23,42,1)] transition-transform hover:-translate-y-1 hover:shadow-[6px_6px_0px_0px_rgba(15,23,42,1)]")}>
       <CardContent className="p-6">
         <div className="flex items-start justify-between">
           <div className="space-y-1">
-            <p className="text-sm font-medium text-muted-foreground">{title}</p>
-            <p className="text-2xl font-bold tracking-tight">{value}</p>
+            <p className="text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em]">{title}</p>
+            <p className="text-3xl font-black text-slate-900 tracking-tight">{value}</p>
             {description && (
-              <p className="text-xs text-muted-foreground">{description}</p>
+              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mt-2">{description}</p>
             )}
           </div>
           
           {icon && (
             <div className={cn(
-              "flex h-10 w-10 items-center justify-center rounded-lg",
-              iconStyles[variant]
+              "flex h-10 w-10 items-center justify-center rounded-none border-2 border-slate-900 shadow-[2px_2px_0_0_rgba(15,23,42,1)] bg-slate-50 text-slate-900",
+              iconStyles[variant] // Kept for text color override if needed, but forced bg to clash with brutalism
             )}>
               {icon}
             </div>

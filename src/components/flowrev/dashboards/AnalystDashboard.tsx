@@ -43,7 +43,12 @@ import { SeedInsumosBtn } from "../SeedInsumosBtn";
 import { ProductionTimeline } from "@/components/flowrev/ProductionTimeline";
 
 export function AnalystDashboard() {
-    const { data, isLoading } = useAllInsumos();
+    // Current Date Default
+    const now = new Date();
+    const [selectedMonth, setSelectedMonth] = useState<number>(now.getMonth() + 1);
+    const [selectedYear, setSelectedYear] = useState<number>(now.getFullYear());
+
+    const { data, isLoading } = useAllInsumos(selectedMonth, selectedYear);
     const { canAccessProduct, user } = usePermissions();
     const { mutate: updateStatus, isPending: isUpdating } = useUpdateInsumoStatus();
 
@@ -163,7 +168,7 @@ export function AnalystDashboard() {
             <div className="flex flex-wrap gap-4 items-center">
                 <Badge
                     variant={activeFilter === 'pending' ? 'default' : 'outline'}
-                    className={`px-4 py-2 h-10 flex gap-2 cursor-pointer transition-all rounded-none border-2 font-black uppercase text-[10px] tracking-widest ${activeFilter === 'pending' ? 'bg-slate-900 border-slate-900' : 'hover:bg-slate-900/5 border-slate-200'}`}
+                    className={`px-4 py-2 h-10 flex gap-2 cursor-pointer transition-all rounded-none border-2 border-slate-900 font-black uppercase text-[10px] tracking-widest shadow-[4px_4px_0_0_rgba(15,23,42,1)] hover:translate-y-[-2px] ${activeFilter === 'pending' ? 'bg-slate-900 text-white' : 'bg-white text-slate-900'}`}
                     onClick={() => setActiveFilter(activeFilter === 'pending' ? 'all' : 'pending')}
                 >
                     <FileText className="h-4 w-4" />
@@ -172,9 +177,9 @@ export function AnalystDashboard() {
 
                 <Badge
                     variant={activeFilter === 'adjustments' ? 'default' : 'outline'}
-                    className={`px-4 py-2 h-10 flex gap-2 cursor-pointer transition-all rounded-none border-2 font-black uppercase text-[10px] tracking-widest ${activeFilter === 'adjustments'
-                        ? 'bg-amber-500 border-amber-500 hover:bg-amber-600'
-                        : 'bg-amber-50/50 text-amber-900 border-amber-200'
+                    className={`px-4 py-2 h-10 flex gap-2 cursor-pointer transition-all rounded-none border-2 border-slate-900 font-black uppercase text-[10px] tracking-widest shadow-[4px_4px_0_0_rgba(15,23,42,1)] hover:translate-y-[-2px] ${activeFilter === 'adjustments'
+                        ? 'bg-amber-400 text-slate-900'
+                        : 'bg-amber-50 text-amber-900'
                         }`}
                     onClick={() => setActiveFilter(activeFilter === 'adjustments' ? 'all' : 'adjustments')}
                 >
@@ -184,9 +189,9 @@ export function AnalystDashboard() {
 
                 <Badge
                     variant={activeFilter === 'delayed' ? 'default' : 'outline'}
-                    className={`px-4 py-2 h-10 flex gap-2 cursor-pointer transition-all rounded-none border-2 font-black uppercase text-[10px] tracking-widest ${activeFilter === 'delayed'
-                        ? 'bg-red-600 border-red-600 hover:bg-red-700 text-white'
-                        : 'bg-red-50/50 text-red-900 border-red-200'
+                    className={`px-4 py-2 h-10 flex gap-2 cursor-pointer transition-all rounded-none border-2 border-slate-900 font-black uppercase text-[10px] tracking-widest shadow-[4px_4px_0_0_rgba(15,23,42,1)] hover:translate-y-[-2px] ${activeFilter === 'delayed'
+                        ? 'bg-red-500 text-white'
+                        : 'bg-red-50 text-red-900'
                         }`}
                     onClick={() => setActiveFilter(activeFilter === 'delayed' ? 'all' : 'delayed')}
                 >
@@ -196,9 +201,9 @@ export function AnalystDashboard() {
 
                 <Badge
                     variant={activeFilter === 'approved' ? 'default' : 'outline'}
-                    className={`px-4 py-2 h-10 flex gap-2 cursor-pointer transition-all rounded-none border-2 font-black uppercase text-[10px] tracking-widest ${activeFilter === 'approved'
-                        ? 'bg-emerald-600 border-emerald-600 hover:bg-emerald-700 text-white'
-                        : 'bg-emerald-50/50 text-emerald-900 border-emerald-200'
+                    className={`px-4 py-2 h-10 flex gap-2 cursor-pointer transition-all rounded-none border-2 border-slate-900 font-black uppercase text-[10px] tracking-widest shadow-[4px_4px_0_0_rgba(15,23,42,1)] hover:translate-y-[-2px] ${activeFilter === 'approved'
+                        ? 'bg-emerald-500 text-white'
+                        : 'bg-emerald-50 text-emerald-900'
                         }`}
                     onClick={() => setActiveFilter(activeFilter === 'approved' ? 'all' : 'approved')}
                 >
@@ -248,6 +253,35 @@ export function AnalystDashboard() {
                                 <SelectItem value="aprovado" className="uppercase text-[10px] font-bold">Aprovado</SelectItem>
                             </SelectContent>
                         </Select>
+
+                        {/* Edition (Month/Year) Filter */}
+                        <div className="flex gap-1 border-l-2 border-slate-200 pl-2 ml-2">
+                             <Select value={selectedMonth.toString()} onValueChange={(v) => setSelectedMonth(parseInt(v))}>
+                                <SelectTrigger className="w-[120px] rounded-none border-slate-200 font-bold uppercase text-[10px] tracking-wider bg-slate-50">
+                                    <SelectValue placeholder="Mês" />
+                                </SelectTrigger>
+                                <SelectContent className="rounded-none border-2 border-slate-900 focus:bg-slate-100">
+                                    {Array.from({ length: 12 }, (_, i) => i + 1).map((m) => (
+                                        <SelectItem key={m} value={m.toString()} className="uppercase text-[10px] font-bold cursor-pointer">
+                                            {format(new Date(2024, m - 1, 1), 'MMMM')}
+                                        </SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                            <Select value={selectedYear.toString()} onValueChange={(v) => setSelectedYear(parseInt(v))}>
+                                <SelectTrigger className="w-[100px] rounded-none border-slate-200 font-bold uppercase text-[10px] tracking-wider bg-slate-50">
+                                    <SelectValue placeholder="Ano" />
+                                </SelectTrigger>
+                                <SelectContent className="rounded-none border-2 border-slate-900 focus:bg-slate-100">
+                                    {[2024, 2025, 2026].map((y) => (
+                                        <SelectItem key={y} value={y.toString()} className="uppercase text-[10px] font-bold cursor-pointer">
+                                            {y}
+                                        </SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                        </div>
+
                     </div>
                 </CardContent>
             </Card>
@@ -273,7 +307,7 @@ export function AnalystDashboard() {
                                 </TableCell>
                             </TableRow>
                         ) : filteredInsumos.map((insumo) => (
-                            <TableRow key={insumo.id} className="group hover:bg-slate-50 border-b border-slate-200 transition-all duration-300">
+                            <TableRow key={insumo.id} className="group hover:bg-slate-50 border-b-2 border-slate-200 transition-all duration-300">
                                 <TableCell className="py-5">
                                     <div className="flex flex-col">
                                         <span className="font-black text-slate-900 uppercase text-xs tracking-tight leading-4">{insumo.titulo || insumo.tipo_insumo?.nome}</span>
@@ -391,23 +425,24 @@ export function AnalystDashboard() {
 
             {/* Adjustment Request Dialog */}
             <Dialog open={!!adjustmentInsumo} onOpenChange={(open) => !open && setAdjustmentInsumo(null)}>
-                <DialogContent>
-                    <DialogHeader>
-                        <DialogTitle>Solicitar Ajuste</DialogTitle>
-                        <DialogDescription>
-                            Descreva o que precisa ser alterado para o insumo <b>{adjustmentInsumo?.tipo_insumo?.nome}</b>.
+                <DialogContent className="rounded-none border-4 border-slate-900 shadow-[12px_12px_0_0_rgba(15,23,42,1)] p-0 overflow-hidden max-w-md">
+                    <DialogHeader className="bg-amber-100 border-b-4 border-slate-900 p-6">
+                        <DialogTitle className="text-xl font-black uppercase tracking-tighter text-amber-900 italic">Solicitar Ajuste</DialogTitle>
+                        <DialogDescription className="text-amber-800 font-bold text-xs uppercase tracking-wide">
+                            Explique o que precisa ser alterado no insumo <b>{adjustmentInsumo?.tipo_insumo?.nome}</b>.
                         </DialogDescription>
                     </DialogHeader>
-                    <div className="py-4">
+                    <div className="p-6">
                         <Textarea
-                            placeholder="Ex: O texto está muito longo, favor reduzir..."
+                            placeholder="EX: O TEXTO ESTÁ MUITO LONGO, FAVOR REDUZIR..."
+                            className="rounded-none border-2 border-slate-900 focus-visible:ring-slate-900 placeholder:text-[10px] placeholder:font-bold h-32 uppercase font-bold text-xs"
                             value={adjustmentComment}
                             onChange={(e) => setAdjustmentComment(e.target.value)}
                         />
                     </div>
-                    <DialogFooter>
-                        <Button variant="outline" onClick={() => setAdjustmentInsumo(null)}>Cancelar</Button>
-                        <Button variant="destructive" onClick={handleRequestAdjustment} disabled={isUpdating}>
+                    <DialogFooter className="p-6 bg-slate-50 border-t-2 border-slate-200 flex flex-col md:flex-row gap-3">
+                        <Button variant="outline" onClick={() => setAdjustmentInsumo(null)} className="rounded-none border-2 border-slate-300 font-black uppercase text-[10px] tracking-widest h-12 flex-1">Cancelar</Button>
+                        <Button onClick={handleRequestAdjustment} disabled={isUpdating} className="rounded-none border-2 border-slate-900 bg-red-600 text-white hover:bg-red-700 shadow-[4px_4px_0_0_rgba(15,23,42,1)] font-black uppercase text-[10px] tracking-widest h-12 flex-1 transition-all">
                             {isUpdating && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                             Enviar Solicitação
                         </Button>

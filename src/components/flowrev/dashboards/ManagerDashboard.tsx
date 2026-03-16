@@ -11,9 +11,15 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { format } from "date-fns";
 import { ProductionTimeline } from "@/components/flowrev/ProductionTimeline";
 import { ProductStrategyCard, type ProductStats } from "./ProductStrategyCard";
+import { useState } from "react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 export function ManagerDashboard() {
-    const { data: stats, isLoading } = useManagerStats();
+    const now = new Date();
+    const [selectedMonth, setSelectedMonth] = useState<number>(now.getMonth() + 1);
+    const [selectedYear, setSelectedYear] = useState<number>(now.getFullYear());
+
+    const { data: stats, isLoading } = useManagerStats(selectedMonth, selectedYear);
 
     if (isLoading) {
         return (
@@ -30,55 +36,78 @@ export function ManagerDashboard() {
 
     return (
         <div className="p-6 space-y-10 animate-fade-in relative min-h-screen bg-[#fafafa]">
-            <div className="flex flex-col gap-2">
-                <h2 className="text-4xl font-black tracking-tight text-slate-900 leading-none">Visão Geral <span className="text-primary italic">Estratégica</span></h2>
-                <div className="h-1 w-20 bg-slate-900 mt-2"></div>
-                <p className="text-xs font-bold text-slate-400 mt-2 uppercase tracking-[0.2em]">Relatório Executivo Mensal • v2.1</p>
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4 border-b border-slate-200 pb-4">
+                <div className="flex flex-col gap-2">
+                    <h2 className="text-4xl font-black tracking-tight text-slate-900 leading-none">Visão Geral <span className="text-primary italic">Estratégica</span></h2>
+                    <div className="h-1 w-20 bg-slate-900 mt-2"></div>
+                    <p className="text-xs font-bold text-slate-400 mt-2 uppercase tracking-[0.2em]">Relatório Executivo Mensal • v2.1</p>
+                </div>
+                
+                <div className="flex gap-2">
+                     <Select value={selectedMonth.toString()} onValueChange={(v) => setSelectedMonth(parseInt(v))}>
+                        <SelectTrigger className="w-[120px] rounded-none border-2 border-slate-300 font-bold uppercase text-[10px] tracking-wider bg-white">
+                            <SelectValue placeholder="Mês" />
+                        </SelectTrigger>
+                        <SelectContent className="rounded-none border-2 border-slate-900">
+                            {Array.from({ length: 12 }, (_, i) => i + 1).map((m) => (
+                                <SelectItem key={m} value={m.toString()} className="uppercase text-[10px] font-bold">
+                                    {format(new Date(2024, m - 1, 1), 'MMMM')}
+                                </SelectItem>
+                            ))}
+                        </SelectContent>
+                    </Select>
+                    <Select value={selectedYear.toString()} onValueChange={(v) => setSelectedYear(parseInt(v))}>
+                        <SelectTrigger className="w-[100px] rounded-none border-2 border-slate-300 font-bold uppercase text-[10px] tracking-wider bg-white">
+                            <SelectValue placeholder="Ano" />
+                        </SelectTrigger>
+                        <SelectContent className="rounded-none border-2 border-slate-900">
+                            {[2024, 2025, 2026].map((y) => (
+                                <SelectItem key={y} value={y.toString()} className="uppercase text-[10px] font-bold">
+                                    {y}
+                                </SelectItem>
+                            ))}
+                        </SelectContent>
+                    </Select>
+                </div>
             </div>
 
             {/* Global Timeline */}
             <ProductionTimeline />
 
             {/* KPIs */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                <Card className="rounded-none border-t-8 border-t-emerald-500 border-x-0 border-b-0 shadow-xl bg-white group hover:-translate-y-1 transition-all duration-500">
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <CardTitle className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500">Progresso Geral</CardTitle>
-                        <div className="p-2 bg-emerald-50 group-hover:bg-emerald-500 group-hover:text-white transition-colors">
-                            <TrendingUp className="h-4 w-4" />
-                        </div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <Card className="rounded-none border-2 border-slate-900 shadow-[4px_4px_0_0_rgba(15,23,42,1)] bg-white group hover:translate-y-[-2px] transition-all">
+                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 border-b-2 border-slate-900 bg-emerald-50">
+                        <CardTitle className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-700">Progresso Geral</CardTitle>
+                        <TrendingUp className="h-4 w-4 text-emerald-600" />
                     </CardHeader>
-                    <CardContent className="pt-4">
-                        <div className="text-5xl font-black tracking-tighter text-slate-900">{kpis.progressoGeral}<span className="text-lg ml-1 text-slate-400">%</span></div>
+                    <CardContent className="pt-6">
+                        <div className="text-5xl font-black tracking-tighter text-slate-900 italic">{kpis.progressoGeral}<span className="text-lg ml-1 text-slate-400 not-italic">%</span></div>
                         <p className="text-[10px] font-bold text-slate-400 mt-2 uppercase">Meta mensal consolidada</p>
                     </CardContent>
                 </Card>
 
-                <Card className="rounded-none border-t-8 border-t-blue-500 border-x-0 border-b-0 shadow-xl bg-white group hover:-translate-y-1 transition-all duration-500">
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <CardTitle className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500">Insumos em Fluxo</CardTitle>
-                        <div className="p-2 bg-blue-50 group-hover:bg-blue-500 group-hover:text-white transition-colors">
-                            <Package className="h-4 w-4" />
-                        </div>
+                <Card className="rounded-none border-2 border-slate-900 shadow-[4px_4px_0_0_rgba(15,23,42,1)] bg-white group hover:translate-y-[-2px] transition-all">
+                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 border-b-2 border-slate-900 bg-blue-50">
+                        <CardTitle className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-700">Insumos em Fluxo</CardTitle>
+                        <Package className="h-4 w-4 text-blue-600" />
                     </CardHeader>
-                    <CardContent className="pt-4">
-                        <div className="text-5xl font-black tracking-tighter text-slate-900">{kpis.total}</div>
-                        <div className="flex gap-4 text-[10px] font-bold mt-4 uppercase">
-                            <span className="text-emerald-600 flex items-center bg-emerald-50 px-2 py-1"><CheckCircle2 className="h-3 w-3 mr-1.5" /> {kpis.concluidos} </span>
-                            <span className="text-amber-600 flex items-center bg-amber-50 px-2 py-1"><Clock className="h-3 w-3 mr-1.5" /> {kpis.pendentes} </span>
+                    <CardContent className="pt-6">
+                        <div className="text-5xl font-black tracking-tighter text-slate-900 italic">{kpis.total}</div>
+                        <div className="flex gap-2 text-[9px] font-black mt-4 uppercase">
+                            <span className="text-emerald-700 flex items-center bg-emerald-100 px-2 py-1 border border-emerald-200"> {kpis.concluidos} OK </span>
+                            <span className="text-amber-700 flex items-center bg-amber-100 px-2 py-1 border border-amber-200"> {kpis.pendentes} PEND </span>
                         </div>
                     </CardContent>
                 </Card>
 
-                <Card className="rounded-none border-t-8 border-t-red-500 border-x-0 border-b-0 shadow-xl bg-white group hover:-translate-y-1 transition-all duration-500">
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <CardTitle className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500">Crise / Atrasos</CardTitle>
-                        <div className="p-2 bg-red-50 text-red-500 group-hover:bg-red-500 group-hover:text-white transition-colors">
-                            <AlertTriangle className="h-4 w-4 animate-pulse" />
-                        </div>
+                <Card className="rounded-none border-2 border-slate-900 shadow-[4px_4px_0_0_rgba(15,23,42,1)] bg-white group hover:translate-y-[-2px] transition-all">
+                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 border-b-2 border-slate-900 bg-red-50">
+                        <CardTitle className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-700">Crise / Atrasos</CardTitle>
+                        <AlertTriangle className="h-4 w-4 text-red-600 animate-pulse" />
                     </CardHeader>
-                    <CardContent className="pt-4">
-                        <div className="text-5xl font-black tracking-tighter text-red-600">{kpis.atrasadosCount}</div>
+                    <CardContent className="pt-6">
+                        <div className="text-5xl font-black tracking-tighter text-red-600 italic">{kpis.atrasadosCount}</div>
                         <p className="text-[10px] font-bold text-slate-400 mt-4 uppercase">Itens com prazo expirado</p>
                     </CardContent>
                 </Card>
@@ -107,9 +136,9 @@ export function ManagerDashboard() {
                 {/* Charts Grid */}
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                     {/* Status Distribution - Donut Chart */}
-                    <Card className="rounded-none border-2 border-slate-100 shadow-lg bg-white">
-                        <CardHeader className="border-b border-slate-50">
-                            <CardTitle className="text-xs font-black uppercase tracking-widest text-slate-500">Pipeline de Produção</CardTitle>
+                    <Card className="rounded-none border-4 border-slate-900 shadow-[8px_8px_0_0_rgba(15,23,42,1)] bg-white overflow-hidden">
+                        <CardHeader className="bg-slate-900 border-b-2 border-slate-900 py-3">
+                            <CardTitle className="text-xs font-black uppercase tracking-widest text-white leading-none">Pipeline de Produção</CardTitle>
                         </CardHeader>
                         <CardContent className="h-[350px] flex items-center justify-center p-6">
                             <ResponsiveContainer width="100%" height="100%">
@@ -148,9 +177,9 @@ export function ManagerDashboard() {
                     </Card>
 
                     {/* Comparativo Mensal - Line Chart */}
-                    <Card className="rounded-none border-2 border-slate-100 shadow-lg bg-white">
-                        <CardHeader className="border-b border-slate-50">
-                            <CardTitle className="text-xs font-black uppercase tracking-widest text-slate-500">Evolução de Performance</CardTitle>
+                    <Card className="rounded-none border-4 border-slate-900 shadow-[8px_8px_0_0_rgba(15,23,42,1)] bg-white overflow-hidden">
+                        <CardHeader className="bg-slate-900 border-b-2 border-slate-900 py-3">
+                            <CardTitle className="text-xs font-black uppercase tracking-widest text-white leading-none">Evolução de Performance</CardTitle>
                         </CardHeader>
                         <CardContent className="h-[350px] p-6">
                             <ResponsiveContainer width="100%" height="100%">
@@ -193,10 +222,10 @@ export function ManagerDashboard() {
             </div>
 
             {/* Insumos Atrasados/Pendentes */}
-            <Card className="rounded-none border-t-8 border-t-slate-900 shadow-2xl bg-white overflow-hidden">
-                <CardHeader className="bg-slate-50 border-b border-slate-100">
-                    <CardTitle className="flex items-center gap-3 text-sm font-black uppercase tracking-[0.2em]">
-                        <AlertTriangle className="h-5 w-5 text-red-500" />
+            <Card className="rounded-none border-4 border-slate-900 shadow-[12px_12px_0_0_rgba(15,23,42,1)] bg-white overflow-hidden">
+                <CardHeader className="bg-red-50 border-b-4 border-slate-900 py-6">
+                    <CardTitle className="flex items-center gap-3 text-lg font-black uppercase tracking-[0.2em] text-red-900">
+                        <AlertTriangle className="h-6 w-6 text-red-600 animate-pulse" />
                         Lista Prioritária de Atrasos
                     </CardTitle>
                 </CardHeader>
@@ -209,24 +238,24 @@ export function ManagerDashboard() {
                     ) : (
                         <ScrollArea className="h-[400px]">
                             <Table>
-                                <TableHeader className="bg-slate-50">
-                                    <TableRow className="hover:bg-slate-50">
-                                        <TableHead className="text-[10px] font-black uppercase tracking-widest py-4">Insumo</TableHead>
-                                        <TableHead className="text-[10px] font-black uppercase tracking-widest py-4">Produto</TableHead>
-                                        <TableHead className="text-[10px] font-black uppercase tracking-widest py-4">Data Limite</TableHead>
-                                        <TableHead className="text-[10px] font-black uppercase tracking-widest py-4">Status</TableHead>
+                                <TableHeader className="bg-slate-900">
+                                    <TableRow className="hover:bg-slate-900 border-b-2 border-slate-900">
+                                        <TableHead className="text-[10px] font-black uppercase tracking-widest py-4 text-white">Insumo</TableHead>
+                                        <TableHead className="text-[10px] font-black uppercase tracking-widest py-4 text-white">Produto</TableHead>
+                                        <TableHead className="text-[10px] font-black uppercase tracking-widest py-4 text-white">Data Limite</TableHead>
+                                        <TableHead className="text-[10px] font-black uppercase tracking-widest py-4 text-white">Status</TableHead>
                                     </TableRow>
                                 </TableHeader>
                                 <TableBody>
                                     {delayedList.map((item) => (
-                                        <TableRow key={item.id} className="hover:bg-red-50/30 transition-colors border-b border-slate-50">
-                                            <TableCell className="font-black text-xs uppercase text-slate-900 py-4">{item.nome}</TableCell>
-                                            <TableCell className="text-[10px] font-bold text-slate-500 uppercase">{item.produto}</TableCell>
+                                        <TableRow key={item.id} className="hover:bg-red-50 transition-colors border-b-2 border-slate-100 last:border-0">
+                                            <TableCell className="font-black text-xs uppercase text-slate-900 py-5">{item.nome}</TableCell>
+                                            <TableCell className="text-[10px] font-black text-slate-500 uppercase italic tracking-tighter">{item.produto}</TableCell>
                                             <TableCell className="text-red-600 font-mono font-black text-xs">
                                                 {item.data_limite ? format(new Date(item.data_limite), 'dd/MM/yyyy') : 'N/A'}
                                             </TableCell>
                                             <TableCell>
-                                                <Badge className="rounded-none bg-red-100 text-red-700 hover:bg-red-200 border-none font-black text-[9px] uppercase px-2 py-0.5 tracking-tighter">
+                                                <Badge className="rounded-none border-2 border-red-900 bg-red-100 text-red-900 hover:bg-red-200 font-black text-[9px] uppercase px-3 py-1 tracking-widest">
                                                     {item.status.replace('_', ' ')}
                                                 </Badge>
                                             </TableCell>

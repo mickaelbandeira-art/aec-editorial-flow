@@ -119,13 +119,13 @@ const TiptapEditor = ({ content, onChange, editable = true }: { content: string,
     }
 
     return (
-        <div className="border border-slate-200 rounded-lg overflow-hidden bg-white flex flex-col h-[400px]">
+        <div className="border-2 border-slate-300 rounded-none overflow-hidden bg-white flex flex-col h-[400px] focus-within:border-slate-900 transition-colors">
             {editable && (
-                <div className="bg-slate-100 p-2 border-b border-slate-200 flex gap-2 overflow-x-auto items-center">
+                <div className="bg-slate-50 p-2 border-b-2 border-slate-200 flex gap-2 overflow-x-auto items-center">
                     <Button
                         variant="ghost"
                         size="icon"
-                        className="h-8 w-8 bg-white border border-slate-200 text-slate-700 hover:bg-slate-200"
+                        className="h-8 w-8 rounded-none bg-white border-2 border-slate-200 text-slate-700 hover:border-slate-900 transition-colors"
                         onClick={() => editor.chain().focus().toggleBold().run()}
                         disabled={!editor.can().chain().focus().toggleBold().run()}
                         title="Negrito"
@@ -135,7 +135,7 @@ const TiptapEditor = ({ content, onChange, editable = true }: { content: string,
                     <Button
                         variant="ghost"
                         size="icon"
-                        className="h-8 w-8 bg-white border border-slate-200 text-slate-700 hover:bg-slate-200"
+                        className="h-8 w-8 rounded-none bg-white border-2 border-slate-200 text-slate-700 hover:border-slate-900 transition-colors"
                         onClick={() => editor.chain().focus().toggleItalic().run()}
                         disabled={!editor.can().chain().focus().toggleItalic().run()}
                         title="Itálico"
@@ -145,7 +145,7 @@ const TiptapEditor = ({ content, onChange, editable = true }: { content: string,
                     <Button
                         variant="ghost"
                         size="icon"
-                        className="h-8 w-8 bg-white border border-slate-200 text-slate-700 hover:bg-slate-200"
+                        className="h-8 w-8 rounded-none bg-white border-2 border-slate-200 text-slate-700 hover:border-slate-900 transition-colors"
                         onClick={() => editor.chain().focus().toggleStrike().run()}
                         disabled={!editor.can().chain().focus().toggleStrike().run()}
                         title="Sublinhado"
@@ -160,18 +160,18 @@ const TiptapEditor = ({ content, onChange, editable = true }: { content: string,
                         size="sm"
                         onClick={handleAiFix}
                         disabled={isAiLoading}
-                        className="text-purple-600 hover:text-purple-700 hover:bg-purple-50 gap-2"
+                        className="text-slate-900 gap-2 font-bold bg-yellow-400 hover:bg-yellow-500 rounded-none border-2 border-transparent"
                         title="Revisar com IA"
                     >
                         {isAiLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Wand2 className="h-4 w-4" />}
-                        <span className="text-xs font-semibold">Revisar IA</span>
+                        <span className="text-[10px] uppercase tracking-wider">Revisar IA</span>
                     </Button>
                     <div className="w-px h-6 bg-slate-300 mx-1"></div>
 
                     <Button
                         variant="ghost"
                         size="icon"
-                        className="h-8 w-8 bg-white border border-slate-200 text-slate-700 hover:bg-slate-200"
+                        className="h-8 w-8 rounded-none bg-white border-2 border-slate-200 text-slate-700 hover:border-slate-900 transition-colors"
                         onClick={() => editor.chain().focus().toggleBulletList().run()}
                         title="Lista"
                     >
@@ -180,7 +180,7 @@ const TiptapEditor = ({ content, onChange, editable = true }: { content: string,
                     <Button
                         variant="ghost"
                         size="icon"
-                        className="h-8 w-8 bg-white border border-slate-200 text-slate-700 hover:bg-slate-200"
+                        className="h-8 w-8 rounded-none bg-white border-2 border-slate-200 text-slate-700 hover:border-slate-900 transition-colors"
                         onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
                         title="H2"
                     >
@@ -246,12 +246,8 @@ export function InsumoDetailsDialog({
     const { mutate: createTag, isPending: creatingTag } = useCreateTag();
 
     const { user, canPerformAction } = usePermissions();
+    const { generateDraft } = useGemini();
     const imageInputRef = useRef<HTMLInputElement>(null);
-
-    // Upload state
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const [uploading, setUploading] = useState(false);
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const [imageCaption, setImageCaption] = useState("");
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const [imageFile, setImageFile] = useState<File | null>(null);
@@ -384,21 +380,25 @@ export function InsumoDetailsDialog({
 
     return (
         <Dialog open={isOpen} onOpenChange={onOpenChange}>
-            <DialogContent className="max-w-[1000px] w-full md:w-[90%] h-[100vh] md:h-[90vh] flex flex-col p-0 gap-0 overflow-hidden bg-[#f4f5f7] sm:rounded-lg shadow-2xl border-0 [&>button]:hidden">
+            <DialogContent className="max-w-[1000px] w-full md:w-[90%] h-[100vh] md:h-[90vh] flex flex-col p-0 gap-0 overflow-hidden bg-[#fafafa] sm:rounded-none shadow-[24px_24px_0_0_rgba(15,23,42,1)] border-4 border-slate-900 [&>button]:hidden">
                 {/* 1. Header (Banner-like) */}
-                <header className="px-4 md:px-6 py-4 bg-[#f4f5f7] shrink-0">
-                    <div className="flex items-start gap-4">
-                        <FileText className="mt-1 h-6 w-6 text-slate-700" />
-                        <div className="flex-1">
-                            <DialogTitle className="text-xl font-semibold text-slate-800 m-0">
-                                {insumo.titulo || insumo.tipo_insumo?.nome || "Cartão sem título"}
-                            </DialogTitle>
-                            <div className="text-sm text-slate-500 mt-1 flex items-center gap-2">
-                                na lista <span className="underline decoration-slate-400 decoration-1 underline-offset-2">{STATUS_LABELS[status]}</span>
+                <header className="px-6 md:px-8 py-8 bg-slate-900 border-b-4 border-slate-900 shrink-0">
+                    <div className="flex items-start justify-between">
+                        <div className="flex flex-col gap-2">
+                            <div className="flex items-center gap-3">
+                                <FileText className="h-6 w-6 text-white" />
+                                <DialogTitle className="text-4xl font-black tracking-tighter text-white leading-none uppercase italic">
+                                    {insumo.titulo || insumo.tipo_insumo?.nome || "Cartão sem título"}
+                                </DialogTitle>
+                            </div>
+                            <div className="h-2 w-32 bg-primary mt-2"></div>
+                            <div className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] flex items-center gap-2 mt-4">
+                                <span className="p-1 bg-slate-800 text-slate-400">STATUS:</span> 
+                                <span className="text-white bg-slate-700 px-3 py-1 border border-slate-600">{STATUS_LABELS[status]}</span>
                             </div>
                         </div>
-                        <Button variant="ghost" size="icon" onClick={() => onOpenChange(false)} className="text-slate-500 hover:bg-slate-200">
-                            <X className="h-5 w-5" />
+                        <Button variant="ghost" size="icon" onClick={() => onOpenChange(false)} className="text-white rounded-none w-12 h-12 border-2 border-slate-700 hover:border-white transition-all bg-slate-800 hover:bg-slate-700">
+                            <X className="h-6 w-6" />
                         </Button>
                     </div>
                 </header>
@@ -406,24 +406,22 @@ export function InsumoDetailsDialog({
                 {/* 2. Body (Trello Layout) */}
                 <div className="flex-1 overflow-y-auto px-4 md:px-6 pb-6 custom-scrollbar">
                     <div className="flex flex-col md:flex-row gap-8">
-                        {/* LEFT COLUMN (Main Content) */}
                         <div className="flex-[3] space-y-8">
-
                             {/* Meta Info Display (Members / Labels) */}
-                            {((insumo.responsaveis?.length || 0) > 0 || (insumo.tags?.length || 0) > 0) && (
-                                <div className="pl-9 flex flex-wrap gap-6">
+                             {((insumo.responsaveis?.length || 0) > 0 || (insumo.tags?.length || 0) > 0) && (
+                                <div className="flex flex-wrap gap-8 py-6">
                                     {/* Members */}
                                     {insumo.responsaveis && insumo.responsaveis.length > 0 && (
-                                        <div className="space-y-1.5">
-                                            <h4 className="text-xs font-semibold text-slate-500 uppercase tracking-wide">Membros</h4>
+                                        <div className="space-y-3">
+                                            <h4 className="text-[10px] font-black text-slate-500 uppercase tracking-widest border-l-4 border-slate-900 pl-2">Membros</h4>
                                             <div className="flex gap-2 flex-wrap">
                                                 {insumo.responsaveis.map(m => (
-                                                    <div key={m.id} className="h-8 w-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-700 text-xs font-bold border border-white shadow-sm" title={m.nome}>
+                                                    <div key={m.id} className="h-10 w-10 rounded-none bg-slate-900 flex items-center justify-center text-white text-sm font-black border-2 border-slate-900 shadow-[4px_4px_0px_0px_rgba(15,23,42,0.1)]" title={m.nome}>
                                                         {m.nome.charAt(0)}
                                                     </div>
                                                 ))}
-                                                <Button variant="secondary" size="icon" className="h-8 w-8 rounded-full bg-slate-200 hover:bg-slate-300">
-                                                    <span className="text-lg leading-none pb-1">+</span>
+                                                <Button variant="outline" size="icon" className="h-10 w-10 rounded-none border-2 border-slate-900 bg-white shadow-[2px_2px_0_0_rgba(15,23,42,1)] hover:translate-y-[-1px] transition-all">
+                                                    <span className="text-xl font-black leading-none pb-1">+</span>
                                                 </Button>
                                             </div>
                                         </div>
@@ -431,21 +429,18 @@ export function InsumoDetailsDialog({
 
                                     {/* Labels */}
                                     {insumo.tags && insumo.tags.length > 0 && (
-                                        <div className="space-y-1.5">
-                                            <h4 className="text-xs font-semibold text-slate-500 uppercase tracking-wide">Etiquetas</h4>
+                                        <div className="space-y-3">
+                                            <h4 className="text-[10px] font-black text-slate-500 uppercase tracking-widest border-l-4 border-slate-900 pl-2">Etiquetas</h4>
                                             <div className="flex gap-2 flex-wrap">
                                                 {insumo.tags.map(tag => (
                                                     <Badge
                                                         key={tag.id}
-                                                        className="h-8 px-3 rounded text-sm font-medium hover:opacity-90 transition-opacity cursor-pointer border-0 text-white"
+                                                        className="h-10 px-4 rounded-none text-[10px] font-black tracking-widest uppercase hover:opacity-90 transition-opacity cursor-pointer border-2 border-slate-900 text-white shadow-[4px_4px_0_0_rgba(15,23,42,0.1)]"
                                                         style={{ backgroundColor: tag.cor }}
                                                     >
                                                         {tag.nome}
                                                     </Badge>
                                                 ))}
-                                                <Button variant="secondary" size="icon" className="h-8 w-8 rounded bg-slate-200 hover:bg-slate-300">
-                                                    <span className="text-lg leading-none pb-1">+</span>
-                                                </Button>
                                             </div>
                                         </div>
                                     )}
@@ -453,27 +448,50 @@ export function InsumoDetailsDialog({
                             )}
 
                             {/* Description Section */}
-                            <div className="space-y-3">
-                                <div className="flex items-center gap-3">
-                                    <List className="h-6 w-6 text-slate-700" />
-                                    <h3 className="text-lg font-semibold text-slate-800">Descrição</h3>
+                            <div className="space-y-4">
+                                <div className="flex flex-col gap-1">
+                                    <h3 className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] flex items-center gap-2 mb-2">
+                                        <List className="h-4 w-4" /> Detalhes do Escopo
+                                    </h3>
                                 </div>
-                                <div className="pl-9">
+                                <div className="">
                                     <TiptapEditor
                                         content={descricaoTexto}
                                         onChange={setDescricaoTexto}
                                         editable={true}
                                     />
-                                    <div className="flex gap-2 mt-2">
+                                    <div className="flex gap-3 mt-4">
                                         {canEdit && (
-                                            <Button
-                                                size="sm"
-                                                className="bg-blue-600 hover:bg-blue-700 text-white"
-                                                onClick={handleSalvarDescricao}
-                                                disabled={salvando}
-                                            >
-                                                {salvando ? "Salvando..." : "Salvar"}
-                                            </Button>
+                                            <>
+                                                <Button
+                                                    size="sm"
+                                                    className="bg-slate-900 hover:bg-slate-800 text-white rounded-none border-2 border-slate-900 font-black uppercase text-[10px] tracking-widest px-8 shadow-[4px_4px_0px_0px_rgba(0,0,0,0.1)] hover:translate-y-[-1px] transition-all"
+                                                    onClick={handleSalvarDescricao}
+                                                    disabled={salvando}
+                                                >
+                                                    {salvando ? "Salvando..." : "Salvar Conteúdo"}
+                                                </Button>
+                                                
+                                                {/* Botão de IA */}
+                                                <Button
+                                                    size="sm"
+                                                    variant="secondary"
+                                                    className="bg-yellow-400 hover:bg-yellow-500 text-slate-900 font-black uppercase text-[10px] tracking-widest rounded-none border-2 border-slate-900 shadow-[4px_4px_0_0_rgba(15,23,42,1)] gap-2 transition-transform hover:translate-y-[-2px] active:translate-y-px"
+                                                    onClick={async () => {
+                                                        const result = await generateDraft(
+                                                            insumo.titulo || insumo.tipo_insumo?.nome || "Sem título", 
+                                                            insumo.tipo_insumo?.nome || "Texto",
+                                                            obs
+                                                        );
+                                                        if (result) {
+                                                            setDescricaoTexto(result);
+                                                        }
+                                                    }}
+                                                >
+                                                    <Wand2 className="h-4 w-4" />
+                                                    Gerar Insumo com IA ✨
+                                                </Button>
+                                            </>
                                         )}
                                     </div>
                                 </div>
@@ -481,27 +499,26 @@ export function InsumoDetailsDialog({
 
                             {/* Checklist Section */}
                             {(showChecklist || (insumo.checklist && insumo.checklist.length > 0)) && (
-                                <div className="space-y-3">
-                                    <div className="flex items-center gap-3">
-                                        <div className="h-6 w-6 flex items-center justify-center text-slate-700">☑️</div>
-                                        <div className="flex items-center justify-between w-full">
-                                            <h3 className="text-lg font-semibold text-slate-800">Checklist</h3>
-                                            <Button
-                                                variant="ghost"
-                                                size="sm"
-                                                onClick={() => {
-                                                    if (confirm('Apagar checklist inteiro?')) {
-                                                        onSave({ ...insumo, checklist: [] });
-                                                        setShowChecklist(false);
-                                                    }
-                                                }}
-                                                className="text-xs text-slate-400 hover:text-red-500"
-                                            >
-                                                Excluir
-                                            </Button>
-                                        </div>
+                                <div className="space-y-4">
+                                    <div className="flex items-center justify-between w-full">
+                                        <h3 className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] flex items-center gap-2 mb-2">
+                                            <span>☑️</span> Checklist de Tarefas
+                                        </h3>
+                                        <Button
+                                            variant="ghost"
+                                            size="sm"
+                                            onClick={() => {
+                                                if (confirm('Apagar checklist inteiro?')) {
+                                                    onSave({ ...insumo, checklist: [] });
+                                                    setShowChecklist(false);
+                                                }
+                                            }}
+                                            className="text-[10px] font-bold uppercase tracking-wider text-slate-400 hover:text-red-500 border-2 border-transparent hover:border-red-500 rounded-none h-6 px-2"
+                                        >
+                                            Excluir Todos
+                                        </Button>
                                     </div>
-                                    <div className="pl-9">
+                                    <div className="">
                                         <div className="space-y-2">
                                             {/* Progress Bar */}
                                             {insumo.checklist && insumo.checklist.length > 0 && (
@@ -576,23 +593,20 @@ export function InsumoDetailsDialog({
                             )}
 
                             {/* Activity Section */}
-                            <div className="space-y-3">
-                                <div className="flex items-center gap-3">
-                                    <Heading2 className="h-6 w-6 text-slate-700" />
-                                    <div className="flex items-center justify-between w-full">
-                                        <h3 className="text-lg font-semibold text-slate-800">Atividade</h3>
-                                        <Button variant="secondary" size="sm" className="h-8 bg-slate-200 hover:bg-slate-300 text-slate-700">Mostrar detalhes</Button>
-                                    </div>
+                            <div className="space-y-4">
+                                <div className="flex items-center justify-between w-full">
+                                    <h3 className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] flex items-center gap-2 mb-2">
+                                        <Heading2 className="h-4 w-4" /> Observações da Gestão
+                                    </h3>
                                 </div>
-                                <div className="pl-9 space-y-4">
-                                    <div className="flex gap-3">
-                                        <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-700 text-xs font-bold">OBS</div>
+                                <div className="space-y-4">
+                                    <div className="flex gap-4">
+                                        <div className="w-12 h-12 rounded-none bg-slate-900 flex items-center justify-center text-white text-[10px] font-black shadow-[4px_4px_0px_0px_rgba(15,23,42,0.1)] border-2 border-slate-900 shrink-0 italic">OBS</div>
                                         <div className="flex-1 space-y-2">
-                                            <Label className="text-xs font-semibold text-slate-500">OBSERVAÇÕES (Coordenador/Supervisor)</Label>
-                                            <div className="bg-white border border-slate-200 rounded-md p-2 shadow-sm hover:shadow-md transition-shadow focus-within:ring-2 focus-within:ring-blue-600 focus-within:border-transparent">
-                                                <Textarea placeholder="Escreva um comentário..." className="min-h-[60px] border-none shadow-none resize-none p-0 text-sm focus-visible:ring-0" value={obs} onChange={(e) => setObs(e.target.value)} />
-                                                <div className="flex justify-end mt-2">
-                                                    <Button size="sm" variant="outline" onClick={handleSalvarDescricao} className="h-7 text-xs">Salvar</Button>
+                                            <div className="bg-white border-2 border-slate-900 rounded-none p-0 focus-within:border-slate-900 focus-within:shadow-[4px_4px_0_0_rgba(15,23,42,0.1)] transition-all flex flex-col">
+                                                <Textarea placeholder="ESCREVA UMA OBSERVAÇÃO (REVISORES/GESTORES)..." className="min-h-[100px] border-none shadow-none resize-none p-4 text-xs font-bold uppercase focus-visible:ring-0 bg-transparent" value={obs} onChange={(e) => setObs(e.target.value)} />
+                                                <div className="p-3 border-t-2 border-slate-200 bg-slate-50 flex justify-end">
+                                                    <Button size="sm" onClick={handleSalvarDescricao} className="h-10 text-[10px] font-black uppercase tracking-widest bg-white text-slate-900 border-2 border-slate-900 hover:translate-y-[-1px] shadow-[2px_2px_0_0_rgba(15,23,42,1)] rounded-none transition-all">Salvar Observação</Button>
                                                 </div>
                                             </div>
                                         </div>
@@ -604,13 +618,13 @@ export function InsumoDetailsDialog({
                         {/* RIGHT COLUMN (Sidebar) */}
                         <aside className="w-full md:w-[25%] flex flex-col gap-6 pt-2">
                             <div className="space-y-2">
-                                <span className="text-xs font-semibold text-slate-500 uppercase tracking-wide">Adicionar ao cartão</span>
+                                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] mb-2 block">Adicionar ao cartão</span>
 
                                 {/* Members Popover */}
                                 <Popover>
                                     <PopoverTrigger asChild>
-                                        <Button variant="secondary" className="w-full justify-start bg-[#eaecf0] hover:bg-[#dfe1e6] text-[#172b4d] font-medium transition-colors h-8 relative">
-                                            <span className="mr-2">👤</span> Membros
+                                        <Button variant="outline" className="w-full justify-start bg-white hover:bg-slate-50 border-2 border-slate-900 text-slate-800 font-black uppercase text-[10px] tracking-widest transition-all rounded-none h-12 shadow-[4px_4px_0_0_rgba(15,23,42,1)] hover:translate-y-[-2px] hover:shadow-[6px_6px_0_0_rgba(15,23,42,1)]">
+                                            <span className="mr-3 text-sm">👤</span> Atribuir Membros
                                         </Button>
                                     </PopoverTrigger>
                                     <PopoverContent className="w-64 p-0" align="start">
@@ -640,8 +654,8 @@ export function InsumoDetailsDialog({
                                 {/* Labels Popover */}
                                 <Popover>
                                     <PopoverTrigger asChild>
-                                        <Button variant="secondary" className="w-full justify-start bg-[#eaecf0] hover:bg-[#dfe1e6] text-[#172b4d] font-medium transition-colors h-8">
-                                            <span className="mr-2">🏷️</span> Etiquetas
+                                        <Button variant="outline" className="w-full justify-start bg-white hover:bg-slate-50 border-2 border-slate-900 text-slate-800 font-black uppercase text-[10px] tracking-widest transition-all rounded-none h-12 shadow-[4px_4px_0_0_rgba(15,23,42,1)] hover:translate-y-[-2px] hover:shadow-[6px_6px_0_0_rgba(15,23,42,1)]">
+                                            <span className="mr-3 text-sm">🏷️</span> Etiquetas
                                         </Button>
                                     </PopoverTrigger>
                                     <PopoverContent className="w-64 p-0" align="start">
@@ -760,22 +774,22 @@ export function InsumoDetailsDialog({
                                 </Popover>
 
                                 <Button
-                                    variant="secondary"
-                                    className="w-full justify-start bg-[#eaecf0] hover:bg-[#dfe1e6] text-[#172b4d] font-medium transition-colors h-8"
+                                    variant="outline"
+                                    className="w-full justify-start bg-white hover:bg-slate-50 border-2 border-slate-900 text-slate-800 font-black uppercase text-[10px] tracking-widest transition-all rounded-none h-12 shadow-[4px_4px_0_0_rgba(15,23,42,1)] hover:translate-y-[-2px] hover:shadow-[6px_6px_0_0_rgba(15,23,42,1)]"
                                     onClick={() => setShowChecklist(true)}
                                 >
-                                    <span className="mr-2">☑️</span> Checklist
+                                    <span className="mr-3 text-sm">☑️</span> Checklist
                                 </Button>
 
                                 <Popover>
                                     <PopoverTrigger asChild>
                                         <Button
-                                            variant="secondary"
-                                            className="w-full justify-start bg-[#eaecf0] hover:bg-[#dfe1e6] text-[#172b4d] font-medium transition-colors h-8"
+                                            variant="outline"
+                                            className="w-full justify-start bg-white hover:bg-slate-50 border-2 border-slate-900 text-slate-800 font-black uppercase text-[10px] tracking-widest transition-all rounded-none h-12 shadow-[4px_4px_0_0_rgba(15,23,42,1)] hover:translate-y-[-2px] hover:shadow-[6px_6px_0_0_rgba(15,23,42,1)]"
                                         >
                                             <div className="flex items-center justify-between w-full">
-                                                <span><span className="mr-2">🕒</span> Datas</span>
-                                                {dataLimite && <Badge variant="outline" className="bg-transparent border-slate-400 text-[10px] h-4 px-1">{format(dataLimite, 'dd/MM')}</Badge>}
+                                                <span><span className="mr-3 text-sm">🕒</span> Datas</span>
+                                                {dataLimite && <Badge variant="outline" className="bg-slate-900 text-white border-2 border-slate-900 text-[10px] font-black h-6 px-2 italic">{format(dataLimite, 'dd/MM')}</Badge>}
                                             </div>
                                         </Button>
                                     </PopoverTrigger>
@@ -791,41 +805,41 @@ export function InsumoDetailsDialog({
                                     </PopoverContent>
                                 </Popover>
 
-                                <div className="space-y-2">
+                                <div className="space-y-2 mt-4">
                                     <div className="flex items-center justify-between">
-                                        <span className="text-xs font-semibold text-slate-500 uppercase tracking-wide">Anexos</span>
+                                        <span className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] mb-2 block">Anexos</span>
                                     </div>
 
                                     <div className="space-y-1 max-h-[200px] overflow-y-auto">
                                         {insumo.anexos?.map((anexo) => (
-                                            <div key={anexo.id} className="group flex items-center gap-2 p-2 rounded hover:bg-slate-100 text-sm">
+                                            <div key={anexo.id} className="group flex items-center gap-2 p-2 rounded-none hover:bg-slate-50 border-2 border-transparent hover:border-slate-200 text-sm transition-all mb-1">
                                                 {anexo.tipo === 'imagem' ? <ImageIcon className="h-4 w-4 text-slate-500" /> : <FileText className="h-4 w-4 text-slate-500" />}
                                                 <a href={anexo.url} target="_blank" rel="noreferrer" className="flex-1 truncate text-slate-700 hover:underline">{anexo.nome_arquivo}</a>
-                                                <button onClick={() => handleDeleteAnexo(anexo.id)} className="opacity-0 group-hover:opacity-100 text-slate-400 hover:text-red-600">
+                                                <button onClick={() => handleDeleteAnexo(anexo.id)} className="opacity-0 group-hover:opacity-100 text-slate-400 hover:text-red-600 transition-all">
                                                     <Trash2 className="h-3.5 w-3.5" />
                                                 </button>
                                             </div>
                                         ))}
 
                                         {optimisticAnexos.map((anexo) => (
-                                            <div key={anexo.id} className="flex items-center gap-2 p-2 rounded bg-blue-50 text-sm border border-blue-100">
+                                            <div key={anexo.id} className="flex items-center gap-2 p-2 rounded-none bg-blue-50 text-sm border-2 border-blue-200 mb-1">
                                                 <Loader2 className="h-3.5 w-3.5 animate-spin text-blue-600" />
                                                 <span className="flex-1 truncate text-slate-700 italic">{anexo.nome_arquivo}</span>
                                             </div>
                                         ))}
 
                                         {(!insumo.anexos?.length && !optimisticAnexos.length) && (
-                                            <p className="text-xs text-slate-400 px-2 italic">Sem anexos</p>
+                                            <p className="text-[10px] uppercase font-bold text-slate-400 px-2 my-2 tracking-wider">Sem anexos</p>
                                         )}
                                     </div>
 
                                     {canUpload && (
                                         <Button
-                                            variant="secondary"
-                                            className="w-full justify-start bg-[#eaecf0] hover:bg-[#dfe1e6] text-[#172b4d] font-medium transition-colors h-8"
+                                            variant="outline"
+                                            className="w-full justify-start bg-white hover:bg-slate-50 border-2 border-slate-200 hover:border-slate-900 text-slate-800 font-bold uppercase text-[10px] tracking-wider transition-all rounded-none h-10 shadow-sm"
                                             onClick={() => imageInputRef.current?.click()}
                                         >
-                                            <span className="mr-2">📎</span> Adicionar Anexo
+                                            <span className="mr-3 text-sm">📎</span> Adicionar Anexo
                                         </Button>
                                     )}
                                     <input
@@ -837,16 +851,16 @@ export function InsumoDetailsDialog({
                                     />
                                 </div>
 
-                                <div className="space-y-2">
-                                    <span className="text-xs font-semibold text-slate-500 uppercase tracking-wide">Ações</span>
+                                <div className="space-y-2 mt-4">
+                                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] mb-2 block">Ações</span>
 
                                     <Popover>
                                         <PopoverTrigger asChild>
                                             <Button
-                                                variant="secondary"
-                                                className="w-full justify-start bg-[#eaecf0] hover:bg-[#dfe1e6] text-[#172b4d] font-medium transition-colors h-8"
+                                                variant="outline"
+                                                className="w-full justify-start bg-white hover:bg-slate-50 border-2 border-slate-200 hover:border-slate-900 text-slate-800 font-bold uppercase text-[10px] tracking-wider transition-all rounded-none h-10 shadow-sm"
                                             >
-                                                <span className="mr-2">➡️</span> Mover
+                                                <span className="mr-3 text-sm">➡️</span> Mover Cartão
                                             </Button>
                                         </PopoverTrigger>
                                         <PopoverContent className="w-48 p-0" align="start">
@@ -867,20 +881,20 @@ export function InsumoDetailsDialog({
                                     </Popover>
 
                                     <Button
-                                        variant="secondary"
-                                        className="w-full justify-start bg-[#eaecf0] hover:bg-[#dfe1e6] text-[#172b4d] font-medium transition-colors h-8"
+                                        variant="outline"
+                                        className="w-full justify-start bg-white hover:bg-slate-50 border-2 border-slate-200 hover:border-slate-900 text-slate-800 font-bold uppercase text-[10px] tracking-wider transition-all rounded-none h-10 shadow-sm"
                                         onClick={handleDuplicate}
                                         disabled={duplicating}
                                     >
-                                        <span className="mr-2">📋</span> {duplicating ? "Copiando..." : "Copiar"}
+                                        <span className="mr-3 text-sm">📋</span> {duplicating ? "Copiando..." : "Copiar Cartão"}
                                     </Button>
                                     <Button
-                                        variant="secondary"
-                                        className="w-full justify-start bg-[#eaecf0] hover:bg-[#dfe1e6] text-[#172b4d] font-medium transition-colors h-8"
+                                        variant="outline"
+                                        className="w-full justify-start bg-white hover:bg-red-50 border-2 border-slate-200 hover:border-red-600 text-red-600 font-bold uppercase text-[10px] tracking-wider transition-all rounded-none h-10 shadow-sm"
                                         onClick={handleArchive}
                                         disabled={deleting}
                                     >
-                                        <span className="mr-2">🗑️</span> {deleting ? "Apagando..." : "Apagar"}
+                                        <span className="mr-3 text-sm">🗑️</span> {deleting ? "Apagando..." : "Apagar Cartão"}
                                     </Button>
                                 </div>
 

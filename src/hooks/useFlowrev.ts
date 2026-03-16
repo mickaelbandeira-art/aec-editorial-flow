@@ -342,7 +342,59 @@ export function useUpdateInsumoContent() {
       if (error) throw error;
       return data;
     },
-    onSuccess: () => {
+    onMutate: async ({ insumoId, conteudo_texto, observacoes }) => {
+      // Cancelar queries para não sobrescrever o update otimista
+      await queryClient.cancelQueries({ queryKey: ['flowrev-insumos'] });
+      await queryClient.cancelQueries({ queryKey: ['flowrev-all-insumos'] });
+
+      // Snapshot dos dados anteriores
+      const previousInsumos = queryClient.getQueryData(['flowrev-insumos']);
+      const previousAllInsumos = queryClient.getQueryData(['flowrev-all-insumos']);
+
+      // Update Otimista para 'flowrev-insumos'
+      queryClient.setQueryData(['flowrev-insumos'], (old: Insumo[] | undefined) => {
+        if (!old || !Array.isArray(old)) return old;
+        return old.map((insumo) =>
+          insumo.id === insumoId 
+            ? { 
+                ...insumo, 
+                conteudo_texto: conteudo_texto !== undefined ? conteudo_texto : insumo.conteudo_texto,
+                observacoes: observacoes !== undefined ? observacoes : insumo.observacoes
+              } 
+            : insumo
+        );
+      });
+
+      // Update Otimista para 'flowrev-all-insumos'
+      queryClient.setQueryData(['flowrev-all-insumos'], (old: { insumos: Insumo[] } | undefined) => {
+        if (!old || !old.insumos) return old;
+        return {
+          ...old,
+          insumos: old.insumos.map((insumo: Insumo) =>
+            insumo.id === insumoId 
+            ? { 
+                ...insumo, 
+                conteudo_texto: conteudo_texto !== undefined ? conteudo_texto : insumo.conteudo_texto,
+                observacoes: observacoes !== undefined ? observacoes : insumo.observacoes
+              } 
+            : insumo
+          ),
+        };
+      });
+
+      return { previousInsumos, previousAllInsumos };
+    },
+    onError: (err, newTodo, context) => {
+      // Rollback em caso de erro
+      if (context?.previousInsumos) {
+        queryClient.setQueryData(['flowrev-insumos'], context.previousInsumos);
+      }
+      if (context?.previousAllInsumos) {
+        queryClient.setQueryData(['flowrev-all-insumos'], context.previousAllInsumos);
+      }
+      toast.error("Erro ao salvar conteúdo. Revertendo alteração.");
+    },
+    onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ['flowrev-insumos'] });
       queryClient.invalidateQueries({ queryKey: ['flowrev-all-insumos'] });
     },
@@ -390,13 +442,13 @@ export function useCreateEdicao() {
   });
 }
 
-export function useDashboardStats() {
+export function useDashboardStats(mesParam?: number, anoParam?: number) {
   return useQuery({
-    queryKey: ['flowrev-dashboard-stats'],
+    queryKey: ['flowrev-dashboard-stats', mesParam, anoParam],
     queryFn: async () => {
       const now = new Date();
-      const mes = now.getMonth() + 1;
-      const ano = now.getFullYear();
+      const mes = mesParam || now.getMonth() + 1;
+      const ano = anoParam || now.getFullYear();
 
       // Buscar edições do mês atual
       const { data: edicoes, error: edicoesError } = await supabase
@@ -626,13 +678,13 @@ export function useSyncInsumos() {
   });
 }
 
-export function useAllInsumos() {
+export function useAllInsumos(mesParam?: number, anoParam?: number) {
   return useQuery({
-    queryKey: ['flowrev-all-insumos'],
+    queryKey: ['flowrev-all-insumos', mesParam, anoParam],
     queryFn: async () => {
       const now = new Date();
-      const mes = now.getMonth() + 1;
-      const ano = now.getFullYear();
+      const mes = mesParam || now.getMonth() + 1;
+      const ano = anoParam || now.getFullYear();
 
       // 1. Get editions
       const { data: edicoes, error: edicoesError } = await supabase
@@ -671,13 +723,13 @@ export function useAllInsumos() {
     refetchInterval: 3000,
   });
 }
-export function useManagerStats() {
+export function useManagerStats(mesParam?: number, anoParam?: number) {
   return useQuery({
-    queryKey: ['flowrev-manager-stats'],
+    queryKey: ['flowrev-manager-stats', mesParam, anoParam],
     queryFn: async () => {
       const now = new Date();
-      const mesAtual = now.getMonth() + 1;
-      const anoAtual = now.getFullYear();
+      const mesAtual = mesParam || now.getMonth() + 1;
+      const anoAtual = anoParam || now.getFullYear();
 
       // 0. Fetch ALL Active Products
       const { data: allProducts, error: errProd } = await supabase

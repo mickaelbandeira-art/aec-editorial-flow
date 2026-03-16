@@ -46,7 +46,7 @@ export function ProductInsumoCard({ insumo, tipo, onClick }: ProductInsumoCardPr
             <div
                 ref={setNodeRef}
                 style={style}
-                className="opacity-50 bg-background border-2 border-primary/20 rounded-lg h-[140px]"
+                className="opacity-50 bg-slate-100 border-2 border-slate-900 border-dashed rounded-none h-[140px]"
             />
         );
     }
@@ -59,13 +59,13 @@ export function ProductInsumoCard({ insumo, tipo, onClick }: ProductInsumoCardPr
 
     return (
         <div ref={setNodeRef} style={style} {...attributes} {...listeners} onClick={onClick} id={`card-${insumo.id}`} data-prazo={insumo.data_limite}>
-            <div className="card group relative bg-white rounded-[8px] p-[10px] mb-[8px] cursor-grab transition-all duration-200 shadow-[0_1px_3px_rgba(0,0,0,0.12)] hover:bg-[#f4f5f7] hover:shadow-[0_2px_5px_rgba(0,0,0,0.2)] active:cursor-grabbing">
+            <div className="card group relative bg-white rounded-none border-2 border-slate-900 p-[10px] mb-[8px] cursor-grab transition-transform duration-200 shadow-[2px_2px_0_0_rgba(15,23,42,1)] hover:-translate-y-1 hover:shadow-[4px_4px_0_0_rgba(15,23,42,1)] active:shadow-none active:translate-y-0 active:cursor-grabbing">
 
-                {/* Trello-like colored label */}
-                <div className="h-[6px] w-[40px] rounded-[4px] mb-[5px] bg-[#61bd4f]" title={tipo?.nome || "Etiqueta"}></div>
+                {/* Neo-brutalist label */}
+                <div className="h-[8px] w-[40px] border-2 border-slate-900 mb-2 bg-green-500" title={tipo?.nome || "Etiqueta"}></div>
 
                 <div className="flex justify-between items-start gap-2 mb-2">
-                    <h3 className="card-title text-[0.95rem] font-medium text-slate-800 leading-tight">
+                    <h3 className="card-title text-[11px] font-black uppercase tracking-wider text-slate-900 leading-tight">
                         <span>{insumo.titulo || tipo?.nome || "Sem Título"}</span>
                     </h3>
                 </div>
@@ -113,9 +113,9 @@ export function ProductInsumoCard({ insumo, tipo, onClick }: ProductInsumoCardPr
 
                     {/* OK Badge if approved */}
                     {insumo.status === 'aprovado' && (
-                        <Badge variant="outline" className="ml-auto bg-emerald-50 text-emerald-600 border-emerald-200 text-[10px] px-1.5 py-0 h-4 leading-none">
+                        <div className="ml-auto bg-green-300 text-green-900 border-2 border-green-900 text-[9px] uppercase font-black tracking-widest px-1.5 py-0.5 leading-none shadow-[1px_1px_0_0_rgba(20,83,45,1)]">
                             OK
-                        </Badge>
+                        </div>
                     )}
                 </div>
             </div>
