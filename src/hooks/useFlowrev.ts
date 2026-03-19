@@ -102,6 +102,7 @@ export function useInsumos(edicaoId?: string) {
           responsaveis:flowrev_insumo_responsaveis(usuario:flowrev_users(*))
         `)
         .eq('edicao_id', edicaoId)
+        .is('deleted_at', null)
         .order('created_at');
 
       if (error) throw error;
@@ -648,6 +649,8 @@ export function useSyncInsumos() {
         .from('flowrev_insumos')
         .select('tipo_insumo_id')
         .eq('edicao_id', edicaoId);
+        // Note: No .is('deleted_at', null) here because we want to avoid duplicates 
+        // even if they are in the trash.
 
       if (insumosError) throw insumosError;
 
@@ -715,6 +718,7 @@ export function useAllInsumos(mesParam?: number, anoParam?: number) {
           )
         `)
         .in('edicao_id', edicoesIds)
+        .is('deleted_at', null)
         .order('created_at');
 
       if (insumosError) throw insumosError;
@@ -775,7 +779,8 @@ export function useManagerStats(mesParam?: number, anoParam?: number) {
               produto:flowrev_produtos(nome, slug)
             )
           `)
-          .in('edicao_id', edicoesIds);
+          .in('edicao_id', edicoesIds)
+          .is('deleted_at', null);
 
         if (errInsumos) {
           console.error("Erro ao buscar insumos:", errInsumos);
@@ -1321,6 +1326,71 @@ export function useUpdatePassword() {
         console.error("Erro ao atualizar senha:", error);
         throw new Error(error.message);
       }
+    }
+  });
+}
+
+export function useDeletedInsumos(edicaoId?: string) {
+  return useQuery({
+    queryKey: ['flowrev-deleted-insumos', edicaoId],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('flowrev_insumos')
+        .select(`
+          *,
+          tipo_insumo:flowrev_tipos_insumos(*),
+          anexos:flowrev_anexos(*),
+          tags:flowrev_insumo_tags(tag:flowrev_tags(*)),
+          responsaveis:flowrev_insumo_responsaveis(usuario:flowrev_users(*))
+        `)
+        .eq('edicao_id', edicaoId)
+        .not('deleted_at', 'is', null)
+        .order('deleted_at', { ascending: false });
+
+      if (error) throw error;
+
+      type InsumoRaw = Insumo & {
+        tags: { tag: Tag }[];
+        responsaveis: { usuario: { id: string; nome: string; email: string } }[];
+      };
+
+      const rawData = data as unknown as InsumoRaw[];
+
+      return rawData.map(item => ({
+        ...item,
+        tags: item.tags?.map((t) => t.tag) || [],
+        responsaveis: item.responsaveis?.map((r) => r.usuario) || []
+      })) as Insumo[];
+    },
+    enabled: !!edicaoId,
+  });
+}
+
+export function useRestoreInsumo() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (insumoId: string) => {
+      const { data, error } = await supabase
+        .from('flowrev_insumos')
+        .update({ deleted_at: null })
+        .eq('id', insumoId)
+        .select()
+        .single();
+
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['flowrev-insumos'] });
+      queryClient.invalidateQueries({ queryKey: ['flowrev-deleted-insumos'] });
+      queryClient.invalidateQueries({ queryKey: ['flowrev-all-insumos'] });
+      queryClient.invalidateQueries({ queryKey: ['flowrev-manager-stats'] });
+      toast.success("Insumo restaurado com sucesso!");
+    },
+    onError: (error) => {
+      console.error("Erro ao restaurar insumo:", error);
+      toast.error("Erro ao restaurar insumo.");
     }
   });
 }

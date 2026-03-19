@@ -36,8 +36,9 @@ export function ClearInsumosBtn({ edicaoId, variant = "destructive", size = "sm"
         try {
             const { error, count } = await supabase
                 .from('flowrev_insumos')
-                .delete({ count: 'estimated' })
-                .eq('edicao_id', edicaoId);
+                .update({ deleted_at: new Date().toISOString() })
+                .eq('edicao_id', edicaoId)
+                .is('deleted_at', null); // Only delete active ones
 
             if (error) throw error;
 

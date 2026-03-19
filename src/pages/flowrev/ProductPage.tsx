@@ -6,8 +6,9 @@ import { usePermissions } from "@/hooks/usePermission";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card } from "@/components/ui/card";
 import { ProductInsumosBoard } from "@/components/flowrev/kanban/ProductInsumosBoard";
+import { ProductInsumosTrash } from "@/components/flowrev/kanban/ProductInsumosTrash";
 import { Button } from "@/components/ui/button";
-import { Plus, RefreshCw, Loader2, Lock } from "lucide-react";
+import { Plus, RefreshCw, Loader2, Lock, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { DeadlineAlert } from "@/components/flowrev/DeadlineAlert";
 import { ClearInsumosBtn } from "@/components/flowrev/ClearInsumosBtn";
@@ -109,6 +110,12 @@ export default function ProductPage() {
                     <div className="flex justify-between items-center mb-4">
                         <TabsList>
                             <TabsTrigger value="list">Lista</TabsTrigger>
+                            {edicao && canManage && (
+                                <TabsTrigger value="trash" className="gap-2">
+                                    <Trash2 className="w-3.5 h-3.5" />
+                                    Lixeira
+                                </TabsTrigger>
+                            )}
                         </TabsList>
 
                         {!hasCurrentMonthEdition && !isLoading && canManage && (
@@ -157,12 +164,17 @@ export default function ProductPage() {
                         <>
                             <TabsContent value="list" className="flex-1 mt-0 h-full">
                                 <Card className="p-4 h-full border-0 shadow-none bg-transparent">
-                                    {/* Using Board component but rendered for 'Lista' tab. 
-                                        User asked to remove "Board (Kanban)" button, implying they want the 'Lista' view 
-                                        which in the screenshot is the board logic. */}
                                     <ProductInsumosBoard insumos={insumos || []} edicaoId={edicao.id} searchTerm={searchTerm} />
                                 </Card>
                             </TabsContent>
+
+                            {canManage && (
+                                <TabsContent value="trash" className="flex-1 mt-0 h-full">
+                                    <Card className="p-4 h-full border-0 shadow-none bg-transparent">
+                                        <ProductInsumosTrash edicaoId={edicao.id} />
+                                    </Card>
+                                </TabsContent>
+                            )}
                         </>
                     )}
                 </Tabs>

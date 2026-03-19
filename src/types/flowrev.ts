@@ -163,6 +163,7 @@ export interface Insumo {
   motivo_ajuste: string | null;
   created_at: string;
   updated_at: string;
+  deleted_at?: string | null;
   tipo_insumo?: TipoInsumo;
   titulo?: string;
   anexos?: Anexo[];
